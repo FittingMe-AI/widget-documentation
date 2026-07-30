@@ -1,7 +1,7 @@
 ---
-title: "Troubleshoot Fitting Me Widget Issues"
+title: "Troubleshoot Common Fitting Me Widget and API Issues"
 sidebarTitle: "Troubleshooting"
-description: "Diagnose and fix common Fitting Me issues: widget not loading, CSS not applying, authentication errors, and API errors."
+description: "Step-by-step fixes for common Fitting Me problems: widget not loading, styles not applying, 401 and 404 API errors, and broken widget layouts."
 ---
 
 Most issues with the Fitting Me widget fall into a small number of categories: the widget not appearing on the page, styles not applying as expected, or API requests returning errors. This guide walks you through the most common symptoms, what causes them, and the specific steps you can take to resolve each one. Work through the accordion section that matches your issue, and if you are still stuck after following the steps, reach out to the support options at the bottom of this page.
@@ -79,7 +79,7 @@ Most issues with the Fitting Me widget fall into a small number of categories: t
 
     The header must be formatted exactly as:
 
-    ```
+    ```http
     Authorization: Bearer YOUR_API_KEY
     ```
 
@@ -105,8 +105,8 @@ Most issues with the Fitting Me widget fall into a small number of categories: t
 
     Ensure your URL matches the expected format from the API reference. For example, widget key endpoints follow this pattern:
 
-    ```
-    https://api.fitting.me/v1/widget-keys/{id}
+    ```http
+    GET https://api.fitting.me/v1/widget-keys/{id}
     ```
 
     Common mistakes include omitting `/v1/`, adding an extra trailing slash, or misspelling `widget-keys`.

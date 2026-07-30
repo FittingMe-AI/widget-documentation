@@ -1,7 +1,7 @@
 ---
-title: "GET /widget-keys — List All Widget Keys"
+title: "GET /widget-keys — Browse and Paginate All Widget Keys"
 sidebarTitle: "List Keys"
-description: "GET /widget-keys — list all widget keys for your account. Supports pagination and filtering by active status."
+description: "List all widget keys associated with your Fitting Me account. Supports pagination via limit and offset, and filtering by active status."
 ---
 
 Use this endpoint to retrieve all widget keys associated with your Fitting Me account. The response is paginated, so you can use the `limit` and `offset` parameters to page through large result sets. You can also filter results to show only active or inactive keys.
@@ -91,6 +91,13 @@ A successful request returns a `200 OK` status and a paginated response object.
   "offset": 0
 }
 ```
+
+## Error Responses
+
+| Status | Description |
+|--------|-------------|
+| `400 Bad Request` | A query parameter has an invalid value — for example, `limit` exceeds `100` or `active` is not a boolean. |
+| `401 Unauthorized` | The `Authorization` header is missing or your API key is invalid. |
 
 <Tip>
   To retrieve the next page of results, increment `offset` by the value of `limit`. For example, if you requested `limit=20` and received 20 results, pass `offset=20` in your next request to fetch the following page.

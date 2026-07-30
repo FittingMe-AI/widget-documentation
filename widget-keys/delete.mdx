@@ -1,7 +1,7 @@
 ---
-title: "Delete a Widget Key from Fitting Me"
+title: "How to Delete a Widget Key from Fitting Me"
 sidebarTitle: "Delete"
-description: "Permanently delete a widget key. Deleting a key immediately stops all embeds using that key from rendering."
+description: "Permanently delete a widget key and immediately stop all embeds that depend on it. Learn what to do before deleting to avoid disruption to your visitors."
 ---
 
 You can delete a widget key when you no longer need it. Once deleted, the key and all its associated configuration are permanently removed from Fitting Me — there is no way to restore it.
@@ -12,7 +12,7 @@ You can delete a widget key when you no longer need it. Once deleted, the key an
 
 ## Delete a key via the API
 
-Send a `DELETE` request with the key's ID in the path:
+Send a `DELETE` request to `https://api.fitting.me/v1/widget-keys/:id` with the key's ID in the path:
 
 ```bash
 curl -X DELETE https://api.fitting.me/v1/widget-keys/wk_01HXYZ123 \
@@ -26,7 +26,7 @@ A successful deletion returns an empty `204 No Content` response. No response bo
 Work through this checklist before sending the delete request to avoid unintended disruption:
 
 - **Remove or replace the embed script** on every page that uses this key. Leaving the old embed script in place will result in a broken or missing widget for your visitors.
-- **Download or back up any CSS customizations** associated with this key. Once the key is deleted, any styles scoped to it are gone and cannot be recovered.
+- **Download or back up any CSS customizations** associated with this key. You can retrieve them with `GET https://api.fitting.me/v1/widget-keys/:id/css` before deleting. Once the key is deleted, any styles scoped to it are gone and cannot be recovered.
 - **Consider deactivating instead of deleting** if there is any chance you will need this key again in the future. Deactivation is reversible; deletion is not.
 
 ## Alternatives to deletion

@@ -1,5 +1,5 @@
 ---
-title: "Update a Widget Key in Fitting Me"
+title: "How to Update a Widget Key in Fitting Me"
 sidebarTitle: "Update"
 description: "Update your widget key's name, description, or active status. Changes take effect immediately across all embeds using this key."
 ---
@@ -8,7 +8,7 @@ You can update a widget key at any time to change its display name, description,
 
 ## Update a key via the API
 
-Send a `PATCH` request with the fields you want to change. You only need to include the fields you're updating; omitted fields remain unchanged.
+Send a `PATCH` request to `https://api.fitting.me/v1/widget-keys/:id` with the fields you want to change. You only need to include the fields you're updating; omitted fields remain unchanged.
 
 ```bash
 curl -X PATCH https://api.fitting.me/v1/widget-keys/wk_01HXYZ123 \
@@ -52,3 +52,23 @@ The API returns the full updated widget key object:
 <Warning>
   Changing a key's `name` does not affect the embed script or the embeddable token (`key` value). The token is permanent and remains the same regardless of any updates you make. You do not need to update your embed script when you rename a key.
 </Warning>
+
+## Update a key's CSS styles
+
+To update the visual appearance of a widget rather than its metadata, use the CSS endpoint. Send a `PUT` request to `https://api.fitting.me/v1/widget-keys/:id/css` with your stylesheet as plain text:
+
+```bash
+curl -X PUT https://api.fitting.me/v1/widget-keys/wk_01HXYZ123/css \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: text/css" \
+  --data-binary '.fitting-widget { font-family: sans-serif; border-radius: 8px; }'
+```
+
+To retrieve the current styles for a key before overwriting them, use `GET` on the same path:
+
+```bash
+curl https://api.fitting.me/v1/widget-keys/wk_01HXYZ123/css \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The `PUT` endpoint replaces the entire stylesheet for the key. To remove all custom styles, send a `PUT` request with an empty body. For full details on theming options, see [CSS Styling](/customization/css-styling).

@@ -1,7 +1,7 @@
 ---
-title: "Authenticate API Requests to Fitting Me"
+title: "Authenticate Your Fitting Me API Requests Securely"
 sidebarTitle: "Authentication"
-description: "All Fitting Me API requests require a Bearer token. Learn how to get your API key and pass it in the Authorization header."
+description: "All Fitting Me API requests require a Bearer token. Learn how to generate your API key and pass it correctly in the Authorization header."
 ---
 
 Every request you make to the Fitting Me API must be authenticated using an API key passed as a Bearer token in the `Authorization` header. There are no cookies, sessions, or OAuth flows to manage — just a single header value that you include with every call. This keeps integration straightforward and works reliably from any server-side environment, CI pipeline, or HTTP client.
@@ -16,7 +16,7 @@ Your key is only shown once at the moment of creation. If you navigate away with
 
 Include your API key in the `Authorization` header of every request using the `Bearer` scheme:
 
-```
+```text
 Authorization: Bearer YOUR_API_KEY
 ```
 

@@ -1,7 +1,7 @@
 ---
-title: "DELETE /widget-keys/:id — Remove a Widget Key"
+title: "DELETE /widget-keys/:id — Permanently Delete a Widget Key"
 sidebarTitle: "Delete Key"
-description: "DELETE /widget-keys/:id — permanently delete a Fitting Me widget key. This action cannot be undone and stops all embeds using this key."
+description: "Permanently delete a Fitting Me widget key. This action cannot be undone and immediately stops all embeds that rely on the deleted key's token."
 ---
 
 Use this endpoint to permanently remove a widget key from your Fitting Me account. Once deleted, any embed on your site that references this key's token will stop rendering the widget immediately.
@@ -44,8 +44,8 @@ A successful deletion returns a `204 No Content` status with an empty response b
 
 | Status | Description |
 |--------|-------------|
-| `404 Not Found` | No widget key with the supplied ID exists on your account. Verify the ID and ensure you are using the correct API key. |
 | `401 Unauthorized` | The `Authorization` header is missing or your API key is invalid. |
+| `404 Not Found` | No widget key with the supplied ID exists on your account. Verify the ID and ensure you are using the correct API key. |
 
 <Tip>
   If you want to temporarily stop a widget from rendering without permanently losing the key, consider setting `active` to `false` via the [Update Key](/api-reference/widget-keys/update) endpoint instead. You can reactivate the key at any time.

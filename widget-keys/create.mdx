@@ -1,7 +1,7 @@
 ---
-title: "Create a Widget Key in Fitting Me"
+title: "How to Create a Widget Key in Fitting Me"
 sidebarTitle: "Create"
-description: "Create a new widget key to embed a Fitting Me widget. Each key is a unique token tied to a specific widget configuration."
+description: "Create a new widget key to start embedding a Fitting Me widget on your site. Each key generates a unique embeddable token tied to its own configuration and CSS styles."
 ---
 
 Creating a widget key is the first step to embedding a Fitting Me widget on your site. Once created, Fitting Me generates a unique embeddable token — the `key` value — that you add to your embed script. You can create keys from the Fitting Me dashboard or programmatically via the API.
@@ -25,7 +25,7 @@ Creating a widget key is the first step to embedding a Fitting Me widget on your
 
 ## Create a key via the API
 
-You can also create widget keys programmatically by sending a `POST` request to the widget keys endpoint.
+You can also create widget keys programmatically by sending a `POST` request to `https://api.fitting.me/v1/widget-keys`.
 
 ```bash
 curl -X POST https://api.fitting.me/v1/widget-keys \
@@ -59,7 +59,27 @@ A successful request returns the new widget key object:
 </ParamField>
 
 <Tip>
-  Save the `key` value from the response immediately — this is the embeddable token you place in your embed script. You can always retrieve it again from the dashboard or via the [List All Keys](/api-reference/widget-keys/list) endpoint, but having it on hand makes setup faster.
+  Save the `key` value from the response immediately — this is the embeddable token you place in your embed script. You can always retrieve it again by calling `GET https://api.fitting.me/v1/widget-keys/:id` or from the dashboard, but having it on hand makes setup faster.
 </Tip>
 
-Once your key is created, you can customize its appearance by adding your own CSS styles. See [CSS Styling](/customization/css-styling) to learn how to theme your new widget.
+## Retrieve a key after creation
+
+To fetch a single widget key at any time, send a `GET` request with the key's `id`:
+
+```bash
+curl https://api.fitting.me/v1/widget-keys/wk_01HXYZ123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+To list all widget keys for your account, omit the ID:
+
+```bash
+curl https://api.fitting.me/v1/widget-keys \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Both endpoints return widget key objects using the same shape as the create response above.
+
+## Next steps
+
+Once your key is created, you can customize its appearance by uploading CSS styles scoped to that key. See [CSS Styling](/customization/css-styling) to learn how to theme your new widget. When you need to rename a key or toggle its active state, see [Update a Key](/widget-keys/update).

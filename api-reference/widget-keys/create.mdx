@@ -1,7 +1,7 @@
 ---
-title: "POST /widget-keys — Create a Widget Key"
+title: "POST /widget-keys — Create a Widget Key for Your Account"
 sidebarTitle: "Create Key"
-description: "POST /widget-keys — create a new Fitting Me widget key. Accepts name and description. Returns the new widget key object with its embed token."
+description: "Create a new Fitting Me widget key for your account. Accepts a name, description, and theme. Returns the new widget key object including its embed token."
 ---
 
 Use this endpoint to create a new widget key for your Fitting Me account. Each widget key includes a unique embed token that you use to initialize the widget on your site. Once created, you can customize the widget's appearance through its associated CSS configuration.
@@ -100,6 +100,14 @@ A successful request returns a `201 Created` status and the newly created widget
   "updatedAt": "2024-05-14T10:23:45Z"
 }
 ```
+
+## Error Responses
+
+| Status | Description |
+|--------|-------------|
+| `400 Bad Request` | The request body is malformed or missing required fields. Check that `name` is present and that `theme` is one of the accepted values. |
+| `401 Unauthorized` | The `Authorization` header is missing or your API key is invalid. |
+| `422 Unprocessable Entity` | The request was well-formed but failed validation — for example, `name` was an empty string. |
 
 <Tip>
   Store the returned `key` value securely after creation. While you can always retrieve the full widget key object by ID, the embed token is sensitive and should be kept out of version control.

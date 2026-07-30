@@ -1,7 +1,7 @@
 ---
-title: "Customize Widget CSS Styles in Fitting Me"
+title: "Apply and Fetch Custom Widget CSS Styles in Fitting Me"
 sidebarTitle: "CSS Styling"
-description: "Apply custom CSS to any Fitting Me widget key. Style fonts, colors, spacing, and layout to match your brand identity."
+description: "Apply custom CSS to any Fitting Me widget key via the API. Control fonts, colors, spacing, and layout to match your brand perfectly."
 ---
 
 Fitting Me lets you attach a CSS stylesheet directly to each widget key, so every widget renders with your brand's exact look and feel. Whether you need to match a design system or simply adjust a few colors, you control the styles through a simple API — no configuration files or deployments required.
@@ -20,9 +20,8 @@ Send a `PUT` request to the `/widget-keys/{id}/css` endpoint with your CSS as th
 curl -X PUT https://api.fitting.me/v1/widget-keys/wk_01HXYZ123/css \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: text/css" \
-  --data-raw '
-.fitting-widget {
-  font-family: '"'"'Inter'"'"', sans-serif;
+  --data-raw '.fitting-widget {
+  font-family: Inter, sans-serif;
   color: #1a1a1a;
   background-color: #ffffff;
   border-radius: 8px;
@@ -36,8 +35,7 @@ curl -X PUT https://api.fitting.me/v1/widget-keys/wk_01HXYZ123/css \
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-}
-'
+}'
 ```
 
 A successful request returns `200 OK` with the stored CSS string in the response body, confirming exactly what was saved.

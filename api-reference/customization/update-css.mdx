@@ -1,7 +1,7 @@
 ---
-title: "PUT /widget-keys/:id/css — Update Widget CSS"
+title: "PUT /widget-keys/:id/css — Replace Widget CSS Styles"
 sidebarTitle: "Update CSS"
-description: "PUT /widget-keys/:id/css — replace the CSS stylesheet for a Fitting Me widget key. Send raw CSS in the request body; changes apply immediately."
+description: "Fully replace the CSS stylesheet for a Fitting Me widget key. Send raw CSS in the request body; new styles are served immediately with no deploy step needed."
 ---
 
 This endpoint replaces the entire CSS stylesheet for a widget key with the CSS string you provide in the request body. As soon as the request succeeds, Fitting Me begins serving the new styles — there is no separate publish or deploy step required. Send an empty body to clear all custom CSS and revert the widget to its applied theme defaults.
@@ -61,6 +61,25 @@ curl -X PUT https://api.fitting.me/v1/widget-keys/wk_01HXYZ123/css \
 ### 200 OK
 
 The CSS was validated and stored successfully. The response body contains the CSS string that is now being served for this widget key, confirming exactly what was saved.
+
+```css
+.fitting-widget {
+  font-family: Inter, sans-serif;
+  color: #1a1a1a;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.fitting-widget__button {
+  background-color: #ef7025;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+```
 
 ### 400 Bad Request
 

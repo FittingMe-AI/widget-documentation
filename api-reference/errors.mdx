@@ -1,7 +1,7 @@
 ---
-title: "API Error Codes and Responses for Fitting Me"
+title: "Fitting Me API Error Codes and HTTP Status Reference"
 sidebarTitle: "Errors"
-description: "Reference for all Fitting Me API error codes, HTTP status codes, and how to handle them in your integration."
+description: "A complete reference of every Fitting Me API error code, HTTP status code, and the error response shape, with recommended handling strategies for each."
 ---
 
 When a Fitting Me API request cannot be completed successfully, the API returns a structured JSON error body alongside an appropriate HTTP status code. Every error response follows the same shape, so you can write a single error-handling routine that works across all endpoints. The `code` field gives you a stable, machine-readable string to branch on, the `message` field explains what went wrong in plain English, and the `status` field mirrors the HTTP status code for convenience.
@@ -142,7 +142,7 @@ Each `code` value maps to a specific class of problem. Expand an entry below for
 
 The example below shows a pattern you can use in any JavaScript fetch-based integration. Check `res.ok` before processing the response body, parse the structured error, and branch on `error.code` to respond appropriately in your application:
 
-```js
+```javascript
 const res = await fetch('https://api.fitting.me/v1/widget-keys', {
   method: 'POST',
   headers: {

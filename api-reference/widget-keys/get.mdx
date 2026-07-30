@@ -1,7 +1,7 @@
 ---
-title: "GET /widget-keys/:id — Retrieve a Widget Key"
+title: "GET /widget-keys/:id — Retrieve a Single Widget Key"
 sidebarTitle: "Get Key"
-description: "GET /widget-keys/:id — retrieve a single Fitting Me widget key by its ID. Returns the full widget key object."
+description: "Retrieve the full details of a single Fitting Me widget key by its unique ID, including its embed token, theme, and current active status."
 ---
 
 Use this endpoint to retrieve the full details of a specific widget key by its unique ID. This is useful for confirming configuration, checking a key's active status, or fetching its embed token for use in your integration.
@@ -83,6 +83,13 @@ A successful request returns a `200 OK` status and the full widget key object.
 }
 ```
 
+## Error Responses
+
+| Status | Description |
+|--------|-------------|
+| `401 Unauthorized` | The `Authorization` header is missing or your API key is invalid. |
+| `404 Not Found` | No widget key with the supplied ID exists on your account. Verify the ID and ensure you are authenticating with the correct API key. |
+
 <Note>
-  If you supply an ID that does not exist or does not belong to your account, the API returns `404 Not Found`. Double-check the ID value and ensure you are authenticating with the correct API key.
+  Widget key IDs are returned in the response body whenever you create a key or call the [List Keys](/api-reference/widget-keys/list) endpoint. Copy the `id` field from those responses to use here.
 </Note>

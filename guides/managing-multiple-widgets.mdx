@@ -1,7 +1,7 @@
 ---
-title: "Managing Multiple Widgets with Fitting Me"
+title: "Managing Multiple Fitting Me Widgets Across Your App"
 sidebarTitle: "Multiple Widgets"
-description: "Use multiple widget keys to power different widgets across your app, each with its own CSS styles and configuration."
+description: "Organize and manage multiple Fitting Me widget keys across pages, environments, and user segments — each with independent styles and configuration."
 ---
 
 Every widget key in Fitting Me is an independent configuration unit. This means you can run multiple widgets across your site or app — each with its own CSS stylesheet, active status, and metadata — without any of them interfering with one another. Rather than sharing a single key across your entire application, you should create a dedicated key for each widget so you can manage, style, and rotate them individually.
@@ -73,23 +73,27 @@ Use this endpoint to audit which keys are active, verify names match your conven
 
 The Fitting Me API does not expose a bulk update endpoint — to update multiple widget keys, you loop over each key ID and send a `PATCH` request for each one individually. Here is a short JavaScript example that activates a list of keys:
 
-```js
+```javascript
 const keys = ['wk_01', 'wk_02', 'wk_03'];
 
-for (const id of keys) {
-  await fetch(`https://api.fitting.me/v1/widget-keys/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Authorization': 'Bearer YOUR_API_KEY',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ active: true }),
-  });
+async function activateKeys(keys) {
+  for (const id of keys) {
+    await fetch(`https://api.fitting.me/v1/widget-keys/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer YOUR_API_KEY',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ active: true }),
+    });
+  }
 }
+
+activateKeys(keys);
 ```
 
 You can adapt this pattern to deactivate keys, update names, or swap out CSS — just change the request body to match the fields you want to update.
 
 <Note>
-  Keep a record of which widget key is deployed to which page or environment — for example, in your internal documentation or a shared configuration file. When you need to rotate a compromised key or delete one that is no longer in use, knowing exactly where each key appears saves you from having to audit your entire codebase under pressure.
+  Keep a record of which widget key is deployed to which page or environment — for example, in a shared configuration file or your team's docs. When you need to rotate a compromised key or delete one that is no longer in use, knowing exactly where each key appears saves you from having to audit your entire codebase under pressure.
 </Note>
