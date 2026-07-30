@@ -1,0 +1,95 @@
+---
+title: "Managing Multiple Widgets with Fitting Me"
+sidebarTitle: "Multiple Widgets"
+description: "Use multiple widget keys to power different widgets across your app, each with its own CSS styles and configuration."
+---
+
+Every widget key in Fitting Me is an independent configuration unit. This means you can run multiple widgets across your site or app — each with its own CSS stylesheet, active status, and metadata — without any of them interfering with one another. Rather than sharing a single key across your entire application, you should create a dedicated key for each widget so you can manage, style, and rotate them individually.
+
+## When to use multiple keys
+
+There are several situations where creating more than one widget key is the right approach:
+
+- **Different pages** — A widget on your checkout page, one on your support portal, and one on your onboarding flow each serve different user intents. Giving each its own key lets you tailor the appearance and configuration to fit the context.
+- **Different environments** — Keeping separate keys for development, staging, and production means changes you test in staging never affect your live widget.
+- **Different user segments** — If you want to show a widget with a distinct look to different groups of users (for example, free-tier vs. paid-tier customers), separate keys let you upload different stylesheets for each.
+- **A/B testing widget styles** — Assign one key per variant and split traffic between them to measure which design drives better engagement.
+
+## Organizing your keys
+
+As the number of widget keys grows, a consistent naming convention becomes essential. A pattern that works well is `[purpose]-[environment]`, where `purpose` describes what the widget is for and `environment` identifies where it is deployed. Some examples:
+
+| Name | Purpose |
+|---|---|
+| `checkout-prod` | Checkout page widget in production |
+| `checkout-staging` | Checkout page widget in staging |
+| `support-prod` | Support portal widget in production |
+| `onboarding-dev` | Onboarding flow widget in local development |
+
+You can set the `name` field when you create or update a widget key. Keeping names descriptive saves time when you need to find and act on a specific key later.
+
+## Listing your keys
+
+To see all the widget keys associated with your account, send a `GET` request to the `/widget-keys` endpoint.
+
+```http
+GET https://api.fitting.me/v1/widget-keys
+Authorization: Bearer YOUR_API_KEY
+```
+
+The response is an array of widget key objects:
+
+```json
+{
+  "data": [
+    {
+      "id": "wk_01",
+      "name": "checkout-prod",
+      "public_key": "pk_live_abc123def456",
+      "active": true,
+      "created_at": "2024-03-10T09:00:00Z"
+    },
+    {
+      "id": "wk_02",
+      "name": "support-prod",
+      "public_key": "pk_live_789ghijkl012",
+      "active": true,
+      "created_at": "2024-03-12T14:30:00Z"
+    },
+    {
+      "id": "wk_03",
+      "name": "onboarding-dev",
+      "public_key": "pk_test_mno345pqr678",
+      "active": false,
+      "created_at": "2024-04-01T11:15:00Z"
+    }
+  ]
+}
+```
+
+Use this endpoint to audit which keys are active, verify names match your conventions, or pull IDs for use in bulk operations.
+
+## Bulk operations
+
+The Fitting Me API does not expose a bulk update endpoint — to update multiple widget keys, you loop over each key ID and send a `PATCH` request for each one individually. Here is a short JavaScript example that activates a list of keys:
+
+```js
+const keys = ['wk_01', 'wk_02', 'wk_03'];
+
+for (const id of keys) {
+  await fetch(`https://api.fitting.me/v1/widget-keys/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': 'Bearer YOUR_API_KEY',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ active: true }),
+  });
+}
+```
+
+You can adapt this pattern to deactivate keys, update names, or swap out CSS — just change the request body to match the fields you want to update.
+
+<Note>
+  Keep a record of which widget key is deployed to which page or environment — for example, in your internal documentation or a shared configuration file. When you need to rotate a compromised key or delete one that is no longer in use, knowing exactly where each key appears saves you from having to audit your entire codebase under pressure.
+</Note>

@@ -1,0 +1,65 @@
+---
+title: "Create a Widget Key in Fitting Me"
+sidebarTitle: "Create"
+description: "Create a new widget key to embed a Fitting Me widget. Each key is a unique token tied to a specific widget configuration."
+---
+
+Creating a widget key is the first step to embedding a Fitting Me widget on your site. Once created, Fitting Me generates a unique embeddable token — the `key` value — that you add to your embed script. You can create keys from the Fitting Me dashboard or programmatically via the API.
+
+## Create a key via the dashboard
+
+<Steps>
+  <Step title="Open the Widget Keys section">
+    Log in to your Fitting Me dashboard and navigate to **Widget Keys** in the sidebar.
+  </Step>
+  <Step title="Click Create Key">
+    Select the **Create Key** button in the top-right corner of the Widget Keys page.
+  </Step>
+  <Step title="Fill in the key details">
+    Enter a **Name** for your key. This label helps you identify the widget in your dashboard, so choose something descriptive (for example, "Checkout Widget"). Optionally, add a **Description** to record additional context.
+  </Step>
+  <Step title="Save the key">
+    Click **Save**. Fitting Me generates your widget key and displays the embeddable token. Copy the `key` value now — you'll add it to your embed script.
+  </Step>
+</Steps>
+
+## Create a key via the API
+
+You can also create widget keys programmatically by sending a `POST` request to the widget keys endpoint.
+
+```bash
+curl -X POST https://api.fitting.me/v1/widget-keys \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Checkout Widget", "description": "Widget for checkout page"}'
+```
+
+A successful request returns the new widget key object:
+
+```json
+{
+  "id": "wk_01HXYZ123",
+  "key": "pk_live_abc123def456",
+  "name": "Checkout Widget",
+  "description": "Widget for checkout page",
+  "active": true,
+  "createdAt": "2024-01-15T10:30:00Z",
+  "updatedAt": "2024-01-15T10:30:00Z"
+}
+```
+
+## Request body fields
+
+<ParamField body="name" type="string" required>
+  A display name for this widget key. This label appears in your Fitting Me dashboard and helps you identify which widget the key belongs to.
+</ParamField>
+
+<ParamField body="description" type="string">
+  An optional description for this widget key. Use this field to record additional context, such as the page or team that owns the widget.
+</ParamField>
+
+<Tip>
+  Save the `key` value from the response immediately — this is the embeddable token you place in your embed script. You can always retrieve it again from the dashboard or via the [List All Keys](/api-reference/widget-keys/list) endpoint, but having it on hand makes setup faster.
+</Tip>
+
+Once your key is created, you can customize its appearance by adding your own CSS styles. See [CSS Styling](/customization/css-styling) to learn how to theme your new widget.

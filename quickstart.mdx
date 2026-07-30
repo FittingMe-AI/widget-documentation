@@ -1,47 +1,91 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with Fitting Me in 5 Minutes"
+sidebarTitle: "Quickstart"
+description: "Create your first Fitting Me widget key and customize its CSS style in under 5 minutes with this step-by-step guide."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
-
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+This guide walks you through everything you need to go from zero to a live, styled widget embed. By the end, you'll have an API key in hand, a widget key created via the Fitting Me API, a working embed snippet ready to drop into any webpage, and a custom CSS style applied to your widget — all in about five minutes.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Get your API key">
+    Sign up for a Fitting Me account at [app.fitting.me](https://app.fitting.me) if you haven't already. Once you're logged in, navigate to **Settings → API Keys** in the left sidebar and click **Generate New Key**. Copy the key and store it somewhere safe — you'll use it to authenticate every API request.
 
-    ```bash
-    npm install your-package
+    Your API key looks like this:
+
     ```
+    fme_live_a1b2c3d4e5f6g7h8i9j0klmnopqrstuv
+    ```
+
+    Keep this value private. Never commit it to source control or expose it in client-side code.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+
+  <Step title="Create a widget key">
+    With your API key ready, make a `POST` request to the `/widget-keys` endpoint to create your first widget key. Give it a descriptive name so you can identify it in the dashboard later.
 
     ```bash
-    your-cli init
+    curl -X POST https://api.fitting.me/v1/widget-keys \
+      -H "Authorization: Bearer fme_live_a1b2c3d4e5f6g7h8i9j0klmnopqrstuv" \
+      -H "Content-Type: application/json" \
+      -d '{"name": "My First Widget"}'
     ```
+
+    A successful response returns the new widget key object:
+
+    ```json
+    {
+      "id": "wk_7xQp2mNcRt9Ld3YsZa1FoB",
+      "key": "wgt_4Kf8nRxTmZpLqD2sYjW6cUeV",
+      "name": "My First Widget",
+      "createdAt": "2024-11-15T10:32:44.000Z"
+    }
+    ```
+
+    Save the `id` and `key` values — you'll need them in the next two steps.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="Embed the widget">
+    Add the Fitting Me loader script to your webpage and pass the `key` value you received in the previous step. Place this snippet just before the closing `</body>` tag.
+
+    ```html
+    <script
+      src="https://cdn.fitting.me/widget.js"
+      data-widget-key="wgt_4Kf8nRxTmZpLqD2sYjW6cUeV"
+      async
+    ></script>
+    ```
+
+    Once the page loads, Fitting Me will automatically initialize the widget and render it according to the configuration tied to that key. You should see the default widget appearance — you'll style it in the next step.
+  </Step>
+
+  <Step title="Customize the style">
+    Push custom CSS to your widget key by making a `PUT` request to the `/css` sub-resource using the widget key's `id`. The request body is a plain CSS string that gets applied to the widget's shadow DOM.
 
     ```bash
-    your-cli start
+    curl -X PUT https://api.fitting.me/v1/widget-keys/wk_7xQp2mNcRt9Ld3YsZa1FoB/css \
+      -H "Authorization: Bearer fme_live_a1b2c3d4e5f6g7h8i9j0klmnopqrstuv" \
+      -H "Content-Type: text/css" \
+      --data-raw '.widget-container {
+        font-family: "Inter", sans-serif;
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px;
+        color: #111827;
+      }
+
+      .widget-button {
+        background-color: #6366f1;
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+      }'
     ```
+
+    A `200 OK` response confirms the styles have been saved. Reload your page and the widget will reflect the new CSS immediately — no redeployment required.
   </Step>
 </Steps>
 
 <Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
-
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+  You've covered the essentials, but there's a lot more you can do with the Fitting Me API — including listing and deleting widget keys, managing multiple styles, and handling error responses gracefully. Head to the full [API Reference](/api-reference) to explore every available endpoint.
 </Tip>

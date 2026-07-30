@@ -1,0 +1,151 @@
+---
+title: "Integrate the Fitting Me Widget Into Your Website"
+sidebarTitle: "Integration"
+description: "Embed the Fitting Me widget on any website in minutes. Add the script tag, pass your widget key, and you're live."
+---
+
+Integrating the Fitting Me widget into your website is a straightforward process that takes only a few minutes. You start by creating a widget key through the API, then drop a single script tag into your HTML, place the widget container where you want it to appear, and optionally apply custom CSS to match your brand. Once those pieces are in place, your widget is live and serving visitors.
+
+<Steps>
+  <Step title="Create a widget key">
+    Before you can embed the widget, you need a widget key. Widget keys authenticate the embed script and tell the Fitting Me CDN which configuration and styles to load. Head to the [Create Widget Key](/widget-keys/create) reference to see the full request schema, or use the quick curl example below to get started immediately.
+
+    ```bash
+    curl -X POST https://api.fitting.me/v1/widget-keys \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "My Website Widget",
+        "active": true
+      }'
+    ```
+
+    The response includes a `public_key` field — that is the value you will use as `data-key` in the embed script.
+  </Step>
+
+  <Step title="Add the embed script">
+    Add the following `<script>` tag to any page where you want the widget to appear. Replace `pk_live_abc123def456` with the `public_key` returned when you created your widget key. The `async` attribute ensures the script loads without blocking the rest of your page.
+
+    ```html
+    <script
+      src="https://cdn.fitting.me/widget.js"
+      data-key="pk_live_abc123def456"
+      async
+    ></script>
+    ```
+  </Step>
+
+  <Step title="Place the widget container">
+    Add the following `<div>` to your HTML wherever you want the widget to render. The embed script looks for this element by its `id` and mounts the widget inside it.
+
+    ```html
+    <div id="fitting-widget"></div>
+    ```
+
+    You can place this `<div>` anywhere in the `<body>` of your page — inside a sidebar, a modal, a product detail section, or wherever makes the most sense for your layout.
+  </Step>
+
+  <Step title="Apply CSS styles">
+    Fitting Me lets you upload a custom stylesheet to control the look and feel of your widget. You can change colors, fonts, spacing, border radius, and more. See the [CSS Styling](/customization/css-styling) guide for the full list of available selectors and a walkthrough of how to upload your stylesheet via the API.
+  </Step>
+
+  <Step title="Test the integration">
+    Once the script tag and container are in place, open the page in your browser and confirm the widget appears. Here are a few things to check:
+
+    - **Browser console** — Open DevTools and look for any JavaScript errors or network failures related to `widget.js` or the Fitting Me API.
+    - **Network tab** — Verify the script loads with a `200` status from `cdn.fitting.me`.
+    - **Widget key status** — If the widget does not appear, confirm your widget key is set to `active: true` by calling `GET https://api.fitting.me/v1/widget-keys/{id}`.
+    - **Container element** — Inspect the DOM to confirm the `<div id="fitting-widget">` element is present and not hidden by your site's CSS.
+  </Step>
+</Steps>
+
+## Framework examples
+
+The embed script works with any website regardless of the framework you use. Select your stack below for a copy-paste example.
+
+<Tabs>
+  <Tab title="React">
+    In React, use the `useEffect` hook to inject the script tag after the component mounts. This keeps the DOM manipulation out of the render cycle and ensures the container `<div>` exists before the script runs.
+
+    ```jsx
+    import { useEffect } from 'react';
+
+    export default function FittingWidget() {
+      useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.fitting.me/widget.js';
+        script.setAttribute('data-key', 'pk_live_abc123def456');
+        script.async = true;
+        document.body.appendChild(script);
+
+        return () => {
+          document.body.removeChild(script);
+        };
+      }, []);
+
+      return <div id="fitting-widget" />;
+    }
+    ```
+
+    The cleanup function in the `useEffect` return removes the script when the component unmounts, which prevents duplicate scripts if your users navigate back to the page in a single-page app.
+  </Tab>
+
+  <Tab title="Vue">
+    In Vue, use the `mounted()` lifecycle hook to append the script after the component's template is rendered to the DOM.
+
+    ```vue
+    <template>
+      <div id="fitting-widget"></div>
+    </template>
+
+    <script>
+    export default {
+      name: 'FittingWidget',
+      mounted() {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.fitting.me/widget.js';
+        script.setAttribute('data-key', 'pk_live_abc123def456');
+        script.async = true;
+        document.body.appendChild(script);
+      },
+      beforeUnmount() {
+        const script = document.querySelector(
+          'script[src="https://cdn.fitting.me/widget.js"]'
+        );
+        if (script) document.body.removeChild(script);
+      },
+    };
+    </script>
+    ```
+  </Tab>
+
+  <Tab title="HTML">
+    If you are working with plain HTML, place the container `<div>` where you want the widget to appear and add the `<script>` tag just before the closing `</body>` tag.
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <title>My Website</title>
+      </head>
+      <body>
+
+        <!-- Place the widget container wherever you want it to appear -->
+        <div id="fitting-widget"></div>
+
+        <!-- Load the Fitting Me embed script before closing </body> -->
+        <script
+          src="https://cdn.fitting.me/widget.js"
+          data-key="pk_live_abc123def456"
+          async
+        ></script>
+      </body>
+    </html>
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+  Create separate widget keys for each environment — for example, one key for local development, one for staging, and one for production. This way you can iterate on styles in staging without affecting your live widget, and you can rotate or deactivate a compromised key without touching other environments. A naming convention like `my-widget-dev`, `my-widget-staging`, and `my-widget-prod` keeps things easy to manage.
+</Tip>

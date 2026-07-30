@@ -1,0 +1,43 @@
+---
+title: "Delete a Widget Key from Fitting Me"
+sidebarTitle: "Delete"
+description: "Permanently delete a widget key. Deleting a key immediately stops all embeds using that key from rendering."
+---
+
+You can delete a widget key when you no longer need it. Once deleted, the key and all its associated configuration are permanently removed from Fitting Me — there is no way to restore it.
+
+<Warning>
+  Deletion is permanent and takes effect immediately. Any page embedding a widget with the deleted key will stop rendering the widget the moment the deletion completes. Make sure you have removed or replaced the embed script on all affected pages before proceeding.
+</Warning>
+
+## Delete a key via the API
+
+Send a `DELETE` request with the key's ID in the path:
+
+```bash
+curl -X DELETE https://api.fitting.me/v1/widget-keys/wk_01HXYZ123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+A successful deletion returns an empty `204 No Content` response. No response body is returned.
+
+## Before you delete
+
+Work through this checklist before sending the delete request to avoid unintended disruption:
+
+- **Remove or replace the embed script** on every page that uses this key. Leaving the old embed script in place will result in a broken or missing widget for your visitors.
+- **Download or back up any CSS customizations** associated with this key. Once the key is deleted, any styles scoped to it are gone and cannot be recovered.
+- **Consider deactivating instead of deleting** if there is any chance you will need this key again in the future. Deactivation is reversible; deletion is not.
+
+## Alternatives to deletion
+
+If you want to stop a widget from rendering without permanently removing the key, you can deactivate it instead. Setting `active` to `false` immediately hides the widget on all embeds while preserving the key's configuration and CSS styles. You can reactivate the key at any time.
+
+```bash
+curl -X PATCH https://api.fitting.me/v1/widget-keys/wk_01HXYZ123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"active": false}'
+```
+
+Deactivation is the safer choice when you are temporarily retiring a widget, running a seasonal campaign, or troubleshooting an issue. See [Update a Key](/widget-keys/update) for full details on the fields you can modify.

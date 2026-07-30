@@ -1,0 +1,164 @@
+---
+title: "API Error Codes and Responses for Fitting Me"
+sidebarTitle: "Errors"
+description: "Reference for all Fitting Me API error codes, HTTP status codes, and how to handle them in your integration."
+---
+
+When a Fitting Me API request cannot be completed successfully, the API returns a structured JSON error body alongside an appropriate HTTP status code. Every error response follows the same shape, so you can write a single error-handling routine that works across all endpoints. The `code` field gives you a stable, machine-readable string to branch on, the `message` field explains what went wrong in plain English, and the `status` field mirrors the HTTP status code for convenience.
+
+## Error Response Shape
+
+Every error response from the API looks like this:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "The 'name' field is required",
+    "status": 400
+  }
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `error.code` | string | Machine-readable error identifier. Match against this in your logic. |
+| `error.message` | string | Human-readable explanation of what went wrong. |
+| `error.status` | integer | HTTP status code, mirrored inside the body for convenience. |
+
+## HTTP Status Codes
+
+The following HTTP status codes are used across Fitting Me API endpoints:
+
+| Status | Meaning |
+|--------|---------|
+| `200 OK` | Request succeeded |
+| `201 Created` | Resource created successfully |
+| `204 No Content` | Resource deleted successfully; no body returned |
+| `400 Bad Request` | Invalid request body or parameters |
+| `401 Unauthorized` | Missing or invalid API key |
+| `403 Forbidden` | Valid key but insufficient permissions |
+| `404 Not Found` | Resource does not exist |
+| `409 Conflict` | A resource with this name or identifier already exists |
+| `422 Unprocessable Entity` | Request was well-formed but failed validation rules |
+| `429 Too Many Requests` | Rate limit exceeded; see `X-RateLimit-Reset` |
+| `500 Internal Server Error` | An unexpected server-side error occurred |
+
+## Error Codes
+
+Each `code` value maps to a specific class of problem. Expand an entry below for details and recommended handling.
+
+<Accordion title="UNAUTHORIZED">
+  **HTTP Status:** `401 Unauthorized`
+
+  Your request did not include a valid Bearer token in the `Authorization` header, or the token has been revoked.
+
+  **Common causes:**
+  - The `Authorization` header is missing entirely.
+  - The token is malformed or contains extra whitespace.
+  - The API key has been deleted or expired.
+
+  **Recommended handling:** Check that you are setting `Authorization: Bearer YOUR_API_KEY` on every request. If the key was recently rotated, update your integration to use the new key.
+</Accordion>
+
+<Accordion title="FORBIDDEN">
+  **HTTP Status:** `403 Forbidden`
+
+  Your API key is valid and recognized, but it does not have permission to perform the requested action on the target resource.
+
+  **Common causes:**
+  - Attempting to access or modify a widget key that belongs to a different account.
+  - Using a read-only key to perform a write operation.
+
+  **Recommended handling:** Verify that the resource ID belongs to your account and that your API key has the required permission scope.
+</Accordion>
+
+<Accordion title="NOT_FOUND">
+  **HTTP Status:** `404 Not Found`
+
+  The resource identified by the ID in the URL path does not exist, or it has been deleted.
+
+  **Common causes:**
+  - Typo or stale reference in the resource ID.
+  - The resource was deleted before this request was made.
+
+  **Recommended handling:** Confirm the resource ID is correct by listing the relevant resources first. If your application caches IDs, invalidate stale entries when you receive this error.
+</Accordion>
+
+<Accordion title="VALIDATION_ERROR">
+  **HTTP Status:** `400 Bad Request` or `422 Unprocessable Entity`
+
+  One or more fields in the request body failed validation. The `message` field describes which field is at fault and why.
+
+  **Common causes:**
+  - A required field is missing from the request body.
+  - A field value is the wrong type (for example, a number where a string is expected).
+  - A string exceeds the maximum allowed length.
+
+  **Recommended handling:** Read the `message` for the specific field and constraint that failed, correct the request body, and retry.
+</Accordion>
+
+<Accordion title="DUPLICATE">
+  **HTTP Status:** `409 Conflict`
+
+  You attempted to create a resource using a name or identifier that already exists in your account.
+
+  **Common causes:**
+  - Creating a widget key with a `name` that matches an existing key.
+  - Retrying a create request that already succeeded.
+
+  **Recommended handling:** Either choose a different name for the new resource, or retrieve the existing resource by listing and filtering before deciding whether to create or update.
+</Accordion>
+
+<Accordion title="RATE_LIMITED">
+  **HTTP Status:** `429 Too Many Requests`
+
+  Your API key has exceeded the number of requests allowed in the current rate-limit window.
+
+  **Common causes:**
+  - Sending requests in a tight loop without any back-off.
+  - A burst of automated requests triggered simultaneously.
+
+  **Recommended handling:** Inspect the `X-RateLimit-Reset` response header for the Unix timestamp at which your limit resets, then wait until that time before retrying. Implement exponential back-off for automated retry logic to avoid hitting the limit again immediately.
+
+  <Warning>
+    Repeatedly hitting the rate limit in quick succession may result in a temporary suspension of your API key. Implement proper back-off to avoid this.
+  </Warning>
+</Accordion>
+
+<Accordion title="INTERNAL_ERROR">
+  **HTTP Status:** `500 Internal Server Error`
+
+  An unexpected error occurred on the Fitting Me servers while processing your request. This is not caused by anything in your request.
+
+  **Common causes:**
+  - Transient infrastructure issues.
+  - An unhandled edge case on the server side.
+
+  **Recommended handling:** Retry the request with exponential back-off. If the error persists across multiple retries, contact [Fitting Me support](https://fitting.me/support) and include the request details and any request ID returned in the response headers.
+</Accordion>
+
+## Handling Errors
+
+The example below shows a pattern you can use in any JavaScript fetch-based integration. Check `res.ok` before processing the response body, parse the structured error, and branch on `error.code` to respond appropriately in your application:
+
+```js
+const res = await fetch('https://api.fitting.me/v1/widget-keys', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ name: 'My Widget' }),
+});
+
+if (!res.ok) {
+  const { error } = await res.json();
+  console.error(`API Error [${error.code}]: ${error.message}`);
+  // handle error.code...
+}
+```
+
+<Tip>
+  Always branch on `error.code` rather than `error.message`. The `message` field is intended for humans and may be updated over time, whereas `code` values are stable across API versions.
+</Tip>

@@ -1,0 +1,74 @@
+---
+title: "Customize Widget CSS Styles in Fitting Me"
+sidebarTitle: "CSS Styling"
+description: "Apply custom CSS to any Fitting Me widget key. Style fonts, colors, spacing, and layout to match your brand identity."
+---
+
+Fitting Me lets you attach a CSS stylesheet directly to each widget key, so every widget renders with your brand's exact look and feel. Whether you need to match a design system or simply adjust a few colors, you control the styles through a simple API — no configuration files or deployments required.
+
+## How it works
+
+CSS is stored on a per-widget-key basis and injected at render time, so every instance of that widget picks up your styles automatically. When you update the CSS for a widget key, the changes take effect immediately — there is no cache to purge or rebuild step to trigger.
+
+Because styles are scoped to individual widget keys, you can maintain completely independent visual treatments for different widgets in your product. A checkout widget and a profile widget can each carry their own stylesheet without any risk of bleed-over.
+
+## Applying CSS via API
+
+Send a `PUT` request to the `/widget-keys/{id}/css` endpoint with your CSS as the raw request body. Set `Content-Type: text/css` so the API interprets the payload correctly.
+
+```bash
+curl -X PUT https://api.fitting.me/v1/widget-keys/wk_01HXYZ123/css \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: text/css" \
+  --data-raw '
+.fitting-widget {
+  font-family: '"'"'Inter'"'"', sans-serif;
+  color: #1a1a1a;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.fitting-widget__button {
+  background-color: #ef7025;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+'
+```
+
+A successful request returns `200 OK` with the stored CSS string in the response body, confirming exactly what was saved.
+
+## Fetching current CSS
+
+To retrieve the CSS currently attached to a widget key, send a `GET` request to the same endpoint. This is useful for auditing styles, building a CSS editor in your dashboard, or pulling styles into version control.
+
+```bash
+curl https://api.fitting.me/v1/widget-keys/wk_01HXYZ123/css \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The response body contains the raw CSS string. If no custom CSS has been applied yet, the response body will be empty and the widget will render using its default or theme styles.
+
+## CSS class reference
+
+The widget exposes a set of stable CSS classes you can target in your stylesheet. These class names follow BEM conventions and will not change between minor widget versions.
+
+| Class | Description |
+|---|---|
+| `.fitting-widget` | Root container for the entire widget |
+| `.fitting-widget__button` | Primary call-to-action button |
+| `.fitting-widget__title` | Title or heading text element |
+| `.fitting-widget__body` | Main content area of the widget |
+| `.fitting-widget__footer` | Footer section containing actions or supplementary content |
+
+<Tip>
+  Use CSS custom properties (variables) to make theming easier across your stylesheet. Define your brand tokens on `.fitting-widget` and reference them throughout — for example, `--fw-color-primary: #ef7025;`. When your brand colors change, you only need to update one value. See the [Advanced Customization](/customization/advanced) guide for a full list of supported CSS variables.
+</Tip>
+
+<Note>
+  CSS is scoped to each individual widget key. If you have multiple widgets on the same page — each with its own widget key — they can carry entirely different stylesheets. Updating the CSS for one widget key will never affect another.
+</Note>

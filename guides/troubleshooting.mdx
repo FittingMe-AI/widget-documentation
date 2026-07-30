@@ -1,0 +1,151 @@
+---
+title: "Troubleshoot Fitting Me Widget Issues"
+sidebarTitle: "Troubleshooting"
+description: "Diagnose and fix common Fitting Me issues: widget not loading, CSS not applying, authentication errors, and API errors."
+---
+
+Most issues with the Fitting Me widget fall into a small number of categories: the widget not appearing on the page, styles not applying as expected, or API requests returning errors. This guide walks you through the most common symptoms, what causes them, and the specific steps you can take to resolve each one. Work through the accordion section that matches your issue, and if you are still stuck after following the steps, reach out to the support options at the bottom of this page.
+
+<AccordionGroup>
+  <Accordion title="Widget not loading">
+    If the widget container is empty or the widget never appears on the page, work through these checks in order:
+
+    **Verify the script tag URL**
+
+    Confirm the `src` attribute in your `<script>` tag points to `https://cdn.fitting.me/widget.js` exactly. A typo in the URL will cause a network error and the widget will never initialize.
+
+    **Check the `data-key` value**
+
+    Open your script tag and compare the `data-key` value character by character against the `public_key` returned by the API. Even a single incorrect character will cause the widget to fail to authenticate with the CDN.
+
+    **Confirm the key is active**
+
+    A widget key with `active: false` will not serve a widget. Check the status of your key by running:
+
+    ```bash
+    curl https://api.fitting.me/v1/widget-keys/{id} \
+      -H "Authorization: Bearer YOUR_API_KEY"
+    ```
+
+    If the response shows `"active": false`, activate the key with a `PATCH` request:
+
+    ```bash
+    curl -X PATCH https://api.fitting.me/v1/widget-keys/{id} \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{ "active": true }'
+    ```
+
+    **Check the browser console for errors**
+
+    Open your browser's DevTools (F12), go to the **Console** tab, and reload the page. Look for any errors mentioning `widget.js`, `cdn.fitting.me`, or `fitting-widget`. An error message here is usually the fastest path to a diagnosis.
+  </Accordion>
+
+  <Accordion title="CSS not applying">
+    If the widget loads but does not match the styles you uploaded, try these steps:
+
+    **Confirm the CSS was uploaded successfully**
+
+    Retrieve the current CSS for your widget key to verify your latest stylesheet is actually stored:
+
+    ```bash
+    curl https://api.fitting.me/v1/widget-keys/{id}/css \
+      -H "Authorization: Bearer YOUR_API_KEY"
+    ```
+
+    If the response is empty or contains an older version of your styles, re-upload the stylesheet and confirm the `200` response.
+
+    **Check for specificity conflicts**
+
+    Your site's global CSS may include rules that override the widget's styles. Open DevTools, select an element inside the widget, and check the **Computed** panel. Styles shown as struck through are being overridden by a more specific rule elsewhere on the page.
+
+    **Inspect computed styles on `.fitting-widget`**
+
+    All Fitting Me styles are scoped to the `.fitting-widget` class. In the **Elements** panel, find the `<div class="fitting-widget">` element and review its computed styles to see exactly which rules are winning. This tells you whether the issue is specificity, a missing rule, or an incorrect selector.
+
+    **Verify your CSS class names**
+
+    Make sure the selectors in your uploaded stylesheet target the correct class names. For example, the widget root is `.fitting-widget`, and child elements follow a `fitting-widget__[element]` naming pattern. A selector targeting the wrong class will silently fail to apply.
+  </Accordion>
+
+  <Accordion title="401 Unauthorized errors">
+    A `401` response means the API could not authenticate your request. Here is what to check:
+
+    **Verify your API key**
+
+    Confirm you are using the correct API key for your account. If you have rotated your key recently, make sure every place that key is used — environment variables, CI/CD secrets, local `.env` files — has been updated to the new value.
+
+    **Include the full `Authorization` header**
+
+    The header must be formatted exactly as:
+
+    ```
+    Authorization: Bearer YOUR_API_KEY
+    ```
+
+    The word `Bearer` followed by a single space and then the key is required. Omitting `Bearer` or using a different prefix (such as `Token`) will result in a `401`.
+
+    **Check for hidden whitespace**
+
+    If you copied your API key from a document or email, it may have picked up a leading space, trailing space, or an invisible newline character. Paste the key into a plain text editor, select all, and verify there are no extra characters before or after the key value.
+  </Accordion>
+
+  <Accordion title="404 Not Found errors">
+    A `404` response means the resource you requested does not exist at the URL you used. Work through these checks:
+
+    **Confirm the widget key ID**
+
+    IDs are case-sensitive and must match exactly. Double-check the `id` field in your request URL against the value returned by `GET /widget-keys`.
+
+    **Verify the key has not been deleted**
+
+    If a `GET /widget-keys/{id}` request returns `404`, the key may have been deleted. List all keys with `GET /widget-keys` to confirm. If the key is gone and you need to restore functionality, create a new key and update your embed script with the new `public_key`.
+
+    **Check the request URL format**
+
+    Ensure your URL matches the expected format from the API reference. For example, widget key endpoints follow this pattern:
+
+    ```
+    https://api.fitting.me/v1/widget-keys/{id}
+    ```
+
+    Common mistakes include omitting `/v1/`, adding an extra trailing slash, or misspelling `widget-keys`.
+  </Accordion>
+
+  <Accordion title="Widget renders but looks broken">
+    If the widget appears on the page but the layout is distorted, elements are overlapping, or colors look wrong, the issue is almost always related to CSS. Try these steps:
+
+    **Check for CSS syntax errors**
+
+    An invalid rule in your uploaded stylesheet can cause the browser to discard everything after the error. Open the stylesheet you uploaded and look for unclosed braces `{`, missing semicolons `;`, or invalid property values. Paste your CSS into a validator to catch syntax issues automatically.
+
+    **Look for `!important` overrides from your site**
+
+    If your site uses `!important` declarations in its global CSS, they may override widget styles even when the widget's own rules are more specific. Open DevTools, select a broken element inside the widget, and look for struck-through styles that are being overridden by an `!important` rule. You may need to add matching `!important` declarations to your widget stylesheet, or work with your site's CSS to remove the conflicts.
+
+    **Apply the default theme to isolate the issue**
+
+    To rule out a problem with your custom stylesheet, temporarily remove your uploaded CSS and check if the widget renders correctly with the default theme. If it does, the issue is in your custom styles. If it is still broken with no custom CSS, contact support with details about the behavior you are seeing.
+  </Accordion>
+</AccordionGroup>
+
+## Getting help
+
+If you have worked through the steps above and the issue persists, the Fitting Me team is here to help. When you reach out, include the widget key ID, a description of the behavior you are seeing, and any relevant error messages from the browser console or API responses — this helps us diagnose the problem as quickly as possible.
+
+<CardGroup cols={2}>
+  <Card
+    title="Email Support"
+    icon="envelope"
+    href="mailto:support@fitting.me"
+  >
+    Send a message to the Fitting Me support team. We aim to respond to all inquiries within one business day.
+  </Card>
+  <Card
+    title="API Reference"
+    icon="book"
+    href="/api-reference"
+  >
+    Browse the full API reference for detailed request and response schemas, authentication requirements, and error code definitions.
+  </Card>
+</CardGroup>

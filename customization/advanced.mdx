@@ -1,0 +1,82 @@
+---
+title: "Advanced Widget Customization Options"
+sidebarTitle: "Advanced"
+description: "Explore advanced Fitting Me customization: CSS variables, responsive styles, animation overrides, and per-environment configurations."
+---
+
+For teams that need fine-grained control over every aspect of the widget's appearance and behavior, Fitting Me exposes a set of advanced customization tools. These go beyond basic color and font changes — you can define global design tokens with CSS custom properties, write responsive styles for different screen sizes, suppress animations, and maintain separate visual configurations across your development, staging, and production environments.
+
+## CSS custom properties
+
+The widget exposes a set of CSS custom properties (variables) on the `.fitting-widget` root element. Setting these variables gives you a single source of truth for your design tokens — change a value once and it propagates throughout the entire widget automatically.
+
+```css
+.fitting-widget {
+  --fw-color-primary: #ef7025;
+  --fw-color-text: #1a1a1a;
+  --fw-color-bg: #ffffff;
+  --fw-border-radius: 8px;
+  --fw-font-family: 'Inter', sans-serif;
+  --fw-spacing-base: 16px;
+}
+```
+
+The widget's internal styles reference these variables for buttons, typography, spacing, and layout. When you override them in your custom CSS, the new values cascade through every component that uses them without requiring individual class overrides.
+
+## Responsive styles
+
+You can include standard CSS media queries inside your widget stylesheet. The widget respects whatever breakpoints you define, so you have full control over how it adapts to smaller screens.
+
+```css
+@media (max-width: 640px) {
+  .fitting-widget {
+    padding: 8px;
+    border-radius: 0;
+  }
+}
+```
+
+Use this pattern to reduce padding on mobile, switch to a single-column layout, adjust font sizes, or hide elements that are not relevant on small viewports. The same CSS string you send to the API can contain any number of media query blocks.
+
+## Animation overrides
+
+The widget includes subtle transitions on interactive elements by default. If your product's design language avoids motion, or if you need to comply with a `prefers-reduced-motion` policy, you can disable all transitions in a single rule:
+
+```css
+.fitting-widget * {
+  transition: none !important;
+}
+```
+
+Alternatively, you can target specific elements to replace the default timing with your own:
+
+```css
+.fitting-widget__button {
+  transition: background-color 150ms ease-in-out;
+}
+```
+
+Using `!important` broadly is generally discouraged, but it is the most reliable way to suppress transitions set deep inside the widget's own stylesheet. Scope it tightly to `.fitting-widget *` so it does not leak to anything outside the widget boundary.
+
+## Per-environment CSS
+
+A practical pattern for teams shipping to multiple environments is to maintain a separate widget key for each environment — development, staging, and production — and apply distinct CSS to each one. This lets you use an exaggerated debug style (bright borders, visible class names via `::before` pseudo-elements, and so on) in development without any risk of those styles reaching production.
+
+Your deployment pipeline can store the widget key ID and its corresponding CSS as environment variables and apply them during the build or at startup using the API:
+
+```bash
+curl -X PUT https://api.fitting.me/v1/widget-keys/$FITTING_ME_WIDGET_KEY_ID/css \
+  -H "Authorization: Bearer $FITTING_ME_API_KEY" \
+  -H "Content-Type: text/css" \
+  --data-binary @styles/widget.$APP_ENV.css
+```
+
+Keeping a separate CSS file per environment in your repository (for example, `widget.development.css`, `widget.staging.css`, `widget.production.css`) makes diffs reviewable in pull requests and keeps your styling changes auditable alongside your application code.
+
+<Tip>
+  Before writing CSS, use your browser's DevTools to inspect the rendered widget and confirm the exact class names in use. Open the Elements panel, select a widget element, and check the applied styles in the right-hand pane. This is the fastest way to find the right selector without guessing — especially useful when overriding theme styles where the default rules are already present.
+</Tip>
+
+<Note>
+  More customization options are coming soon. Future releases will include support for custom widget layouts, slot-based component injection, and a visual theme editor in the Fitting Me dashboard. Existing CSS customizations will continue to work without changes when these features ship.
+</Note>

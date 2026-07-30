@@ -1,0 +1,54 @@
+---
+title: "Update a Widget Key in Fitting Me"
+sidebarTitle: "Update"
+description: "Update your widget key's name, description, or active status. Changes take effect immediately across all embeds using this key."
+---
+
+You can update a widget key at any time to change its display name, description, or active status. Updates are applied instantly — as soon as the API responds, every embed using that key reflects the new configuration.
+
+## Update a key via the API
+
+Send a `PATCH` request with the fields you want to change. You only need to include the fields you're updating; omitted fields remain unchanged.
+
+```bash
+curl -X PATCH https://api.fitting.me/v1/widget-keys/wk_01HXYZ123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "New Name", "active": true}'
+```
+
+The API returns the full updated widget key object:
+
+```json
+{
+  "id": "wk_01HXYZ123",
+  "key": "pk_live_abc123def456",
+  "name": "New Name",
+  "description": "Widget for checkout page",
+  "active": true,
+  "createdAt": "2024-01-15T10:30:00Z",
+  "updatedAt": "2024-03-22T08:15:00Z"
+}
+```
+
+## Updatable fields
+
+<ParamField body="name" type="string">
+  A new display name for this widget key. The updated name appears immediately in your Fitting Me dashboard.
+</ParamField>
+
+<ParamField body="description" type="string">
+  A new description for this widget key. Use this to update context about the widget's purpose, owner, or associated page.
+</ParamField>
+
+<ParamField body="active" type="boolean">
+  Enable or disable this widget key. Set to `true` to activate the widget or `false` to stop it from rendering on all embeds.
+</ParamField>
+
+<Note>
+  Disabling a key by setting `"active": false` will immediately stop the widget from rendering on every page where the embed script is present. Visitors will see no widget until you reactivate the key.
+</Note>
+
+<Warning>
+  Changing a key's `name` does not affect the embed script or the embeddable token (`key` value). The token is permanent and remains the same regardless of any updates you make. You do not need to update your embed script when you rename a key.
+</Warning>

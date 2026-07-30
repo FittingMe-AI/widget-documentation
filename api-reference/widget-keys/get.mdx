@@ -1,0 +1,88 @@
+---
+title: "GET /widget-keys/:id — Retrieve a Widget Key"
+sidebarTitle: "Get Key"
+description: "GET /widget-keys/:id — retrieve a single Fitting Me widget key by its ID. Returns the full widget key object."
+---
+
+Use this endpoint to retrieve the full details of a specific widget key by its unique ID. This is useful for confirming configuration, checking a key's active status, or fetching its embed token for use in your integration.
+
+## Endpoint
+
+```
+GET https://api.fitting.me/v1/widget-keys/:id
+```
+
+## Headers
+
+<ParamField header="Authorization" type="string" required>
+  Your Fitting Me API key, supplied as `Bearer YOUR_API_KEY`.
+</ParamField>
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the widget key you want to retrieve. Widget key IDs are returned when you create a key or list all keys for your account.
+</ParamField>
+
+## Example Request
+
+```bash
+curl --request GET \
+  --url https://api.fitting.me/v1/widget-keys/wk_01HXYZ1234ABCDEF567890 \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Response
+
+A successful request returns a `200 OK` status and the full widget key object.
+
+<ResponseField name="id" type="string">
+  The unique identifier for this widget key.
+</ResponseField>
+
+<ResponseField name="key" type="string">
+  The embed token used to initialize the Fitting Me widget on your site.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  The display name assigned to this widget key.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  The description assigned to this widget key, or `null` if none was provided.
+</ResponseField>
+
+<ResponseField name="theme" type="string">
+  The visual theme applied to this widget key. One of `default`, `minimal`, `branded`, or `dark`.
+</ResponseField>
+
+<ResponseField name="active" type="boolean">
+  Whether this widget key is currently active. Inactive keys will not render the widget on your site.
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  ISO 8601 timestamp indicating when this widget key was created.
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+  ISO 8601 timestamp indicating when this widget key was last modified.
+</ResponseField>
+
+## Example Response
+
+```json
+{
+  "id": "wk_01HXYZ1234ABCDEF567890",
+  "key": "fme_live_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890",
+  "name": "Storefront Widget",
+  "description": "Embedded on the main product pages",
+  "theme": "branded",
+  "active": true,
+  "createdAt": "2024-05-14T10:23:45Z",
+  "updatedAt": "2024-05-20T08:11:02Z"
+}
+```
+
+<Note>
+  If you supply an ID that does not exist or does not belong to your account, the API returns `404 Not Found`. Double-check the ID value and ensure you are authenticating with the correct API key.
+</Note>

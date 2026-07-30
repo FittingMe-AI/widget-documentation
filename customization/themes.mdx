@@ -1,0 +1,72 @@
+---
+title: "Widget Themes and Preset Styles for Fitting Me"
+sidebarTitle: "Themes"
+description: "Apply built-in themes to your Fitting Me widget for a polished look out of the box, then override with custom CSS as needed."
+---
+
+Fitting Me includes a set of built-in themes that give your widget a polished, cohesive appearance right away — no custom CSS required to get started. Themes are a great starting point when you want something that looks good immediately, with the option to layer in your own styles once you are ready to fine-tune the details.
+
+## Available themes
+
+You can apply a theme when creating or updating a widget key. The following themes are available:
+
+| Theme | Description |
+|---|---|
+| `default` | A clean, neutral style with balanced spacing and typography, suitable for most applications. |
+| `minimal` | A stripped-back, borderless design that blends into surrounding content with minimal visual weight. |
+| `branded` | Uses your primary brand color as the accent color throughout the widget, including buttons and highlights. |
+| `dark` | A dark background with light text, ideal for products that use a dark color scheme or offer a dark mode toggle. |
+
+## Setting a theme via API
+
+Pass a `theme` field in the request body when creating a new widget key or updating an existing one. The value must be one of the theme identifiers listed above.
+
+```bash
+curl -X POST https://api.fitting.me/v1/widget-keys \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My Widget",
+    "theme": "dark"
+  }'
+```
+
+To update the theme on an existing widget key, send a `PATCH` request to `/widget-keys/{id}` with the same payload:
+
+```bash
+curl -X PATCH https://api.fitting.me/v1/widget-keys/wk_01HXYZ123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "theme": "dark"
+  }'
+```
+
+The request body accepts the following fields:
+
+```json
+{
+  "name": "My Widget",
+  "theme": "dark"
+}
+```
+
+## Overriding theme styles
+
+Custom CSS always takes precedence over theme defaults. Any CSS you apply via the `PUT /widget-keys/{id}/css` endpoint is injected after the theme stylesheet, so your rules override any conflicting theme declarations.
+
+This means you can use a theme as a foundation and selectively change only the parts that need to match your brand. For example, to keep the `dark` theme but swap the button color for your own brand accent, you only need to target that one element:
+
+```css
+/* Override the button color in the dark theme */
+.fitting-widget__button {
+  background-color: #ef7025;
+  color: #ffffff;
+}
+```
+
+You do not need to rewrite the entire theme — just add rules for the properties you want to change. All other dark theme styles remain in place.
+
+<Note>
+  Themes are a starting point, not a constraint. Full CSS customization is always available regardless of which theme is active. If you find yourself overriding most of the theme, consider switching to the `default` or `minimal` theme and building up from there, or writing a fully custom stylesheet from scratch.
+</Note>

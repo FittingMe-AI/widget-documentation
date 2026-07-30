@@ -1,0 +1,119 @@
+---
+title: "Fitting Me REST API Reference Overview"
+sidebarTitle: "Overview"
+description: "The Fitting Me REST API uses JSON over HTTPS. Authenticate with a Bearer token, and interact with widget keys and CSS styling endpoints."
+---
+
+The Fitting Me API is a RESTful service that lets you manage widget keys and control widget appearance through CSS customization. Every request travels over HTTPS, and every response body is JSON — so you can integrate with any language or framework that speaks HTTP. This reference covers the conventions that apply across all endpoints: the base URL, authentication, request and response formats, rate limiting, and versioning.
+
+## Base URL
+
+All API endpoints are served under the following base URL:
+
+```
+https://api.fitting.me/v1
+```
+
+Include this prefix before every path shown in this reference. For example, the widget keys list endpoint is available at `https://api.fitting.me/v1/widget-keys`.
+
+## Authentication
+
+Every request to the Fitting Me API must include a valid API key in the `Authorization` header using the Bearer scheme:
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+Requests that omit the header or supply an invalid key receive a `401 Unauthorized` response. See the [Authentication guide](/authentication) for instructions on generating and rotating your API keys.
+
+<Note>
+  Keep your API key secret. Never expose it in client-side JavaScript, public repositories, or other contexts where it could be read by third parties.
+</Note>
+
+## Request Format
+
+- **`POST`, `PATCH`, and `PUT` requests** must include a JSON body and set the `Content-Type` header to `application/json`, except for CSS update requests which use `Content-Type: text/css` with a raw CSS string as the body.
+- **All requests** must include the `Authorization: Bearer YOUR_API_KEY` header regardless of HTTP method.
+
+A typical JSON request looks like this:
+
+```bash
+curl -X POST https://api.fitting.me/v1/widget-keys \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "name": "My Widget" }'
+```
+
+A CSS update request supplies the stylesheet directly as the body:
+
+```bash
+curl -X PUT https://api.fitting.me/v1/widget-keys/{id}/css \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: text/css" \
+  --data-binary '.widget { color: #1a1a1a; font-size: 14px; }'
+```
+
+## Response Format
+
+**Successful responses** return an HTTP `2xx` status code. Most endpoints return a JSON body; delete endpoints return `204 No Content` with an empty body.
+
+**Error responses** return an HTTP `4xx` or `5xx` status code alongside a structured JSON body that tells you exactly what went wrong:
+
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Widget key not found",
+    "status": 404
+  }
+}
+```
+
+- `code` — a machine-readable string you can match in your error-handling logic.
+- `message` — a human-readable description of the problem.
+- `status` — mirrors the HTTP status code for convenience.
+
+See the [Error Codes](/api-reference/errors) reference for the full list of codes and recommended handling strategies.
+
+## Rate Limiting
+
+Requests are rate-limited on a per-API-key basis. Each response includes the following headers so you can monitor your usage:
+
+| Header | Description |
+|---|---|
+| `X-RateLimit-Limit` | Maximum number of requests allowed in the current window |
+| `X-RateLimit-Remaining` | Number of requests remaining in the current window |
+| `X-RateLimit-Reset` | Unix timestamp (UTC) when the current window resets |
+
+When you exceed the limit, the API returns `429 Too Many Requests`. Wait until the time indicated by `X-RateLimit-Reset` before retrying.
+
+<Tip>
+  Use the `X-RateLimit-Remaining` header to implement proactive back-off in high-throughput integrations, rather than waiting until you hit a `429`.
+</Tip>
+
+## Versioning
+
+The API is versioned at the URL level. The current stable version is **`/v1`**, which is reflected in the base URL for every endpoint in this reference. When Fitting Me introduces breaking changes — such as removed fields, altered response shapes, or changed authentication requirements — they are released under a new version path (for example, `/v2`). Existing `/v1` endpoints remain available during any announced deprecation period, giving you time to migrate without service interruption.
+
+<Note>
+  Non-breaking additions — new optional fields, new endpoints, or new error codes — may be made to the current version without notice. Write your integration to ignore unknown fields to stay forward-compatible.
+</Note>
+
+---
+
+## Explore the API
+
+<CardGroup cols={2}>
+  <Card title="Widget Keys" icon="tag" href="/api-reference/widget-keys/list">
+    Create, retrieve, update, and delete widget keys that identify your widgets.
+  </Card>
+  <Card title="Customization" icon="palette" href="/api-reference/customization/get-css">
+    Fetch and update per-widget CSS to control the look and feel of every widget instance.
+  </Card>
+  <Card title="Error Codes" icon="triangle-exclamation" href="/api-reference/errors">
+    Full reference for every error code and HTTP status returned by the API.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn how to generate API keys and authenticate your requests securely.
+  </Card>
+</CardGroup>
