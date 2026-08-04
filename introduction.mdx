@@ -1,43 +1,28 @@
 ---
-title: "Fitting Me: Manage Widget Keys and CSS Styles via API"
+title: "FittingMe integration documentation"
 sidebarTitle: "Introduction"
-description: "Fitting Me gives developers a simple API to create, manage, and style embeddable widgets. Integrate in minutes with full CSS control."
+description: "Embed the FittingMe Sizing Journey and Try-On Journey on a retailer product page."
 ---
 
-Fitting Me is a developer API service that lets you create, manage, and customize embeddable widgets for your web applications. Whether you're building a product configurator, a booking tool, or an interactive embed, Fitting Me gives you programmatic control over widget keys and their visual appearance through a straightforward REST API. It's built for developers who need flexibility without complexity — get up and running in minutes and tailor every pixel with plain CSS.
+FittingMe delivers two independent Shopper Journeys on retailer product pages: the **Sizing Journey** and the **Try-On Journey**. Each journey is placed as its own Journey Embed, with its own trigger, drawer, and session.
 
-## Explore the docs
+The public integration surface is a standalone loader script. A loader tag reads a bounded set of `data-*` attributes, mounts one iframe in the selected container, and connects the host page to one journey.
 
 <CardGroup cols={2}>
-  <Card title="Quick Start" icon="rocket" href="/quickstart">
-    Create your first widget key and embed a styled widget in under 5 minutes.
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Add one working Journey Embed to a product page.
   </Card>
-  <Card title="Authentication" icon="key" href="/authentication">
-    Learn how to authenticate every API request using your Bearer token.
+  <Card title="Integration reference" icon="code" href="/guides/integration">
+    Review loader attributes and programmatic controls.
   </Card>
-  <Card title="Widget Keys" icon="tag" href="/widget-keys/overview">
-    Understand how widget keys work, how to create them, and how to manage them.
+  <Card title="Multiple Journey Embeds" icon="layer-group" href="/guides/managing-multiple-widgets">
+    Place Sizing and Try-On independently on the same page.
   </Card>
-  <Card title="CSS Styling" icon="palette" href="/customization/css-styling">
-    Customize the look and feel of any widget with full CSS control.
+  <Card title="Problem details" icon="triangle-exclamation" href="/api-reference/errors">
+    Handle RFC 9457 error responses.
   </Card>
 </CardGroup>
 
-## What you can do
-
-Fitting Me is designed to give you complete control over your widgets from a single API. Here's a snapshot of what's available today — with more on the way.
-
-<CardGroup cols={2}>
-  <Card title="Create & manage widget keys" icon="circle-plus">
-    Generate unique keys for each widget instance and manage their lifecycle — create, update, or delete them at any time.
-  </Card>
-  <Card title="Customize widget CSS styles" icon="brush">
-    Push custom CSS directly to any widget key so every embed looks exactly the way you designed it.
-  </Card>
-  <Card title="Multiple widgets per account" icon="layer-group">
-    Run as many widget keys as your project requires. Each key is independently configurable with its own styles and settings.
-  </Card>
-  <Card title="More features coming soon" icon="clock">
-    Analytics, event webhooks, and advanced theming are on the roadmap. Stay tuned for updates.
-  </Card>
-</CardGroup>
+<Note>
+  This documentation covers the retailer-facing embed contract. It does not document internal administration, QA tooling, or the future Retailer Portal.
+</Note>

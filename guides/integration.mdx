@@ -1,161 +1,63 @@
 ---
-title: "How to Integrate the Fitting Me Widget into Your Site"
-sidebarTitle: "Integration"
-description: "Learn how to embed the Fitting Me widget on any website in minutes — create a widget key, add the script tag, place the container, and go live."
+title: "Loader integration reference"
+sidebarTitle: "Loader integration"
+description: "Configure a FittingMe Journey Embed with the public loader attributes and browser API."
 ---
 
-Integrating the Fitting Me widget into your website is a straightforward process that takes only a few minutes. You start by creating a widget key through the API, then drop a single script tag into your HTML, place the widget container where you want it to appear, and optionally apply custom CSS to match your brand. Once those pieces are in place, your widget is live and serving visitors.
+## Loader URL
 
-<Steps>
-  <Step title="Create a widget key">
-    Before you can embed the widget, you need a widget key. Widget keys authenticate the embed script and tell the Fitting Me CDN which configuration and styles to load. Head to the [Create Widget Key](/widget-keys/create) reference to see the full request schema, or use the quick curl example below to get started immediately.
+Use the production loader at:
 
-    ```bash
-    curl -X POST https://api.fitting.me/v1/widget-keys \
-      -H "Authorization: Bearer YOUR_API_KEY" \
-      -H "Content-Type: application/json" \
-      -d '{
-        "name": "My Website Widget",
-        "active": true
-      }'
-    ```
+```text
+https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js
+```
 
-    A successful request returns a widget key object. The `public_key` field is the value you will use as `data-key` in the embed script:
+The loader is standalone and has no runtime imports. Each loader tag mounts one iframe and pins it to one Shopper Journey.
 
-    ```json
-    {
-      "id": "wk_01abc23def",
-      "name": "My Website Widget",
-      "public_key": "pk_live_abc123def456",
-      "active": true,
-      "created_at": "2024-06-01T10:00:00Z"
-    }
-    ```
-  </Step>
+## Common attributes
 
-  <Step title="Add the embed script">
-    Add the following `<script>` tag to any page where you want the widget to appear. Replace `pk_live_abc123def456` with the `public_key` returned when you created your widget key. The `async` attribute ensures the script loads without blocking the rest of your page.
+| Attribute | Default | Purpose |
+| --- | --- | --- |
+| `data-container` | `#fittingme-widget-container` | CSS selector for the host element that receives the iframe. |
+| `data-product-id` | Empty | Retailer product identifier forwarded to the widget. |
+| `data-api-key` | Empty | Public retailer API key forwarded to the widget. |
+| `data-api-url` | `https://api.fittingme.ai` | Backend origin used by the widget. |
+| `data-journey` | `tryon` | Journey delivered by this embed: `sizing` or `tryon`. |
+| `data-locale` | `en` | Requested widget locale. |
+| `data-gender` | Empty | Optional sizing input. |
+| `data-brand-slug` | Empty | Optional brand selection. |
+| `data-garment-type` | Empty | Optional garment selection. |
+| `data-garment-image-url` | Empty | Garment image forwarded for Try-On. Root-relative values resolve against the retailer page. |
+| `data-garment-model-key` | Empty | Optional stable grouping for garment variants. |
+| `data-privacy-url` | Empty | Retailer privacy-policy URL shown by the widget where applicable. |
 
-    ```html
-    <script
-      src="https://cdn.fitting.me/widget.js"
-      data-key="pk_live_abc123def456"
-      async
-    ></script>
-    ```
-  </Step>
+Always set `data-api-key`, `data-product-id`, and `data-journey` explicitly for a production embed. Use `data-garment-image-url` when the retailer page supplies the garment image for Try-On.
 
-  <Step title="Place the widget container">
-    Add the following `<div>` to your HTML wherever you want the widget to render. The embed script looks for this element by its `id` and mounts the widget inside it.
+## API authentication
 
-    ```html
-    <div id="fitting-widget"></div>
-    ```
+The loader forwards `data-api-key` to the widget. The widget attaches the value as `X-API-Key` on authenticated backend requests.
 
-    You can place this `<div>` anywhere in the `<body>` of your page — inside a sidebar, a modal, a product detail section, or wherever makes the most sense for your layout.
-  </Step>
+```http
+X-API-Key: YOUR_PUBLISHABLE_KEY
+```
 
-  <Step title="Apply CSS styles">
-    Fitting Me lets you upload a custom stylesheet to control the look and feel of your widget. You can change colors, fonts, spacing, border radius, and more. See the [CSS Styling](/customization/css-styling) guide for the full list of available selectors and a walkthrough of how to upload your stylesheet via the API.
-  </Step>
+Do not prefix the value with `Bearer`. There is no public `/v1/widget-keys` management API.
 
-  <Step title="Test the integration">
-    Once the script tag and container are in place, open the page in your browser and confirm the widget appears. Here are a few things to check:
+## Programmatic controls
 
-    - **Browser console** — Open DevTools and look for any JavaScript errors or network failures related to `widget.js` or the Fitting Me API.
-    - **Network tab** — Verify the script loads with a `200` status from `cdn.fitting.me`.
-    - **Widget key status** — If the widget does not appear, confirm your widget key is set to `active: true` by calling `GET https://api.fitting.me/v1/widget-keys/{id}`.
-    - **Container element** — Inspect the DOM to confirm the `<div id="fitting-widget">` element is present and not hidden by your site's CSS.
-  </Step>
-</Steps>
+After the loader script has executed, `window.FittingMe` exposes the live Journey Embed registry. Resolve an embed by journey and control only that instance:
 
-## Framework examples
+```javascript
+const tryOn = window.FittingMe.get('tryon');
 
-The embed script works with any website regardless of the framework you use. Select your stack below for a copy-paste example.
+tryOn?.open();
+tryOn?.close();
+```
 
-<Tabs>
-  <Tab title="React">
-    In React, use the `useEffect` hook to inject the script tag after the component mounts. This keeps the DOM manipulation out of the render cycle and ensures the container `<div>` exists before the script runs.
+Calling `open()` before the iframe signals readiness is safe: the loader buffers that request and replays it after the ready handshake.
 
-    ```jsx
-    import { useEffect } from 'react';
+Each handle also exposes `destroy()`, which removes only its own iframe and unregisters that instance.
 
-    export default function FittingWidget() {
-      useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.fitting.me/widget.js';
-        script.setAttribute('data-key', 'pk_live_abc123def456');
-        script.async = true;
-        document.body.appendChild(script);
+## Container rules
 
-        return () => {
-          document.body.removeChild(script);
-        };
-      }, []);
-
-      return <div id="fitting-widget" />;
-    }
-    ```
-
-    The cleanup function in the `useEffect` return removes the script when the component unmounts, which prevents duplicate scripts if your users navigate back to the page in a single-page app.
-  </Tab>
-
-  <Tab title="Vue">
-    In Vue, use the `mounted()` lifecycle hook to append the script after the component's template is rendered to the DOM.
-
-    ```vue
-    <template>
-      <div id="fitting-widget"></div>
-    </template>
-
-    <script>
-    export default {
-      name: 'FittingWidget',
-      mounted() {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.fitting.me/widget.js';
-        script.setAttribute('data-key', 'pk_live_abc123def456');
-        script.async = true;
-        document.body.appendChild(script);
-      },
-      beforeUnmount() {
-        const script = document.querySelector(
-          'script[src="https://cdn.fitting.me/widget.js"]'
-        );
-        if (script) document.body.removeChild(script);
-      },
-    };
-    </script>
-    ```
-  </Tab>
-
-  <Tab title="HTML">
-    If you are working with plain HTML, place the container `<div>` where you want the widget to appear and add the `<script>` tag just before the closing `</body>` tag.
-
-    ```html
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <title>My Website</title>
-      </head>
-      <body>
-
-        <!-- Place the widget container wherever you want it to appear -->
-        <div id="fitting-widget"></div>
-
-        <!-- Load the Fitting Me embed script before closing </body> -->
-        <script
-          src="https://cdn.fitting.me/widget.js"
-          data-key="pk_live_abc123def456"
-          async
-        ></script>
-      </body>
-    </html>
-    ```
-  </Tab>
-</Tabs>
-
-<Tip>
-  Create separate widget keys for each environment — for example, one key for local development, one for staging, and one for production. This way you can iterate on styles in staging without affecting your live widget, and you can rotate or deactivate a compromised key without touching other environments. A naming convention like `my-widget-dev`, `my-widget-staging`, and `my-widget-prod` keeps things easy to manage.
-</Tip>
+The container must exist when the loader executes. If two loader tags resolve to the same element, the second embed is ignored and the first remains intact.

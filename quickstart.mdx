@@ -1,91 +1,47 @@
 ---
-title: "Fitting Me Quickstart: Create Your First Widget Key"
-sidebarTitle: "Quickstart"
-description: "Step-by-step guide to creating your first Fitting Me widget key, embedding it in your site, and applying custom CSS styles in minutes."
+title: "Quickstart"
+description: "Add a FittingMe Journey Embed to a retailer product page."
 ---
 
-This guide walks you through everything you need to go from zero to a live, styled widget embed. By the end, you'll have an API key in hand, a widget key created via the Fitting Me API, a working embed snippet ready to drop into any webpage, and a custom CSS style applied to your widget — all in about five minutes.
+## Add a container and loader tag
 
-<Steps>
-  <Step title="Get your API key">
-    Sign up for a Fitting Me account at [app.fitting.me](https://app.fitting.me) if you haven't already. Once you're logged in, navigate to **Settings → API Keys** in the left sidebar and click **Generate New Key**. Copy the key and store it somewhere safe — you'll use it to authenticate every API request.
+Place the container before the loader tag. Replace the placeholder key, product identifier, and garment image URL with values for your integration.
 
-    Your API key looks like this:
+```html
+<div id="fittingme-widget-container"></div>
 
-    ```text
-    fme_live_a1b2c3d4e5f6g7h8i9j0klmnopqrstuv
-    ```
+<script
+  async
+  src="https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js"
+  data-container="#fittingme-widget-container"
+  data-api-url="https://api.fittingme.ai"
+  data-api-key="YOUR_PUBLISHABLE_KEY"
+  data-product-id="YOUR_PRODUCT_SKU"
+  data-garment-image-url="https://merchant.example/images/product.jpg"
+  data-locale="en"
+  data-journey="tryon"
+></script>
+```
 
-    Keep this value private. Never commit it to source control or expose it in client-side code.
-  </Step>
+The loader creates and manages the iframe inside `#fittingme-widget-container`. Do not add an iframe yourself.
 
-  <Step title="Create a widget key">
-    With your API key ready, make a `POST` request to the `/widget-keys` endpoint to create your first widget key. Give it a descriptive name so you can identify it in the dashboard later.
+## Choose one journey
 
-    ```bash
-    curl -X POST https://api.fitting.me/v1/widget-keys \
-      -H "Authorization: Bearer fme_live_a1b2c3d4e5f6g7h8i9j0klmnopqrstuv" \
-      -H "Content-Type: application/json" \
-      -d '{"name": "My First Widget"}'
-    ```
+Each loader tag delivers exactly one Shopper Journey:
 
-    A successful response returns the new widget key object:
+- Use `data-journey="tryon"` for virtual try-on.
+- Use `data-journey="sizing"` for size recommendation.
 
-    ```json
-    {
-      "id": "wk_7xQp2mNcRt9Ld3YsZa1FoB",
-      "key": "wgt_4Kf8nRxTmZpLqD2sYjW6cUeV",
-      "name": "My First Widget",
-      "createdAt": "2024-11-15T10:32:44.000Z"
-    }
-    ```
+Set `data-journey` explicitly. A missing or unknown value falls back to `tryon` and writes a warning to the browser console.
 
-    Save the `id` and `key` values — you'll need them in the next two steps.
-  </Step>
+## Use the publishable key as loader configuration
 
-  <Step title="Embed the widget">
-    Add the Fitting Me loader script to your webpage and pass the `key` value you received in the previous step. Place this snippet just before the closing `</body>` tag.
+`data-api-key` is the public retailer key assigned to the integration. It is not a Bearer token. The loader forwards it to the widget, and the widget sends it to the API in the `X-API-Key` header.
 
-    ```html
-    <script
-      src="https://cdn.fitting.me/widget.js"
-      data-widget-key="wgt_4Kf8nRxTmZpLqD2sYjW6cUeV"
-      async
-    ></script>
-    ```
+<Warning>
+  Do not place an internal administration key, provider credential, or other secret in the page. Browser-visible markup may contain only the public retailer key intended for the embed.
+</Warning>
 
-    Once the page loads, Fitting Me will automatically initialize the widget and render it according to the configuration tied to that key. You should see the default widget appearance — you'll style it in the next step.
-  </Step>
+## Add the second journey when needed
 
-  <Step title="Customize the style">
-    Push custom CSS to your widget key by making a `PUT` request to the `/css` sub-resource using the widget key's `id`. The request body is a plain CSS string that gets applied to the widget's shadow DOM.
-
-    ```bash
-    curl -X PUT https://api.fitting.me/v1/widget-keys/wk_7xQp2mNcRt9Ld3YsZa1FoB/css \
-      -H "Authorization: Bearer fme_live_a1b2c3d4e5f6g7h8i9j0klmnopqrstuv" \
-      -H "Content-Type: text/css" \
-      --data-raw '.widget-container {
-        font-family: "Inter", sans-serif;
-        background-color: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 24px;
-        color: #111827;
-      }
-
-      .widget-button {
-        background-color: #6366f1;
-        color: #ffffff;
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-weight: 600;
-      }'
-    ```
-
-    A `200 OK` response confirms the styles have been saved. Reload your page and the widget will reflect the new CSS immediately — no redeployment required.
-  </Step>
-</Steps>
-
-<Tip>
-  You've covered the essentials, but there's a lot more you can do with the Fitting Me API — including listing and deleting widget keys, managing multiple styles, and handling error responses gracefully. Head to the full [API Reference](/api-reference) to explore every available endpoint.
-</Tip>
+A product page may carry Sizing, Try-On, or both. When it carries both, give each Journey Embed a separate container and loader tag. See [Multiple Journey Embeds](/guides/managing-multiple-widgets).

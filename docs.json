@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "luma",
-  "name": "Fitting Me",
+  "name": "FittingMe.ai",
   "colors": {
     "primary": "#ef7025",
     "light": "#eec9bc",
@@ -14,13 +14,8 @@
   },
   "navbar": {
     "links": [
-      { "label": "Support", "href": "mailto:support@fitting.me" }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.fitting.me"
-    }
+      { "label": "Contact", "href": "https://fittingme.ai/contact/" }
+    ]
   },
   "navigation": {
     "tabs": [
@@ -28,65 +23,24 @@
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Get started",
             "pages": [
               "introduction",
-              "quickstart",
-              "authentication"
+              "quickstart"
             ]
           },
           {
-            "group": "Widget Keys",
-            "pages": [
-              "widget-keys/overview",
-              "widget-keys/create",
-              "widget-keys/update",
-              "widget-keys/delete"
-            ]
-          },
-          {
-            "group": "Customization",
-            "pages": [
-              "customization/css-styling",
-              "customization/themes",
-              "customization/advanced"
-            ]
-          },
-          {
-            "group": "Guides",
+            "group": "Integration",
             "pages": [
               "guides/integration",
               "guides/managing-multiple-widgets",
               "guides/troubleshooting"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
+          },
           {
-            "group": "Overview",
+            "group": "Reference",
             "pages": [
-              "api-reference/overview",
               "api-reference/errors"
-            ]
-          },
-          {
-            "group": "Widget Keys",
-            "pages": [
-              "api-reference/widget-keys/create",
-              "api-reference/widget-keys/get",
-              "api-reference/widget-keys/update",
-              "api-reference/widget-keys/delete",
-              "api-reference/widget-keys/list"
-            ]
-          },
-          {
-            "group": "Customization",
-            "pages": [
-              "api-reference/customization/get-css",
-              "api-reference/customization/update-css"
             ]
           }
         ]
