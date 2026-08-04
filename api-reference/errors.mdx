@@ -1,164 +1,103 @@
 ---
-title: "Fitting Me API Error Codes and HTTP Status Reference"
-sidebarTitle: "Errors"
-description: "A complete reference of every Fitting Me API error code, HTTP status code, and the error response shape, with recommended handling strategies for each."
+title: "API errors and problem types"
+sidebarTitle: "Problem details"
+description: "RFC 9457 error response shape and the complete FittingMe problem type catalogue."
 ---
 
-When a Fitting Me API request cannot be completed successfully, the API returns a structured JSON error body alongside an appropriate HTTP status code. Every error response follows the same shape, so you can write a single error-handling routine that works across all endpoints. The `code` field gives you a stable, machine-readable string to branch on, the `message` field explains what went wrong in plain English, and the `status` field mirrors the HTTP status code for convenience.
+Every backend response with an HTTP error status uses an RFC 9457 Problem Document and the `application/problem+json` media type. Members are placed at the document root; there is no enclosing `error` object.
 
-## Error Response Shape
-
-Every error response from the API looks like this:
+## Response shape
 
 ```json
 {
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "The 'name' field is required",
-    "status": 400
-  }
+  "type": "https://fittingme.ai/problems/validation_error",
+  "title": "Validation failed",
+  "status": 400,
+  "detail": "The photo field is required",
+  "instance": "/v1/widget/handoff",
+  "code": "validation_error",
+  "field": "photo"
 }
 ```
 
-| Field | Type | Description |
-|---|---|---|
-| `error.code` | string | Machine-readable error identifier. Match against this in your logic. |
-| `error.message` | string | Human-readable explanation of what went wrong. |
-| `error.status` | integer | HTTP status code, mirrored inside the body for convenience. |
+| Member | Type | Meaning |
+| --- | --- | --- |
+| `type` | string | Stable URI identifier for the problem class. |
+| `title` | string | Stable summary associated with `type`. |
+| `status` | integer | HTTP status repeated in the response body. |
+| `detail` | string | Human-readable detail for this occurrence. Do not branch on it. |
+| `instance` | string | Request path for this occurrence, without the query string. |
+| `code` | string | Final path segment of `type`, derived structurally rather than mapped separately. |
+| `field` | string | Optional extension present only for field-specific `validation_error` responses. |
+| `capability` | string | Optional extension present only for `capability_not_entitled` responses. |
 
-## HTTP Status Codes
+The query string is deliberately excluded from `instance`, so a credential such as a relay token cannot be reflected into an error body.
 
-The following HTTP status codes are used across Fitting Me API endpoints:
+## Type URIs are identifiers, not links
 
-| Status | Meaning |
-|--------|---------|
-| `200 OK` | Request succeeded |
-| `201 Created` | Resource created successfully |
-| `204 No Content` | Resource deleted successfully; no body returned |
-| `400 Bad Request` | Invalid request body or parameters |
-| `401 Unauthorized` | Missing or invalid API key |
-| `403 Forbidden` | Valid key but insufficient permissions |
-| `404 Not Found` | Resource does not exist |
-| `409 Conflict` | A resource with this name or identifier already exists |
-| `422 Unprocessable Entity` | Request was well-formed but failed validation rules |
-| `429 Too Many Requests` | Rate limit exceeded; see `X-RateLimit-Reset` |
-| `500 Internal Server Error` | An unexpected server-side error occurred |
+Values below the `https://fittingme.ai/problems/` base are stable identifiers. They are not dereferenceable documentation links, and no FittingMe environment serves pages at those paths. Do not open or fetch a `type` URI. Use this page as the human-readable reference for every identifier.
 
-## Error Codes
+`code` always matches the final segment of `type`. The shared Problem Document constructor derives both values from one input, so callers cannot construct them independently.
 
-Each `code` value maps to a specific class of problem. Expand an entry below for details and recommended handling.
+## Problem type catalogue
 
-<Accordion title="UNAUTHORIZED">
-  **HTTP Status:** `401 Unauthorized`
+| `code` | `type` | Status | Meaning |
+| --- | --- | --- | --- |
+| `admin_disabled` | `https://fittingme.ai/problems/admin_disabled` | `503` | The administration surface is disabled. |
+| `capability_not_entitled` | `https://fittingme.ai/problems/capability_not_entitled` | `403` | The authenticated retailer is not entitled to the requested capability. May include `capability`. |
+| `conflict` | `https://fittingme.ai/problems/conflict` | `409` | The request conflicts with existing state. |
+| `database_error` | `https://fittingme.ai/problems/database_error` | `500` | A database operation failed. |
+| `demo_disabled` | `https://fittingme.ai/problems/demo_disabled` | `503` | The demo deployment is disabled. |
+| `external_service_error` | `https://fittingme.ai/problems/external_service_error` | `502` | An upstream service failed. |
+| `forbidden` | `https://fittingme.ai/problems/forbidden` | `403` | The authenticated caller cannot perform the operation. |
+| `handoff_expired` | `https://fittingme.ai/problems/handoff_expired` | `410` | The Device Handoff link has expired. |
+| `internal_error` | `https://fittingme.ai/problems/internal_error` | `500` | An unexpected internal server error occurred. |
+| `invalid_body_field` | `https://fittingme.ai/problems/invalid_body_field` | `422` | Body extraction found a field with an invalid type or shape. |
+| `invalid_path_parameter` | `https://fittingme.ai/problems/invalid_path_parameter` | `400` | A path parameter could not be extracted. |
+| `malformed_body` | `https://fittingme.ai/problems/malformed_body` | `400` | The JSON or query body is malformed. |
+| `malformed_multipart` | `https://fittingme.ai/problems/malformed_multipart` | `400` | The multipart boundary is invalid. |
+| `method_not_allowed` | `https://fittingme.ai/problems/method_not_allowed` | `405` | The path exists but does not accept the HTTP method. |
+| `not_found` | `https://fittingme.ai/problems/not_found` | `404` | The requested resource was not found. |
+| `payload_too_large` | `https://fittingme.ai/problems/payload_too_large` | `413` | The request exceeded its body-size limit. |
+| `rate_limited` | `https://fittingme.ai/problems/rate_limited` | `429` | The request exceeded an applicable rate limit. |
+| `route_not_found` | `https://fittingme.ai/problems/route_not_found` | `404` | No route matches the request path. |
+| `service_unavailable` | `https://fittingme.ai/problems/service_unavailable` | `503` | The service is temporarily unavailable. `Retry-After` may be present. |
+| `unauthorized` | `https://fittingme.ai/problems/unauthorized` | `401` | Authentication credentials are missing or invalid. |
+| `unsupported_media_type` | `https://fittingme.ai/problems/unsupported_media_type` | `415` | The request media type is unsupported. |
+| `validation_error` | `https://fittingme.ai/problems/validation_error` | `400` | Business validation failed. May include `field`. |
 
-  Your request did not include a valid Bearer token in the `Authorization` header, or the token has been revoked.
+<Note>
+  Business validation uses `validation_error` with status `400`. Status `422` is reserved here for `invalid_body_field`, an extractor rejection; it is not an alternate status for business validation.
+</Note>
 
-  **Common causes:**
-  - The `Authorization` header is missing entirely.
-  - The token is malformed or contains extra whitespace.
-  - The API key has been deleted or expired.
+## Handle errors by stable identifier
 
-  **Recommended handling:** Check that you are setting `Authorization: Bearer YOUR_API_KEY` on every request. If the key was recently rotated, update your integration to use the new key.
-</Accordion>
+Branch on `code` or `type`, not on `title` or `detail`.
 
-<Accordion title="FORBIDDEN">
-  **HTTP Status:** `403 Forbidden`
-
-  Your API key is valid and recognized, but it does not have permission to perform the requested action on the target resource.
-
-  **Common causes:**
-  - Attempting to access or modify a widget key that belongs to a different account.
-  - Using a read-only key to perform a write operation.
-
-  **Recommended handling:** Verify that the resource ID belongs to your account and that your API key has the required permission scope.
-</Accordion>
-
-<Accordion title="NOT_FOUND">
-  **HTTP Status:** `404 Not Found`
-
-  The resource identified by the ID in the URL path does not exist, or it has been deleted.
-
-  **Common causes:**
-  - Typo or stale reference in the resource ID.
-  - The resource was deleted before this request was made.
-
-  **Recommended handling:** Confirm the resource ID is correct by listing the relevant resources first. If your application caches IDs, invalidate stale entries when you receive this error.
-</Accordion>
-
-<Accordion title="VALIDATION_ERROR">
-  **HTTP Status:** `400 Bad Request` or `422 Unprocessable Entity`
-
-  One or more fields in the request body failed validation. The `message` field describes which field is at fault and why.
-
-  **Common causes:**
-  - A required field is missing from the request body.
-  - A field value is the wrong type (for example, a number where a string is expected).
-  - A string exceeds the maximum allowed length.
-
-  **Recommended handling:** Read the `message` for the specific field and constraint that failed, correct the request body, and retry.
-</Accordion>
-
-<Accordion title="DUPLICATE">
-  **HTTP Status:** `409 Conflict`
-
-  You attempted to create a resource using a name or identifier that already exists in your account.
-
-  **Common causes:**
-  - Creating a widget key with a `name` that matches an existing key.
-  - Retrying a create request that already succeeded.
-
-  **Recommended handling:** Either choose a different name for the new resource, or retrieve the existing resource by listing and filtering before deciding whether to create or update.
-</Accordion>
-
-<Accordion title="RATE_LIMITED">
-  **HTTP Status:** `429 Too Many Requests`
-
-  Your API key has exceeded the number of requests allowed in the current rate-limit window.
-
-  **Common causes:**
-  - Sending requests in a tight loop without any back-off.
-  - A burst of automated requests triggered simultaneously.
-
-  **Recommended handling:** Inspect the `X-RateLimit-Reset` response header for the Unix timestamp at which your limit resets, then wait until that time before retrying. Implement exponential back-off for automated retry logic to avoid hitting the limit again immediately.
-
-  <Warning>
-    Repeatedly hitting the rate limit in quick succession may result in a temporary suspension of your API key. Implement proper back-off to avoid this.
-  </Warning>
-</Accordion>
-
-<Accordion title="INTERNAL_ERROR">
-  **HTTP Status:** `500 Internal Server Error`
-
-  An unexpected error occurred on the Fitting Me servers while processing your request. This is not caused by anything in your request.
-
-  **Common causes:**
-  - Transient infrastructure issues.
-  - An unhandled edge case on the server side.
-
-  **Recommended handling:** Retry the request with exponential back-off. If the error persists across multiple retries, contact [Fitting Me support](https://fitting.me/support) and include the request details and any request ID returned in the response headers.
-</Accordion>
-
-## Handling Errors
-
-The example below shows a pattern you can use in any JavaScript fetch-based integration. Check `res.ok` before processing the response body, parse the structured error, and branch on `error.code` to respond appropriately in your application:
+<Accordion title="JavaScript handling example">
 
 ```javascript
-const res = await fetch('https://api.fitting.me/v1/widget-keys', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ name: 'My Widget' }),
-});
+async function readJson(response) {
+  if (response.ok) return response.json();
 
-if (!res.ok) {
-  const { error } = await res.json();
-  console.error(`API Error [${error.code}]: ${error.message}`);
-  // handle error.code...
+  const problem = await response.json();
+
+  if (problem.code === 'validation_error' && problem.field) {
+    console.error(`Invalid field: ${problem.field}`);
+  }
+
+  throw Object.assign(new Error(problem.detail), problem);
 }
 ```
 
-<Tip>
-  Always branch on `error.code` rather than `error.message`. The `message` field is intended for humans and may be updated over time, whereas `code` values are stable across API versions.
-</Tip>
+</Accordion>
+
+## Provenance
+
+This catalogue was measured on **2026-08-04** from b2b commit `29d40fdf7a821b1f7897ac7429b0445707cd2a2f` and the guarded catalogue at `backend/docs/refactor/api-2026-07/api-reference.yaml`.
+
+```bash
+grep -oh "https://fittingme\.ai/problems/[a-z0-9_]*" /Users/ismail/Code/FittingMe.ai/b2b/backend/docs/refactor/api-2026-07/api-reference.yaml | sort -u
+```
+
+The b2b and public-documentation repositories do not read one another in CI. No executable guard synchronizes this page with the catalogue. Future updates must rerun the command against the cited b2b revision and compare the result manually.
