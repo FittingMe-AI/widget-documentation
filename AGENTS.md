@@ -1,33 +1,73 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
+# FittingMe public documentation
 
-# Documentation project instructions
+## Purpose
 
-## About this project
+This repository publishes the retailer-facing FittingMe integration documentation with Mintlify. Content pages are MDX files, and `docs.json` owns navigation and site presentation.
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Use the Mintlify MCP server, `https://mcp.mintlify.com`, to edit content and settings via MCP
-- Use the Mintlify docs MCP server, `https://www.mintlify.com/docs/mcp`, to query information about using Mintlify via MCP
+The documented product surface is the merchant embed: Journey Embed placement, the public loader contract, and error responses a retailer integration can observe.
 
-## Terminology
+## Repository boundary
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+- This repository has one branch, `main`; it does not use the b2b `dev → staging → main` promotion train.
+- A documentation change stays in this repository. The sibling `b2b` repository may be read as the implementation source but must not be edited as part of the same change.
+- Do not document internal administration surfaces, QA tooling, or the Retailer Portal here.
+- Never include secrets, live credentials, or production retailer keys in prose or examples. Browser examples may use explicit placeholders for the public retailer key.
 
-## Style preferences
+## Canonical vocabulary
 
-{/* Add any project-specific style rules below */}
+Product vocabulary lives in `CONTEXT.md` at the workspace root. Never resolve it with a relative `../` path from a worktree.
 
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
-- Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
+Run `git worktree list` in this repository. The first worktree is the main checkout; its parent directory is the workspace root containing `CONTEXT.md`.
 
-## Content boundaries
+## Sources of truth
 
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+Read the relevant source before changing an API or integration claim:
+
+| Claim | Canonical b2b source |
+| --- | --- |
+| Mounted backend routes and middleware | `backend/src/routes/mod.rs` |
+| Retailer API-key authentication | `backend/src/middleware/auth.rs` |
+| Loader URL, attributes, defaults, and browser API | `frontend/loader/fittingme-loader.js` and `frontend/lib/embed-protocol.js` |
+| RFC 9457 business-error mapping | `backend/src/error.rs` |
+| Shared Problem Document shape | `crates/problem-details/src/lib.rs` |
+| Framework errors and query-free `instance` | `backend/src/middleware/problem_normalization.rs` |
+| Complete problem type catalogue | `backend/docs/refactor/api-2026-07/api-reference.yaml` |
+
+The July 2026 catalogue is historical for most API content, but its Problem Document schema and type inventory are current and guarded by b2b tests. Do not use its unrelated paths or operations without checking the mounted router.
+
+## Provenance discipline
+
+1. Verify every new or changed assertion about the API against b2b implementation or an executable contract before writing it.
+2. Cite each supporting b2b location as `file:line` in the documentation commit body.
+3. Treat a documented route absent from `backend/src/routes/mod.rs` as drift. Remove it or escalate the product decision; never invent a replacement.
+4. Verify authentication middleware at the mounted route. The retailer embed uses `X-API-Key`; do not describe a Bearer scheme unless a real mounted route uses it.
+5. When a cross-repository inventory cannot be guarded in CI, add a dated provenance note with the b2b commit and the exact measurement command.
+
+## Problem Document contract
+
+- Backend error bodies follow RFC 9457 and use `application/problem+json`.
+- `type` uses the stable `https://fittingme.ai/problems/<slug>` base.
+- Root extension `code` is derived from the final `type` segment; it is not maintained independently.
+- Root extensions `field` and `capability` appear only when applicable.
+- `instance` is the request path without its query string.
+- Decision D-F8: problem `type` URIs are stable identifiers, not links. No environment dereferences them. Point readers to `api-reference/errors.mdx`, never tell them to open a type URI.
+
+## Content and navigation
+
+- Keep retailer integration pages in English unless the site adopts an explicit localization structure.
+- Use active voice, second person, sentence-case headings, and concise paragraphs.
+- Keep examples copyable and use placeholders such as `YOUR_PUBLISHABLE_KEY`.
+- Add, move, or delete a page and its `docs.json` navigation entry together.
+- Changing the external publication domain of this Mintlify site is a separate deployment decision. Do not infer that change from API, CDN, marketing, or portal domain migrations.
+
+## Validation
+
+This repository has no automated test suite. For every change:
+
+1. Parse `docs.json` as JSON.
+2. Confirm every navigation page exists and every root-relative MDX link resolves.
+3. Search for retired routes, authentication schemes, hosts, and deleted page references.
+4. If a local Mintlify CLI is installed, run its development server and inspect MDX components, tables, code blocks, and links. If it is unavailable, report that the site was not previewed rather than claiming a render check.
+5. Inspect `git diff --check` and the path-scoped staged diff before committing.
+
+Use conventional commit messages. Stage explicit paths only; never use `git add -A`, `git stash`, `--no-verify`, or push without first reporting what changed and what remains.
