@@ -32,6 +32,7 @@
           {
             "group": "Integration",
             "pages": [
+              "guides/widget-keys",
               "guides/integration",
               "guides/managing-multiple-widgets",
               "guides/troubleshooting"
