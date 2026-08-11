@@ -1,0 +1,75 @@
+---
+title: "Widget keys"
+sidebarTitle: "Widget keys"
+description: "Request a FittingMe widget key, install it in a Journey Embed, and diagnose a rejected key."
+---
+
+A widget key identifies your integration to the FittingMe API. Every Journey Embed carries one: the loader forwards it to the widget, and the widget attaches it to authenticated backend requests in the `X-API-Key` header.
+
+The key is a **public** value. It is meant to appear in browser-visible markup, and it is not a secret, a Bearer token, or an administration credential.
+
+## Request a key
+
+FittingMe issues widget keys. There is no self-service signup and no public key-management API.
+
+Use the [FittingMe contact page](https://fittingme.ai/contact/) and include:
+
+| Item | Why it is needed |
+| --- | --- |
+| Your company or brand name | Names the retailer account the key resolves to. |
+| Every origin that will embed the widget | Each origin must be added to the embed's framing allowlist, including staging and preview hosts. |
+| The journeys you need | A key grants Sizing, Try-On, or both. Journeys are granted explicitly. |
+
+<Note>
+  List every origin up front. An origin that has not been added to the framing allowlist loads your page normally, but the browser refuses to frame the widget and reports a Content Security Policy violation in the console.
+</Note>
+
+You receive one key per retailer account. Use the same key for the Sizing and Try-On embeds on your storefront.
+
+## Install the key
+
+Pass the key as `data-api-key` on the loader tag:
+
+```html
+<script
+  async
+  src="https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js"
+  data-container="#fittingme-widget-container"
+  data-api-key="YOUR_PUBLISHABLE_KEY"
+  data-product-id="YOUR_PRODUCT_SKU"
+  data-journey="sizing"
+></script>
+```
+
+Copy the value literally. Do not trim it, re-encode it, wrap it in quotes inside the attribute, or prefix it with `Bearer`. See [Loader integration](/guides/integration) for the full attribute list.
+
+## Verify the key works
+
+1. Load a product page that carries the embed.
+2. Confirm the Journey Trigger appears and opens its drawer.
+3. In the Network panel, inspect a request to your FittingMe API origin and confirm it carries an `X-API-Key` header and returns a success status.
+
+If the trigger never appears, work through [Troubleshooting](/guides/troubleshooting) before assuming the key is wrong — a missing container or an unresolved `data-container` selector produces no request at all.
+
+## When the API rejects the key
+
+| Status | Problem type | What it means |
+| --- | --- | --- |
+| `401` | `unauthorized` | The `X-API-Key` header is missing or empty, or its value does not resolve to an active retailer account. |
+| `403` | `capability_not_entitled` | The key is valid, but this account is not granted the journey the request exercises. The response names the missing capability in its root `capability` member. |
+
+A `403` is not a key problem — do not replace the key. Contact FittingMe to have the journey granted on your existing key.
+
+See [Problem details](/api-reference/errors) for the full RFC 9457 response shape and the complete problem type catalogue.
+
+## Handling rules
+
+- Put the key in page markup only. Never place an administration key, provider credential, or other secret in the browser.
+- Use one key per retailer account. A key resolves to exactly one account.
+- Treat the key as opaque. Do not parse it, derive values from it, or infer an account from it.
+- To replace a key, ask FittingMe through the contact page. Deploy the new value everywhere before reporting the old one as retired.
+- Never send a live key in a support message, a screenshot, or a bug report.
+
+<Warning>
+  A key that stops working everywhere at once usually means the retailer account was deactivated, not that the key was corrupted. Contact FittingMe rather than re-pasting the value.
+</Warning>
