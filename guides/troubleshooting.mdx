@@ -16,13 +16,33 @@ description: "Diagnose loader, container, authentication, and API error problems
 <Accordion title="No Journey Trigger appears">
   Confirm that the element selected by `data-container` exists before the loader executes. When the selector matches no element, the loader does not create an iframe.
 
-  Set `data-journey` to exactly `sizing` or `tryon`. Missing or invalid values fall back to `tryon` and produce a console warning.
+  Set `data-journey` to exactly `sizing` or `tryon`. On the current vocabulary a missing, blank, or unknown value **refuses the embed** — no iframe is created — and names `journey` in a console error. Only the previous `data-api-url` / `data-api-key` vocabulary falls back to `tryon`.
 
   For Try-On, confirm that the product has usable garment imagery. If the retailer page supplies that image, pass it with `data-garment-image-url`. An ineligible Journey Embed may collapse instead of showing a dead trigger.
 </Accordion>
 
+<Accordion title="The widget iframe is blocked or stays blank">
+  The iframe is served from `https://widget.fittingme.ai/<journey>/`, a different origin from
+  the loader script. Two independent policies can refuse it, and both leave your page working
+  while the widget shows nothing.
+
+  Check the browser console for a Content Security Policy violation, then confirm both:
+
+  1. **Your page's own CSP allows the frame.** A `frame-src` or `default-src` directive on
+     your response must include `https://widget.fittingme.ai`.
+  2. **Your origin is on the widget's framing allowlist.** The artifact host answers with a
+     `frame-ancestors` directive. If your origin is absent, the browser refuses the frame.
+     Send FittingMe every origin that embeds the widget, including staging and preview hosts.
+
+  You can read the served directive directly:
+
+  ```bash
+  curl -sI https://widget.fittingme.ai/tryon/ | grep -i content-security-policy
+  ```
+</Accordion>
+
 <Accordion title="The API returns 401 Unauthorized">
-  Confirm that `data-api-key` contains the public retailer key assigned to the integration. The widget sends this value in `X-API-Key`.
+  Confirm that `data-retailer-key` (or `data-api-key` on the previous vocabulary) contains the public retailer key assigned to the integration. The widget sends this value in `X-API-Key`.
 
   Do not use `Authorization: Bearer …`. The mounted retailer-authenticated backend routes do not use the Bearer scheme.
 </Accordion>

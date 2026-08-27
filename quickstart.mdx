@@ -5,7 +5,7 @@ description: "Add a FittingMe Journey Embed to a retailer product page."
 
 ## Add a container and loader tag
 
-Place the container before the loader tag. Replace the placeholder key, product identifier, and garment image URL with values for your integration.
+Place the container before the loader tag. Replace the placeholder key and product identifier with values for your integration. The garment imagery for Try-On comes from the FittingMe catalogue, resolved from `data-product-id` — the retailer page does not supply it.
 
 ```html
 <div id="fittingme-widget-container"></div>
@@ -14,16 +14,22 @@ Place the container before the loader tag. Replace the placeholder key, product 
   async
   src="https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js"
   data-container="#fittingme-widget-container"
-  data-api-url="https://api.fittingme.ai"
-  data-api-key="YOUR_PUBLISHABLE_KEY"
+  data-api-base="https://api.fittingme.ai"
+  data-retailer-key="YOUR_PUBLISHABLE_KEY"
   data-product-id="YOUR_PRODUCT_SKU"
-  data-garment-image-url="https://merchant.example/images/product.jpg"
   data-locale="en"
   data-journey="tryon"
 ></script>
 ```
 
-The loader creates and manages the iframe inside `#fittingme-widget-container`. Do not add an iframe yourself.
+The loader creates and manages the iframe inside `#fittingme-widget-container`. Do not add an iframe yourself. The iframe is served from `https://widget.fittingme.ai/<journey>/` — see [Artifact origin and framing](/guides/integration) for the two browser-level requirements that address carries.
+
+<Note>
+  `data-api-url` and `data-api-key` are the previous attribute names. Tags that carry them
+  are still accepted through a compatibility path scheduled for removal — new integrations
+  use `data-api-base` and `data-retailer-key`. See
+  [Loader integration](/guides/integration) for the closed attribute list.
+</Note>
 
 ## Choose one journey
 
@@ -32,7 +38,9 @@ Each loader tag delivers exactly one Shopper Journey:
 - Use `data-journey="tryon"` for virtual try-on.
 - Use `data-journey="sizing"` for size recommendation.
 
-Set `data-journey` explicitly. A missing or unknown value falls back to `tryon` and writes a warning to the browser console.
+Set `data-journey` explicitly. **There is no fallback on the current vocabulary**: a missing, blank, or unknown value refuses the embed before any iframe exists and names `journey` in a console *error*. A value that is not exactly `sizing` or `tryon` is unknown, including a name that happens to exist on JavaScript's object prototype such as `toString`.
+
+The `tryon` fallback applies only to the previous `data-api-url` / `data-api-key` vocabulary, which is scheduled for removal.
 
 ## Use the publishable key as loader configuration
 

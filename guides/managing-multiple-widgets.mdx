@@ -13,8 +13,8 @@ A product page may offer Sizing, Try-On, or both. Each Journey Embed needs its o
   async
   src="https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js"
   data-container="#fittingme-sizing"
-  data-api-url="https://api.fittingme.ai"
-  data-api-key="YOUR_PUBLISHABLE_KEY"
+  data-api-base="https://api.fittingme.ai"
+  data-retailer-key="YOUR_PUBLISHABLE_KEY"
   data-product-id="YOUR_PRODUCT_SKU"
   data-locale="en"
   data-journey="sizing"
@@ -26,14 +26,20 @@ A product page may offer Sizing, Try-On, or both. Each Journey Embed needs its o
   async
   src="https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js"
   data-container="#fittingme-tryon"
-  data-api-url="https://api.fittingme.ai"
-  data-api-key="YOUR_PUBLISHABLE_KEY"
+  data-api-base="https://api.fittingme.ai"
+  data-retailer-key="YOUR_PUBLISHABLE_KEY"
   data-product-id="YOUR_PRODUCT_SKU"
-  data-garment-image-url="https://merchant.example/images/product.jpg"
   data-locale="en"
   data-journey="tryon"
 ></script>
 ```
+
+<Note>
+  Both embeds mount their iframe from `https://widget.fittingme.ai/<journey>/` — `/sizing/`
+  for the first, `/tryon/` for the second. One origin covers both, so allowing it once in
+  your CSP covers every Journey Embed on the page. See
+  [Artifact origin and framing](/guides/integration).
+</Note>
 
 The loader keeps all live handles in one page-level registry. After both scripts have executed, you can resolve either embed by journey:
 
