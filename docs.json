@@ -3,9 +3,19 @@
   "theme": "luma",
   "name": "FittingMe.ai",
   "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
+    "primary": "#b4ad91",
+    "light": "#e4e1d6",
+    "dark": "#9a9377"
+  },
+  "fonts": {
+    "heading": { "family": "Playfair Display" },
+    "body": { "family": "Outfit" }
+  },
+  "styling": {
+    "codeblocks": { "theme": "vesper" }
+  },
+  "appearance": {
+    "default": "light"
   },
   "favicon": "/favicon.svg",
   "logo": {
