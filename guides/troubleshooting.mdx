@@ -31,6 +31,14 @@ description: "Diagnose loader, container, authentication, and API error problems
   Give every Journey Embed a distinct container element. Duplicate detection uses the resolved element, not the selector text, so two different selectors that point to the same element still count as a duplicate.
 </Accordion>
 
+<Accordion title="The widget opens in a narrow strip">
+  If the drawer opens only as tall as the Journey Trigger—about 50 pixels—and its content is clipped, inspect the element selected by `data-container` and every ancestor up to `<html>`.
+
+  CSS such as `transform`, `filter`, `perspective`, `backdrop-filter`, `contain` values of `paint`, `layout`, `strict`, or `content`, and `will-change` for any of those properties makes an element on that chain the containing block for `position: fixed` descendants. The drawer is then constrained to that element's box. Carousels, scroll-reveal animations, hover zoom effects, sticky banners, and rendering-isolation wrappers commonly apply these properties.
+
+  Move the `data-container` element outside the affected subtree or remove the property from the ancestor. On loader versions that detect this condition, the browser console also reports the offending ancestor and property.
+</Accordion>
+
 <Accordion title="An API request returns a structured error">
   Inspect the HTTP status and the root `code` member. See [Problem details](/api-reference/errors) for the RFC 9457 response shape and all stable problem types.
 </Accordion>

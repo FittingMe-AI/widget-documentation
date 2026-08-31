@@ -61,3 +61,7 @@ Each handle also exposes `destroy()`, which removes only its own iframe and unre
 ## Container rules
 
 The container must exist when the loader executes. If two loader tags resolve to the same element, the second embed is ignored and the first remains intact.
+
+To let the drawer fill the viewport, keep the element selected by `data-container` and every ancestor up to `<html>` free of CSS that creates a containing block for `position: fixed` descendants. This includes `transform`, `filter`, `perspective`, `backdrop-filter`, `contain` values of `paint`, `layout`, `strict`, or `content`, and `will-change` for any of those properties. Otherwise, the drawer remains constrained to that element's box instead of filling the viewport.
+
+Check carousels, scroll-reveal animations, hover zoom effects, sticky banners, and rendering-isolation wrappers for these properties. Move the container outside the affected subtree or remove the property from the ancestor.
