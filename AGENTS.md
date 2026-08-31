@@ -52,6 +52,15 @@ The July 2026 catalogue is historical for most API content, but its Problem Docu
 - `instance` is the request path without its query string.
 - Decision D-F8: problem `type` URIs are stable identifiers, not links. No environment dereferences them. Point readers to `api-reference/errors.mdx`, never tell them to open a type URI.
 
+## Brand and presentation
+
+Presentation follows the FittingMe design system, whose canonical source is `public-site/site/public/design-system/fm-tokens.css` in the sibling `public-site` repository. The palette is four colours — `#ffffff`, `#eaeae4`, `#b4ad91`, `#000000` — plus tints derived from them; headings are Playfair Display, body text is Outfit, and containers are square-cornered.
+
+- `docs.json` carries what Mintlify exposes: accent colours, fonts, logo, favicon, code-block theme, default appearance.
+- `style.css` carries only what `docs.json` cannot express: square corners, heading weight and tracking, link hairlines, callouts brought back inside the palette, selection and focus ring. Every rule names the design-system rule it ports.
+- `logo/light.svg`, `logo/dark.svg`, and `favicon.svg` are byte-identical copies of public-site assets. Re-copy them instead of editing them here, and prove the copy with `shasum -a 256`.
+- Never introduce a colour outside the palette, including a Mintlify default that arrives with a component. Mintlify paints `Note` blue and `Warning` yellow through utility classes on both the surface and the text; overriding the surface alone leaves coloured text behind.
+
 ## Content and navigation
 
 - Keep retailer integration pages in English unless the site adopts an explicit localization structure.

@@ -1,0 +1,168 @@
+/* ============================================================================
+   FittingMe design system — pont vers Mintlify
+   ----------------------------------------------------------------------------
+   Source unique de la marque :
+     public-site/site/public/design-system/fm-tokens.css
+   Les valeurs ci-dessous en sont recopiées, jamais réinventées. La palette
+   compte quatre couleurs et n'en admet aucune autre ; les surfaces, les
+   filets et les états s'expriment tous à l'intérieur de ces quatre.
+
+   Ce que docs.json règle déjà (et que ce fichier ne redit pas) :
+   familles typographiques, couleurs d'accent, logo, favicon, thème de code.
+   Ce fichier ne traite que ce que docs.json n'expose pas : angles droits,
+   graisse et interlettrage des titres, filet des liens, callouts ramenés
+   dans la palette, sélection et anneau de focus.
+   ========================================================================== */
+
+:root {
+  /* Palette — les quatre seules couleurs de la marque. */
+  --fm-white: #ffffff;
+  --fm-grey: #eaeae4;
+  --fm-beige: #b4ad91;
+  --fm-noir: #000000;
+
+  /* Neutres dérivés — teintes des quatre, pour états et filets seulement. */
+  --fm-grey-050: #f5f5f2;
+  --fm-grey-200: #dcdcd4;
+  --fm-beige-tint: #e4e1d6;
+  --fm-beige-deep: #9a9377;
+  --fm-noir-500: rgba(0, 0, 0, 0.5);
+  --fm-noir-120: rgba(0, 0, 0, 0.12);
+  --fm-white-200: rgba(255, 255, 255, 0.2);
+
+  /* Interlettrages du système typographique. */
+  --fm-tracking-display: -0.02em;
+  --fm-tracking-caps: 0.14em;
+}
+
+/* --------------------------------------------------------------------------
+   Angles droits
+   fm-tokens.css : --radius-none: 0px, et tout composant du système
+   (bouton, étiquette, champ, dialogue) s'y adosse. Les pilules et les
+   cercles restent permis (--radius-pill, --radius-circle), donc
+   `rounded-full` est exclu de la remise à plat.
+   -------------------------------------------------------------------------- */
+[class*="rounded"]:not([class*="rounded-full"]) {
+  border-radius: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Titres
+   fm-tokens.css : h1–h3 en Playfair Display, graisse regular, tracking
+   display ; h4–h6 en Outfit semibold, capitales, tracking caps.
+   -------------------------------------------------------------------------- */
+h1,
+h2,
+h3 {
+  font-weight: 400;
+  letter-spacing: var(--fm-tracking-display);
+}
+
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--fm-tracking-caps);
+}
+
+/* --------------------------------------------------------------------------
+   Liens de contenu
+   fm-tokens.css : le lien ne change pas de couleur — il porte un filet
+   hairline qui s'assombrit au survol. Les liens de titre, de carte et de
+   navigation gardent leur traitement propre.
+   -------------------------------------------------------------------------- */
+.prose a:not([class*="card"]):not([class*="button"]):not([class*="btn"]) {
+  text-decoration: none;
+  border-bottom: 1px solid var(--fm-noir-120);
+  transition: border-color 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.prose a:not([class*="card"]):not([class*="button"]):not([class*="btn"]):hover {
+  border-bottom-color: currentColor;
+}
+
+.prose :is(h1, h2, h3, h4, h5, h6) a,
+.prose a[class*="card"],
+.prose a:has(> img),
+.prose a:has(> svg) {
+  border-bottom: 0;
+}
+
+.dark .prose a:not([class*="card"]):not([class*="button"]):not([class*="btn"]) {
+  border-bottom-color: var(--fm-white-200);
+}
+
+/* --------------------------------------------------------------------------
+   Callouts
+   fm-tokens.css exprime le sémantique dans la palette :
+   --state-positive-surface: beige-tint, --state-warning-surface: grey.
+   Aucune teinte hors palette ne subsiste ; la hiérarchie passe par la
+   barre de gauche — beige pour l'appui, noire pour l'avertissement.
+   -------------------------------------------------------------------------- */
+.callout {
+  border: 1px solid var(--fm-noir-120);
+  border-left-width: 2px;
+  border-left-color: var(--fm-beige-deep);
+  background: var(--fm-beige-tint);
+  color: var(--fm-noir);
+}
+
+/* Mintlify colore aussi le texte et l'icône du callout par classe utilitaire
+   (`text-blue-…`, `text-yellow-…`) : la surface ne suffit pas à les ramener
+   dans la palette. */
+.callout [class*="text-"],
+.callout :is(p, li, strong, em, span, svg) {
+  color: var(--fm-noir);
+}
+
+/* Mintlify peint Warning en `yellow` et Danger en `red` : les deux passent
+   sur la surface d'avertissement du système, barre noire. */
+.callout[class*="yellow"],
+.callout[class*="amber"],
+.callout[class*="orange"],
+.callout[class*="red"],
+.callout[class*="rose"] {
+  border-left-color: var(--fm-noir);
+  background: var(--fm-grey);
+}
+
+.callout svg {
+  color: currentColor;
+}
+
+.dark .callout {
+  border-color: var(--fm-white-200);
+  border-left-color: var(--fm-beige);
+  background: rgba(180, 173, 145, 0.16);
+  color: var(--fm-white);
+}
+
+.dark .callout [class*="text-"],
+.dark .callout :is(p, li, strong, em, span, svg) {
+  color: var(--fm-white);
+}
+
+.dark .callout[class*="yellow"],
+.dark .callout[class*="amber"],
+.dark .callout[class*="orange"],
+.dark .callout[class*="red"],
+.dark .callout[class*="rose"] {
+  border-left-color: var(--fm-white);
+  background: rgba(234, 234, 228, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   Sélection et focus
+   fm-tokens.css : ::selection beige sur blanc ; --focus-ring: beige-deep,
+   contour 2px décalé de 2px.
+   -------------------------------------------------------------------------- */
+::selection {
+  background: var(--fm-beige);
+  color: var(--fm-white);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--fm-beige-deep);
+  outline-offset: 2px;
+}
