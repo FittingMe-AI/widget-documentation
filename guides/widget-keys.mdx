@@ -20,22 +20,31 @@ Use the [FittingMe contact page](https://fittingme.ai/contact/) and include:
 | Every origin that will embed the widget | Each origin must be added to the embed's framing allowlist, including staging and preview hosts. |
 | The journeys you need | A key grants Sizing, Try-On, or both. Journeys are granted explicitly. |
 
-<Note>
-  List every origin up front. An origin that has not been added to the framing allowlist loads your page normally, but the browser refuses to frame the widget and reports a Content Security Policy violation in the console.
-</Note>
+<Warning>
+  List every origin up front. The widget is served from its own host,
+  `https://widget.fittingme.ai`, which answers with a `frame-ancestors` directive naming the
+  origins allowed to frame it. An origin that is not on that list loads your page normally,
+  but the browser refuses to frame the widget and reports a Content Security Policy violation
+  in the console.
+
+  Your page's own CSP must also allow the frame: if you send a `frame-src` or `default-src`
+  directive, it must include `https://widget.fittingme.ai`. See
+  [Artifact origin and framing](/guides/integration).
+</Warning>
 
 You receive one key per retailer account. Use the same key for the Sizing and Try-On embeds on your storefront.
 
 ## Install the key
 
-Pass the key as `data-api-key` on the loader tag:
+Pass the key as `data-retailer-key` on the loader tag:
 
 ```html
 <script
   async
   src="https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js"
   data-container="#fittingme-widget-container"
-  data-api-key="YOUR_PUBLISHABLE_KEY"
+  data-api-base="https://api.fittingme.ai"
+  data-retailer-key="YOUR_PUBLISHABLE_KEY"
   data-product-id="YOUR_PRODUCT_SKU"
   data-journey="sizing"
 ></script>
