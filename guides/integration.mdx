@@ -9,7 +9,7 @@ description: "Configure a FittingMe Journey Embed with the public loader attribu
 Use the production loader at:
 
 ```text
-https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js
+https://widget.fittingme.ai/v2/fittingme-loader.js
 ```
 
 The loader is standalone and has no runtime imports. Each loader tag mounts one iframe and pins it to one Shopper Journey.
@@ -19,23 +19,22 @@ The loader is standalone and has no runtime imports. Each loader tag mounts one 
 | Attribute | Default | Purpose |
 | --- | --- | --- |
 | `data-container` | `#fittingme-widget-container` | CSS selector for the host element that receives the iframe. |
-| `data-product-id` | Empty | Retailer product identifier forwarded to the widget. |
-| `data-api-key` | Empty | Public retailer API key forwarded to the widget. |
-| `data-api-url` | `https://api.fittingme.ai` | Backend origin used by the widget. |
-| `data-journey` | `tryon` | Journey delivered by this embed: `sizing` or `tryon`. |
-| `data-locale` | `en` | Requested widget locale. |
-| `data-gender` | Empty | Optional sizing input. |
-| `data-brand-slug` | Empty | Optional brand selection. |
-| `data-garment-type` | Empty | Optional garment selection. |
-| `data-garment-image-url` | Empty | Garment image forwarded for Try-On. Root-relative values resolve against the retailer page. |
-| `data-garment-model-key` | Empty | Optional stable grouping for garment variants. |
-| `data-privacy-url` | Empty | Retailer privacy-policy URL shown by the widget where applicable. |
+| `data-api-base` | Required | Backend origin, for example `https://api.fittingme.ai`. |
+| `data-retailer-key` | Required | Public retailer key assigned to your integration. |
+| `data-product-id` | Required | Retailer catalogue product identifier. |
+| `data-journey` | Required | Exactly `sizing` or `tryon`; no fallback. |
+| `data-locale` | Omitted | Optional requested locale. |
+| `data-sizing-domain` | Omitted | Optional sizing domain supplied by your integration configuration. |
+| `data-trigger-mode` | Omitted | Optional trigger presentation mode supplied by your integration configuration. |
+| `data-widget-url` | `https://widget.fittingme.ai/{journey}/` | Override the widget document only when your integration requires it. The default selects the declared journey. |
 
-Always set `data-api-key`, `data-product-id`, and `data-journey` explicitly for a production embed. Use `data-garment-image-url` when the retailer page supplies the garment image for Try-On.
+Set all four required attributes explicitly. Missing required values, unknown journeys, or unrecognized `data-*` attributes prevent mounting and produce a console error. Attribute values are trimmed at the loader boundary.
+
+The API resolves garment imagery and other product context from `data-product-id`. Do not pass legacy garment-image, brand, gender, or privacy attributes on the loader tag.
 
 ## API authentication
 
-The loader forwards `data-api-key` to the widget. The widget attaches the value as `X-API-Key` on authenticated backend requests.
+The loader forwards `data-retailer-key` to the widget. The widget attaches the value as `X-API-Key` on authenticated backend requests.
 
 ```http
 X-API-Key: YOUR_PUBLISHABLE_KEY

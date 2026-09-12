@@ -23,25 +23,31 @@ Run `git worktree list` in this repository. The first worktree is the main check
 
 Read the relevant source before changing an API or integration claim:
 
-| Claim | Canonical b2b source |
+| Claim | Canonical source |
 | --- | --- |
 | Mounted backend routes and middleware | `backend/src/routes/mod.rs` |
 | Retailer API-key authentication | `backend/src/middleware/auth.rs` |
-| Loader URL, attributes, defaults, and browser API | `frontend/loader/fittingme-loader.js` and `frontend/lib/embed-protocol.js` |
+| Loader URL, attributes, defaults, and browser API | Sibling `widget/loader/fittingme-loader.js`, `widget/loader/lib/embed-protocol.js` and `widget/infra/image/default.conf.template` (ADR-078); the b2b loader was removed. |
 | RFC 9457 business-error mapping | `backend/src/error.rs` |
 | Shared Problem Document shape | `crates/problem-details/src/lib.rs` |
 | Framework errors and query-free `instance` | `backend/src/middleware/problem_normalization.rs` |
 | Complete problem type catalogue | `backend/docs/refactor/api-2026-07/api-reference.yaml` |
 
+Loader provenance (W1-07, 2026-09-13 Europe/Paris): measured widget commit
+`28c908bfc3152e317dadcfa53eedc3893168be96`. From that widget checkout,
+`git show HEAD:loader/lib/embed-protocol.js` gives the closed configuration fields;
+`git show HEAD:loader/fittingme-loader.js` gives required-field validation and the
+instance API; `git show HEAD:infra/image/default.conf.template` gives the asset route.
+
 The July 2026 catalogue is historical for most API content, but its Problem Document schema and type inventory are current and guarded by b2b tests. Do not use its unrelated paths or operations without checking the mounted router.
 
 ## Provenance discipline
 
-1. Verify every new or changed assertion about the API against b2b implementation or an executable contract before writing it.
-2. Cite each supporting b2b location as `file:line` in the documentation commit body.
+1. Verify every new or changed assertion about the API against the owning repository implementation or an executable contract before writing it.
+2. Cite each supporting source location as `file:line` in the documentation commit body.
 3. Treat a documented route absent from `backend/src/routes/mod.rs` as drift. Remove it or escalate the product decision; never invent a replacement.
 4. Verify authentication middleware at the mounted route. The retailer embed uses `X-API-Key`; do not describe a Bearer scheme unless a real mounted route uses it.
-5. When a cross-repository inventory cannot be guarded in CI, add a dated provenance note with the b2b commit and the exact measurement command.
+5. When a cross-repository inventory cannot be guarded in CI, add a dated provenance note with the owning repository commit and the exact measurement command.
 
 ## Problem Document contract
 
