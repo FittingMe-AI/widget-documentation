@@ -28,14 +28,15 @@ You receive one key per retailer account. Use the same key for the Sizing and Tr
 
 ## Install the key
 
-Pass the key as `data-api-key` on the loader tag:
+Pass the key as `data-retailer-key` on the loader tag:
 
 ```html
 <script
   async
-  src="https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js"
+  src="https://widget.fittingme.ai/v2/fittingme-loader.js"
   data-container="#fittingme-widget-container"
-  data-api-key="YOUR_PUBLISHABLE_KEY"
+  data-api-base="https://api.fittingme.ai"
+  data-retailer-key="YOUR_PUBLISHABLE_KEY"
   data-product-id="YOUR_PRODUCT_SKU"
   data-journey="sizing"
 ></script>

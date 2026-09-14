@@ -7,7 +7,7 @@ description: "Diagnose loader, container, authentication, and API error problems
   Confirm that the script uses the complete production URL:
 
   ```text
-  https://cdn.fittingme.ai/fittingme-widget/loader/fittingme-loader.min.js
+  https://widget.fittingme.ai/v2/fittingme-loader.js
   ```
 
   Inspect the browser Network panel for the loader request. Shorter legacy asset paths are not the deployed loader.
@@ -16,13 +16,13 @@ description: "Diagnose loader, container, authentication, and API error problems
 <Accordion title="No Journey Trigger appears">
   Confirm that the element selected by `data-container` exists before the loader executes. When the selector matches no element, the loader does not create an iframe.
 
-  Set `data-journey` to exactly `sizing` or `tryon`. Missing or invalid values fall back to `tryon` and produce a console warning.
+  Set `data-journey` to exactly `sizing` or `tryon`. Missing, blank, or invalid values prevent mounting and produce a console error. Set `data-api-base`, `data-retailer-key`, and `data-product-id` too; all four fields are required.
 
-  For Try-On, confirm that the product has usable garment imagery. If the retailer page supplies that image, pass it with `data-garment-image-url`. An ineligible Journey Embed may collapse instead of showing a dead trigger.
+  For Try-On, confirm that the catalogue product identified by `data-product-id` has usable garment imagery. The API resolves that image; do not pass the retired `data-garment-image-url` attribute. An ineligible Journey Embed may collapse instead of showing a dead trigger.
 </Accordion>
 
 <Accordion title="The API returns 401 Unauthorized">
-  Confirm that `data-api-key` contains the public retailer key assigned to the integration. The widget sends this value in `X-API-Key`.
+  Confirm that `data-retailer-key` contains the public retailer key assigned to the integration. The widget sends this value in `X-API-Key`.
 
   Do not use `Authorization: Bearer …`. The mounted retailer-authenticated backend routes do not use the Bearer scheme.
 </Accordion>
