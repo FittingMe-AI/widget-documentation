@@ -1,0 +1,74 @@
+---
+title: "Events"
+description: "The exact retailer-visible milestones, their payloads and their timing."
+---
+
+With the loader, use `FittingMe.on(handler)`. It calls your handler with an ordinary JavaScript object; these are not DOM events dispatched on the container. With a direct host, consume the validated protocol messages described below.
+
+## Public loader events
+
+| `jalon` | Payload in addition to `jalon` | Meaning and timing | Replay |
+| --- | --- | --- | --- |
+| `amorçage` | `encart`, `issue`; optional `code_transport` only for `indéterminé` | Embed learned its boot outcome | Latest known outcome for every living embed is delivered synchronously to each new subscriber |
+| `ouverture` | `encart`, `origine` | Drawer opened and the loader established fullscreen placement | Never |
+| `fermeture` | `encart` | An announced open drawer closed; presentation may finish before this is emitted | Never |
+| `complétion` | `encart` | A completed journey is announced on closing its drawer | Never |
+
+### Placement and opening origin
+
+- `encart` is the container **element**, not its ID string.
+- `origine` is `tap` for the provided trigger or `commande` for a loader command. A custom button click is therefore `commande`, just like a programmatic open; this field alone does not prove a human clicked.
+
+## Boot outcomes
+
+| Exact `issue` | Interpretation | Host action |
+| --- | --- | --- |
+| `éligible` | Try-On is available in this product context | Reveal your button or surrounding Try-On copy |
+| `inéligible` | Try-On is not available in this context | Keep that UI hidden; no ineligibility reason is exposed |
+| `indéterminé` | Availability could not be established | Keep the trigger unavailable, show a recoverable service message and diagnose the failure |
+
+Initialize optional retailer-owned UI hidden, then reveal it on `éligible`. Zero iframe height alone does not tell you eligibility: the custom-button mode has zero height when closed even when eligible.
+
+### Transport codes
+
+`code_transport`, when present, is a string such as `"401"`, `"503"`, `"réseau"` (network) or `"délai"` (timeout). `"200"` can accompany an unreadable successful response. It is not an ineligibility reason or a full Problem Document. An image acknowledgement mismatch can produce `indéterminé` without this field.
+
+## Completion is observed on close
+
+The current widget emits these messages in order:
+
+1. `fermeture`.
+2. `complétion`, when applicable.
+3. Its closed height.
+
+It does not emit the public completion event immediately when a render first appears.
+
+### Repeat closes and restored journeys
+
+- Closing the same completed result again does not create another completion.
+- An observed return to an incomplete journey rearms that transition.
+- A newly created embed can announce a restored completed journey on close.
+
+### Counting and listener lifetime
+
+Consequently, completion counts are not generation-job counts, billing units or unique shoppers. Keep your listener alive through the close delivery; defer destruction to a later task if you need the completion that follows that close. No completion replay exists for a late subscriber.
+
+## Transport mapping
+
+Direct messages have `{ protocole: "fittingme/3", message, champs }`:
+
+| Wire `message` | `champs` | Loader projection |
+| --- | --- | --- |
+| `amorçage` | `{ issue, code_transport? , geometrie_tiroir? }` | Boot event; layout capability remains internal |
+| `ouverture` | `{ ouverture? }` | Opening event after host layout; loader derives `origine` locally |
+| `fermeture` | `{}` | Closing event, paired with an opening |
+| `complétion` | `{}` | Completion event |
+| `hauteur` | `{ hauteur_px }` | Host layout only; no public event |
+
+Neither the placement nor opening origin crosses the wire: a direct host identifies the iframe by its source window and derives the opening origin from its own pending command. The optional opening counter belongs to [layout negotiation](/reference/fittingme-3#layout-coordination), not shopper identity.
+
+## What is deliberately absent
+
+These events contain no shopper photo, render URL, session capability, purchase, price, conversion attribution or detailed ineligibility reason. Add your own non-sensitive product and placement context when handling them. FittingMe's internal service tracking is a separate surface and is not a feed you can subscribe to through this API.
+
+See [Track Try-On usage](/tracking/usage) for a vendor-neutral adapter, and [Commerce analytics](/tracking/commerce) for optional correlation with events your store already owns.

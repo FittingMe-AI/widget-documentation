@@ -8,11 +8,17 @@
     "dark": "#9a9377"
   },
   "fonts": {
-    "heading": { "family": "Playfair Display" },
-    "body": { "family": "Outfit" }
+    "heading": {
+      "family": "Outfit"
+    },
+    "body": {
+      "family": "Outfit"
+    }
   },
   "styling": {
-    "codeblocks": { "theme": "vesper" }
+    "codeblocks": {
+      "theme": "vesper"
+    }
   },
   "appearance": {
     "default": "light"
@@ -24,7 +30,10 @@
   },
   "navbar": {
     "links": [
-      { "label": "Contact", "href": "https://fittingme.ai/contact/" }
+      {
+        "label": "Contact",
+        "href": "https://fittingme.ai/contact/"
+      }
     ]
   },
   "navigation": {
@@ -33,25 +42,52 @@
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Get started",
+            "group": "Start here",
             "pages": [
               "introduction",
-              "quickstart"
+              "start/access-keys-domains",
+              "start/first-product"
             ]
           },
           {
-            "group": "Integration",
+            "group": "Quickstarts",
             "pages": [
-              "guides/widget-keys",
-              "guides/integration",
-              "guides/managing-multiple-widgets",
-              "guides/troubleshooting"
+              "quickstarts/provided-button",
+              "quickstarts/custom-button",
+              "quickstarts/direct-protocol"
+            ]
+          },
+          {
+            "group": "Integration guides",
+            "pages": [
+              "guides/product-changes",
+              "guides/multiple-embeds",
+              "guides/react-nextjs",
+              "guides/prepared-catalogue"
             ]
           },
           {
             "group": "Reference",
             "pages": [
-              "api-reference/errors"
+              "reference/configuration",
+              "reference/loader-api",
+              "reference/fittingme-3",
+              "reference/events"
+            ]
+          },
+          {
+            "group": "Tracking",
+            "pages": [
+              "tracking/usage",
+              "tracking/gtm-ga4",
+              "tracking/commerce"
+            ]
+          },
+          {
+            "group": "Testing and troubleshooting",
+            "pages": [
+              "testing/troubleshooting",
+              "testing/go-live"
             ]
           }
         ]

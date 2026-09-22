@@ -1,0 +1,76 @@
+---
+title: "Connect commerce analytics"
+description: "Correlate Try-On with commerce events your store already emits."
+---
+
+This recipe is optional. FittingMe's public integration events do **not** include add-to-cart or purchase events. Your storefront and checkout remain the source of truth for those actions.
+
+## Define a retailer-owned join
+
+Choose these three parts of the join:
+
+| Part | Requirement |
+| --- | --- |
+| Visit/session identity | Use the consented identity already used by your analytics. If checkout uses a different origin, preserve the join through your existing analytics design; the embed does not provide cross-domain identity. |
+| Product/color identity | Use a stable identity with the same mapping as [product preparation](/start/first-product). |
+| Attribution window | Choose an explicit window. |
+
+A useful analysis can distinguish a drawer opening before add-to-cart from an observed completed journey before purchase. Keep those definitions separate. Completion is delivered on closing, so a result viewed without closure may be absent from that metric.
+
+## Enrich existing commerce events
+
+This small in-memory example adds context for the current document. It persists nothing, uses no FittingMe session identifier and does not create a commerce event. Call it from your existing consented analytics adapter.
+
+```javascript
+const usageByProduct = new Map();
+const windowMs = 30 * 60 * 1000; // Example retailer choice, not a FittingMe rule.
+
+function rememberTryOn(record) {
+  if (record.name !== "tryon_open" && record.name !== "tryon_complete") return;
+  const usage = usageByProduct.get(record.product_id) || {};
+  usage[record.name === "tryon_open" ? "openedAt" : "completedAt"] = Date.now();
+  usageByProduct.set(record.product_id, usage);
+}
+function tryOnContext(productId, now = Date.now()) {
+  const usage = usageByProduct.get(productId) || {};
+  const recent = time => typeof time === "number" && now >= time && now - time <= windowMs;
+  return {
+    tryon_opened_in_window: recent(usage.openedAt),
+    tryon_completed_in_window: recent(usage.completedAt)
+  };
+}
+function enrichExistingCommerceEvent(event) {
+  // event is supplied by your store's existing add-to-cart or purchase pipeline.
+  return {
+    ...event,
+    items: event.items.map(item => ({
+      ...item,
+      ...tryOnContext(item.product_id)
+    }))
+  };
+}
+// Feed rememberTryOn from the send callback of subscribeTryOn after consent.
+// When analytics consent is withdrawn, clear retained usage as your policy requires:
+// usageByProduct.clear();
+```
+
+### Adapt the schema and retention
+
+The `event.items` and `item.product_id` shape above is a retailer-owned example. Adapt it to your existing event schema; for GA4 ecommerce you may use its existing `item_id` mapping. Do not assume the embed's product identity equals a checkout SKU unless your catalogue mapping establishes it.
+
+To retain context across pages, use your existing consented analytics/session store with a documented retention window. Keep your existing transaction-ID deduplication and purchase validation. Never emit a second purchase from a Try-On completion callback.
+
+## Interpret correlation carefully
+
+Report your window, identity scope, eligible product coverage, consent coverage and treatment of repeat opens, refunds and returns. Self-selected Try-On users can differ from other shoppers in purchase intent, product mix, device and traffic source. Missing consent, cross-device activity and late or unobserved closure create additional gaps.
+
+An observed association between Try-On and purchases does not establish conversion lift. A causal claim requires an appropriate experiment or causal design with a comparison group and its assumptions stated. Do not describe a journey event as a conversion unless your own measurement definition explicitly says what it means.
+
+## Verify the join
+
+1. With a test product and consented test visit, observe a Try-On open, then trigger the store's real add-to-cart action.
+2. Confirm exactly one existing commerce event with the correct added context.
+3. Test a different product, an expired window and a visit with no Try-On. Each should remain unassociated.
+4. Verify a purchase in your checkout's approved test process; do not generate a real order just to validate this recipe.
+
+Return to [usage tracking](/tracking/usage) for lifecycle cleanup and [GTM/GA4](/tracking/gtm-ga4) for the delivery checks.

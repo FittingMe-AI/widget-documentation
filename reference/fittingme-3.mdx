@@ -1,0 +1,119 @@
+---
+title: "fittingme/3 protocol"
+description: "The direct host contract for Try-On with a supplied garment image."
+---
+
+This reference applies to a direct Try-On iframe carrying `garment_image_url`. Use the [complete direct example](/quickstarts/direct-protocol) as your starting point. For a prepared catalogue, use the [loader integration](/guides/prepared-catalogue).
+
+## Bootstrap document
+
+1. Prepare `https://widget.fittingme.ai/tryon/` with the [required query parameters](/reference/configuration#direct-iframe-query-parameters), including `loader_major=3`, the actual `host_origin`, and a supplied image.
+2. Register your `message` listener before assigning and appending the iframe.
+3. Configure the iframe attributes below. Start at zero height and keep your custom trigger hidden until an eligible boot outcome.
+4. Assign the prepared document URL and append the iframe.
+
+### Iframe attributes
+
+Set `title="Virtual try-on"`, `allow="web-share"` and this sandbox value:
+
+```text
+allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-storage-access-by-user-activation
+```
+
+Do not replace the sandbox with unrestricted top-navigation permission. The host page and widget service must also allow framing through their respective security policies.
+
+## Envelope
+
+Every message in both directions has exactly these three top-level keys:
+
+```javascript
+{
+  protocole: "fittingme/3",
+  message: "ouvrir",
+  champs: {}
+}
+```
+
+`champs` is an object even when empty. Unknown fields inside it are additive and can be ignored. Extra top-level keys are outside the envelope. Keep spelling and accents exactly as shown. There is no ready/ack request to send before bootstrap and no legacy message exchange to add alongside this protocol.
+
+## Message directions
+
+| Direction | `message` | `champs` | Host meaning |
+| --- | --- | --- | --- |
+| Host → widget | `ouvrir` | `{}` for Try-On | Request opening; not a result |
+| Host → widget | `fermer` | `{}` | Request closure |
+| Host → widget | `disposition` | Capability response, then correlated dimensions | Optional layout coordination below |
+| Widget → host | `amorçage` | Boot payload from [Events](/reference/events) | Decide whether the trigger can be shown |
+| Widget → host | `hauteur` | `{ hauteur_px: number }` | Set closed inline height; retain it if currently open |
+| Widget → host | `ouverture` | `{}` or `{ ouverture: positiveInteger }` | Expand the frame; acknowledge dimensions if negotiated |
+| Widget → host | `fermeture` | `{}` | Restore inline layout, scroll and focus; release your history entry |
+| Widget → host | `complétion` | `{}` | Handle the completion milestone; see its timing in [Events](/reference/events) |
+
+With `trigger_mode=hôte`, keep closed height at zero. With the provided trigger, use the nonnegative, finite announced height; do not hardcode a button height. While open, height announcements update the height to restore later, not the fullscreen height.
+
+## Validate every message
+
+1. Require `event.source === frame.contentWindow` **and** `event.origin === new URL(frame.src).origin`. Derive the expected origin from the document address you selected; do not learn it from the first message.
+2. Ignore objects without a recognized protocol namespace. A different `fittingme` major from the authenticated source closes the channel for that embed: report the incompatibility and recreate with compatible services. Do not downgrade an image-bearing embed.
+3. Validate the three-key envelope, known message name and payload types. Ignore unknown names within the current major and report each once. Ignore additional payload fields.
+4. Process only the fields needed for that message. No message may retarget another iframe or set an arbitrary CSS property.
+
+Post outbound messages to the **exact widget origin**, never `"*"`. A source-window check alone is insufficient if an iframe navigates to another origin. An unrelated window's wrong-major message must not be allowed to close your channel.
+
+## Layout coordination
+
+### Announce layout capability
+
+If `amorçage.champs.geometrie_tiroir === true`, respond:
+
+```javascript
+send("disposition", { capacite: "geometrie_tiroir" });
+```
+
+### Acknowledge an opening
+
+1. On a negotiated opening, read the widget's positive integer `ouverture`.
+2. Expand the iframe successfully, then measure its rendered box.
+3. Respond with that same counter:
+
+```javascript
+const box = frame.getBoundingClientRect();
+send("disposition", {
+  capacite: "geometrie_tiroir",
+  ouverture: openingCounter,
+  largeur_px: box.width,
+  hauteur_px: box.height
+});
+```
+
+Dimensions must be finite and strictly positive. Stale counters and malformed responses have no effect. The widget also checks its real viewport and bounds this presentation wait at 600 ms. Without negotiation it uses its immediate presentation path. A late acknowledgement must not revive a closed opening. This exchange is internal layout coordination, not a public usage milestone.
+
+## Own the host lifetime
+
+### Viewport, scroll and focus
+
+Expand the frame to the viewport only on observed `ouverture`, then maintain that placement and host scroll lock until `fermeture`. The widget closes logically before its exit presentation ends; collapsing the iframe when you send `fermer` cuts that presentation off.
+
+Keep the frame outside transformed, filtered, perspective or containing ancestors that prevent fixed viewport placement. Preserve and restore host styles and scroll position. The widget manages its internal focus trap and Escape; the host restores focus to a retailer-owned trigger if it still exists. If that button has been removed by navigation, focus a suitable element on the new page instead.
+
+### Browser history
+
+For a host-commanded opening, the host owns a temporary history entry:
+
+1. Push without changing the product URL and recognize only your own entry.
+2. Close on its Back traversal. On another closure, remove only an entry that is still yours. Never consume an intervening SPA navigation.
+
+For an opening from the widget's own trigger, the widget owns that history entry; do not push a second one.
+
+### Multiple drawers
+
+Only one drawer should be open. A host commanding another embed must close the busy sibling and wait for its observed closure before opening the target, with a bounded failure path. The loader already implements coordination; a direct multi-embed host must implement and verify it itself.
+
+## Cleanup and error handling
+
+1. Wait for an in-flight open to settle.
+2. Request closure and observe `fermeture`. Removing the iframe is not a close command.
+3. Let following completion delivery finish and settle your history return before removing the frame.
+4. Remove message, resize, keyboard and history listeners and release any scroll lock.
+
+Neither `postMessage()` returning nor an application timeout proves a transition. Keep ownership on an unresolved close, show an actionable failure and avoid navigating your SPA until it is resolved. Report boot failure separately from product unavailability. The [go-live checklist](/testing/go-live) includes forged messages, Back and teardown checks.

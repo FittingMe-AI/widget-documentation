@@ -1,0 +1,274 @@
+---
+title: "Integrate with fittingme/3"
+description: "Build an advanced iframe host with a supplied garment image and the full host lifecycle."
+---
+
+Use this path when you need to own the iframe host. For a custom button alone, prefer the [loader quickstart](/quickstarts/custom-button): it already implements these responsibilities.
+
+This complete single-embed product page uses a retailer-owned button and a supplied garment image. It does not use the loader. It supports validated messages, boot outcomes, layout negotiation, scroll locking, Escape inside the widget, browser Back, focus return, observed closure and cleanup. The iframe owns keyboard focus trapping inside its drawer.
+
+## Before you start
+
+1. Complete [access setup](/start/access-keys-domains) and [product preparation](/start/first-product).
+2. Replace the key, product and image placeholders below. The example uses the standard public service addresses.
+
+## Run the direct product page
+
+1. Save the complete file below as `product.html`.
+2. Serve it over an authorized origin, for example with `python3 -m http.server 8088 --bind 127.0.0.1`.
+3. Visit `http://localhost:8088/product.html` when using that local server.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Example garment — direct Try-On</title>
+  <style>
+    body { margin: 0; padding: 32px; font: 16px/1.6 system-ui; color: #000; background: #fff; }
+    main { max-width: 800px; margin: auto; }
+    img { display: block; width: 320px; max-width: 100%; height: 360px; object-fit: contain; }
+    button { min-height: 44px; padding: 10px 20px; margin: 8px 8px 8px 0; cursor: pointer; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 2px solid #9a9377; outline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Example garment</h1>
+    <img src="https://images.example.com/YOUR_GARMENT.jpg" alt="Selected garment">
+    <button id="open-tryon" type="button" hidden>Try it on</button>
+    <p id="status" role="status" tabindex="-1">Loading Try-On…</p>
+    <button id="remove-tryon" type="button">Remove Try-On</button>
+  </main>
+  <script>
+    const button = document.getElementById("open-tryon");
+    const remove = document.getElementById("remove-tryon");
+    const status = document.getElementById("status");
+    const url = new URL("https://widget.fittingme.ai/tryon/");
+    const widgetOrigin = url.origin;
+    if (location.origin === "null") throw new Error("Serve this page over HTTP or HTTPS.");
+    const config = {
+      api_base: "https://api.fittingme.ai",
+      retailer_key: "YOUR_PUBLISHABLE_KEY",
+      product_id: "YOUR_PRODUCT_ID",
+      garment_image_url: "https://images.example.com/YOUR_GARMENT.jpg",
+      journey: "tryon", locale: "en", trigger_mode: "hôte",
+      loader_major: "3", host_origin: location.origin
+    };
+    for (const [key, value] of Object.entries(config)) url.searchParams.set(key, value);
+    const frame = document.createElement("iframe");
+    frame.title = "Virtual try-on";
+    frame.setAttribute("sandbox", "allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-storage-access-by-user-activation");
+    frame.setAttribute("allow", "web-share");
+    const inlineStyle = "display:block;width:100%;height:0;border:0;";
+    frame.style.cssText = inlineStyle;
+    let eligible = false, opened = false, disposed = false, closing = false;
+    let threadClosed = false, geometry = false, opening = null, openingCounter = 0;
+    let disposeTask = null, disposing = false, unlock = () => {};
+    let historyOwned = false, historyLength = 0, historyPending = null;
+    const historyKey = "retailerTryOn";
+    const historyToken = crypto.randomUUID();
+    const listeners = new Set();
+    const warned = new Set();
+    const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
+    function refreshButton() {
+      button.hidden = !eligible || disposing || threadClosed;
+      button.disabled = !!opening || closing || !!historyPending;
+    }
+    function report(error) { status.textContent = error.message; }
+    function emit(name) { for (const listener of [...listeners]) listener(name); }
+    function send(message, champs = {}) {
+      if (disposed || threadClosed) throw new Error("The Try-On channel is closed.");
+      frame.contentWindow.postMessage({ protocole: "fittingme/3", message, champs }, widgetOrigin);
+    }
+    function observe(name, command) {
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => finish(new Error("No observed " + name)), 2500);
+        const listener = received => { if (received === name) finish(); };
+        function finish(error) {
+          clearTimeout(timer); listeners.delete(listener);
+          if (error) reject(error); else resolve();
+        }
+        listeners.add(listener);
+        try { command(); } catch (error) { finish(error); }
+      });
+    }
+    function lockScroll() {
+      const saved = [document.documentElement, document.body].map(element => {
+        const value = element.style.getPropertyValue("overflow");
+        const priority = element.style.getPropertyPriority("overflow");
+        element.style.setProperty("overflow", "hidden");
+        return () => value ? element.style.setProperty("overflow", value, priority)
+          : element.style.removeProperty("overflow");
+      });
+      return () => saved.forEach(restore => restore());
+    }
+    function pushHistory() {
+      const previous = object(history.state) ? history.state : {};
+      history.pushState({ ...previous, [historyKey]: historyToken }, "");
+      historyLength = history.length;
+      historyOwned = true;
+    }
+    function releaseHistory() {
+      if (!historyOwned) return;
+      historyOwned = false;
+      if (history.state?.[historyKey] !== historyToken || history.length > historyLength) {
+        console.warn("Try-On left a foreign navigation entry untouched."); return;
+      }
+      historyPending = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => finish(new Error("History return was not observed.")), 2500);
+        const listener = () => finish();
+        function finish(error) {
+          clearTimeout(timer); window.removeEventListener("popstate", listener);
+          if (error) reject(error); else resolve();
+        }
+        window.addEventListener("popstate", listener, { once: true });
+        history.back();
+      });
+      historyPending.then(() => {
+        historyPending = null; refreshButton();
+        if (!disposing && button.isConnected && !button.hidden) button.focus();
+      }, report);
+    }
+    function onPopState() {
+      if (!historyOwned || history.state?.[historyKey] === historyToken) return;
+      historyOwned = false; // Back consumed our entry; never consume the next one.
+      if (opened) closeTryOn().catch(report);
+    }
+    function acknowledgeLayout() {
+      if (!geometry || !opened || !openingCounter) return;
+      const box = frame.getBoundingClientRect();
+      if (box.width > 0 && box.height > 0) send("disposition", {
+        capacite: "geometrie_tiroir", ouverture: openingCounter,
+        largeur_px: box.width, hauteur_px: box.height
+      });
+    }
+    function onMessage(event) {
+      // Check BOTH before reading any protocol fields, including the major.
+      if (disposed || threadClosed || event.source !== frame.contentWindow || event.origin !== widgetOrigin) return;
+      const data = event.data;
+      if (!object(data) || typeof data.protocole !== "string" || !/^fittingme\/\d+$/.test(data.protocole)) return;
+      if (data.protocole !== "fittingme/3") {
+        threadClosed = true; refreshButton();
+        report(new Error("Incompatible Try-On protocol. Reload after checking service versions.")); return;
+      }
+      if (Object.keys(data).length !== 3 || !["protocole", "message", "champs"].every(key => Object.hasOwn(data, key)) || !object(data.champs)) return;
+      const fields = data.champs;
+      switch (data.message) {
+        case "amorçage":
+          if (!["éligible", "inéligible", "indéterminé"].includes(fields.issue)) return;
+          clearTimeout(bootTimer);
+          eligible = fields.issue === "éligible";
+          geometry = fields.geometrie_tiroir === true;
+          if (geometry) send("disposition", { capacite: "geometrie_tiroir" });
+          status.textContent = eligible ? "Try-On is ready."
+            : fields.issue === "inéligible" ? "Try-On is not available for this product."
+            : "Try-On could not load. Check the connection and service configuration.";
+          refreshButton(); break;
+        case "hauteur":
+          // This example explicitly uses host-trigger mode: closed height is zero.
+          if (typeof fields.hauteur_px !== "number" || !Number.isFinite(fields.hauteur_px) || fields.hauteur_px < 0) return;
+          if (!opened) frame.style.height = "0px";
+          break;
+        case "ouverture":
+          if (opened) return;
+          opened = true;
+          openingCounter = Number.isSafeInteger(fields.ouverture) && fields.ouverture > 0 ? fields.ouverture : 0;
+          unlock = lockScroll();
+          frame.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;border:0;z-index:999999;";
+          acknowledgeLayout();
+          pushHistory(); // Our button issued the open command; the host owns Back.
+          status.textContent = "Try-On opened.";
+          emit("ouverture"); break;
+        case "fermeture":
+          if (!opened) return;
+          opened = false; closing = false; openingCounter = 0;
+          frame.style.cssText = inlineStyle; unlock(); unlock = () => {};
+          releaseHistory(); refreshButton();
+          if (!disposing && button.isConnected && !button.hidden) button.focus();
+          status.textContent = "Try-On closed.";
+          emit("fermeture"); break;
+        case "complétion":
+          status.textContent = "A completed Try-On was observed.";
+          emit("complétion"); break;
+        default:
+          if (!warned.has(data.message)) {
+            warned.add(data.message);
+            console.warn("Ignored an unknown Try-On message in the current protocol.");
+          }
+      }
+    }
+    function openTryOn() {
+      if (!eligible || opened || opening || closing || historyPending || disposing || threadClosed) return;
+      opening = observe("ouverture", () => send("ouvrir"));
+      refreshButton();
+      opening.catch(report).finally(() => { opening = null; refreshButton(); });
+    }
+    async function closeTryOn() {
+      if (opening) await opening;
+      if (!opened) { if (historyPending) await historyPending; return; }
+      closing = true; refreshButton();
+      try { await observe("fermeture", () => send("fermer")); }
+      finally { closing = false; refreshButton(); }
+      if (historyPending) await historyPending;
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    function disposeTryOn() {
+      if (disposed) return Promise.resolve();
+      if (disposeTask) return disposeTask;
+      disposing = true; refreshButton();
+      disposeTask = (async () => {
+        await closeTryOn(); // A timeout preserves ownership; it never means closed.
+        disposed = true; clearTimeout(bootTimer);
+        window.removeEventListener("message", onMessage);
+        window.removeEventListener("popstate", onPopState);
+        observer.disconnect(); listeners.clear(); unlock();
+        frame.remove(); button.removeEventListener("click", openTryOn);
+        remove.removeEventListener("click", onRemove);
+        button.hidden = true; remove.hidden = true;
+        status.textContent = "Try-On removed. Reload to mount again."; status.focus();
+      })().catch(error => { disposing = false; disposeTask = null; refreshButton(); throw error; });
+      return disposeTask;
+    }
+    function onRemove() { disposeTryOn().catch(report); }
+    const observer = new ResizeObserver(() => { if (!disposed && !threadClosed) acknowledgeLayout(); });
+    const bootTimer = setTimeout(() => {
+      status.textContent = "Try-On has not become ready. Check framing, configuration and network.";
+    }, 20000);
+    window.addEventListener("message", onMessage);
+    window.addEventListener("popstate", onPopState);
+    button.addEventListener("click", openTryOn);
+    remove.addEventListener("click", onRemove);
+    // Retailer-owned example controller, not a FittingMe API.
+    window.directTryOnExample = { open: openTryOn, close: closeTryOn, dispose: disposeTryOn };
+    frame.src = url.href;
+    document.body.append(frame); // No transformed or clipping ancestors.
+    observer.observe(frame);
+  </script>
+</body>
+</html>
+```
+
+## Verify the host responsibilities
+
+1. Wait for “Try-On is ready,” then click your button. Expect an iframe covering the viewport and the page behind it to stop scrolling.
+2. Complete a Try-On journey.
+3. Close it with Escape or its close control. The page must regain its previous scrolling behavior and focus must return to your button.
+4. Open again and use browser Back. It must close this drawer without leaving the product page.
+5. Repeat at a narrow viewport and rotate or resize while open. The optional `disposition` exchange acknowledges the actual frame dimensions for the current opening counter; it is not an analytics event.
+
+### Check removal and timeouts
+
+“Remove Try-On” waits for observed closure and any pending history return before removing listeners and the iframe. The sample's 2.5-second observation bound and 20-second boot reminder are application choices. A timeout is an error to diagnose, not permission to erase a live iframe. Full document navigation needs no asynchronous unload teardown.
+
+## Adapt this example deliberately
+
+Keep the iframe directly under an untransformed document body. In your application, also ensure that neither `html` nor `body` has a transform, filter or containment that changes fixed positioning. This example is a single-embed host; if you need multiple embeds, implement explicit coordination or use the [loader guide](/guides/multiple-embeds).
+
+Before SPA navigation, await `directTryOnExample.dispose()` while the container and listeners still exist. Do not push a route entry while the drawer is open. The sample never removes a history entry it cannot identify as its own. Recreate the iframe for every new product/image context; do not mutate its query string in place.
+
+### Validate messages before tracking
+
+The validation order and exact payloads are defined in [fittingme/3](/reference/fittingme-3). Unknown extra payload fields are ignored; foreign source windows and origins are rejected before the protocol major is read. No wildcard `postMessage` target is used. For tracking, adapt only validated milestones using [Events](/reference/events) and [Track Try-On usage](/tracking/usage).

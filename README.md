@@ -1,55 +1,41 @@
-# Mintlify Starter Kit
+# FittingMe integration documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Nineteen retailer-facing pages for virtual try-on, built with Mintlify. The
+approved structure and scope are in [the design brief](drafts/documentation-design.md).
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+The site includes three complete HTML quickstarts, onboarding, catalogue handoff,
+product changes, multiple embeds, React/Next.js, shared contract references,
+tracking recipes, troubleshooting and browser release checks. `docs.json` owns
+navigation. The existing logo, fonts, palette and `style.css` remain the brand
+foundation.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+## Local preview and checks
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+Use the workspace's Node 24 installation:
 
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
-
-```bash
-npx skills add https://mintlify.com/docs
+```sh
+export PATH="$HOME/.local/opt/node/bin:$PATH"
+node scripts/validate-docs.mjs
+mint dev --no-open --telemetry false
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+The CLI prints its available local port. Preview assets/fonts can require network
+access. Search in the local preview requires Mintlify CLI authentication; page
+navigation and content rendering do not.
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+The validator checks the 19-route navigation, metadata, local links, fenced code,
+complete HTML example syntax and retired/unfinished vocabulary. Browser checks
+must additionally verify actual rendering and the examples against functioning
+services. See the unpublished [provenance record](drafts/documentation-provenance.md)
+for source revisions and [local review record](drafts/local-review.md) for measured
+coverage, URLs and dependencies.
 
-## Development
+`drafts/`, `.review/` and `scripts/` are excluded from the Mintlify site. `.review/`
+is also Git-ignored: it contains pinned source snapshots, generated local assets
+and verification evidence. Published examples contain placeholders only.
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+## Publication
 
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
-mint dev
-```
-
-View your local preview at `http://localhost:3000`.
-
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+This work remains local for founder review. Do not push, merge or deploy until
+the founder explicitly approves publication after that review. A push to this
+repository's default branch may publish the site.

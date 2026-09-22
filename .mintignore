@@ -5,3 +5,17 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Local worktrees and operating-system metadata
+.worktrees/
+.DS_Store
+
+# Local verification, tools and unpublished implementation provenance
+.review/
+scripts/
+package.json
+package-lock.json
+
+# Repository guidance is not retailer documentation
+AGENTS.md
+CLAUDE.md

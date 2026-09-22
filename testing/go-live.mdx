@@ -1,0 +1,97 @@
+---
+title: "Go-live checklist"
+description: "Exercise the actual storefront and record expected results before release."
+---
+
+Run these checks against the actual product pages and service environment you intend to use. Use an approved test image, never an unrelated shopper's photo. Repeat the relevant flows on desktop and mobile, including a real Safari/iPhone check when those browsers are in your supported audience.
+
+Record the URL/origin, product context, browser, viewport, date and pass/fail for each check. Keep keys, private session URLs and shopper data out of the record.
+
+## Access and product readiness
+
+| Browser step | Expected result |
+| --- | --- |
+| Open the store on each authorized hostname | Loader and widget document load; no script or framing-policy rejection |
+| Inspect the key's portal domains and target environment | Correct retailer/environment; `localhost` key isolated from public domains; full key configured, not its prefix |
+| Load a prepared catalogue item or a supplied-image product | Boot outcome matches confirmed availability; the visible product and configured identity/image agree |
+| Use an unavailable test product or a deliberately invalid configuration in a test page | No active Try-On trigger; an unavailable outcome or actionable validation/boot failure is distinguishable |
+
+Do not change production configuration to run negative tests. Use an isolated test page and the same relevant policies.
+
+## Provided and custom buttons
+
+| Browser step | Expected result |
+| --- | --- |
+| Reload with a slow network and observe initial UI | Retailer-owned trigger/copy stays hidden until eligible; no premature usable button |
+| Activate the provided trigger by keyboard and pointer | One drawer opens; a single `ouverture` reports `origine: "tap"` |
+| Activate your custom button, if used | One drawer opens; `open()` verdict and observed event are checked separately; origin is `commande` |
+| Close with its close control and with Escape | One close event per observed opening; scroll resumes; focus returns to the correct trigger |
+| Reopen, then use browser Back | Drawer closes without unexpectedly navigating away; the next intentional Back follows normal storefront history |
+| Open twice while already open | No second drawer or extra history entry; no invented second opening event |
+
+## Complete a real Try-On
+
+1. Follow the consent UI.
+2. Supply a suitable test photo, confirm it, and wait for the generated render.
+3. Verify the garment/color against your selected product. A health response, eligible bootstrap or open drawer does not satisfy this check.
+4. Close the completed drawer. Expect `fermeture`, then applicable `complétion`.
+5. Reopen and close the same result. Do not count it as a new completion.
+
+If generation or image fetching fails, exercise the interface's retry/error path in a test environment. Do not describe an error as a completed journey.
+
+## Mobile and layout
+
+1. Test a narrow viewport such as 390 × 844, then a desktop width such as 1440 × 900, and repeat resizing while open. Check the actual phone as well as emulation. Controls must remain reachable, the drawer must cover the intended viewport, and background scrolling must resume after closing.
+2. Test both reduced-motion and ordinary-motion settings.
+3. Inspect the embed's ancestors for transforms, filters, perspective, containment and incompatible fixed positioning.
+4. Verify the iframe after delayed network loading and a close/reopen cycle, not only at initial load.
+
+## Product changes, SPA and multiple embeds
+
+| Browser step | Expected result |
+| --- | --- |
+| Select a second product/color/image | Previous embed closes and is destroyed before replacement; new context appears in the new iframe |
+| Change selection rapidly | Only the current generation can reveal its trigger or send retailer analytics |
+| Navigate away while closed, then return | One mounted embed and one subscription per intended placement |
+| Navigate while open through your route lifecycle | Closure completes before route commitment; no orphan history entry, iframe or scroll lock |
+| Command a second placement while the first is open | Correct sibling closes, correct target opens; events retain their own product context |
+| Remove one of two placements | Remaining placement keeps working; shared global is intact |
+| Destroy an open embed in a controlled API test | `tiroir_ouvert`; caller closes and waits before retrying destruction |
+
+## Direct host checks
+
+If you use [direct fittingme/3](/quickstarts/direct-protocol):
+
+1. Verify the sandbox, exact query configuration, source-window and origin checks, matching message major, and exact outbound target origin.
+2. Send a harmless forged `postMessage` from the top-level page with an apparent opening or wrong major. It must not open, close or poison the real widget channel.
+3. Open the real widget to prove it still works.
+4. Verify optional layout negotiation against the current opening counter and actual dimensions.
+5. Check resize, Escape, browser Back, timeout handling and cleanup. The host must not delete a frame just because it requested closure.
+
+## Tracking and commerce
+
+### Usage events
+
+1. Run [usage tracking](/tracking/usage) with an in-memory sink first.
+2. Count the observed records through one full open/close/completion cycle and after navigation. Expect correct product/placement context and no listener multiplication.
+
+### GTM and GA4, if used
+
+1. Verify the data-layer push.
+2. Verify one intended tag firing in Tag Assistant.
+3. Verify receipt in the correct property's DebugView. Record external ingestion as unverified unless you actually observed it.
+4. Test your existing granted and denied consent states.
+
+### Optional commerce correlation
+
+For optional commerce correlation, use your retailer's existing test checkout process. Check the product join, attribution window and transaction deduplication. A Try-On event must not itself emit a purchase or be presented as evidence of conversion lift.
+
+## Storefront security and release readiness
+
+1. Confirm the storefront allows the loader in `script-src` and the widget in `frame-src`.
+2. Adapt the inline example scripts/styles to your own CSP, for example by moving them to approved files or using your nonce policy. Do not weaken the policy globally to paste an example.
+3. Confirm the widget's response allows your page origin in `frame-ancestors` and its environment permits its API/resource dependencies. The portal key domain list is an additional check, not a replacement for either policy.
+4. Remove debug-only sinks and test controls as appropriate, while keeping lifecycle/error handling.
+5. Retain the record of actual checks, unresolved limitations and the release decision.
+
+A successful local test is evidence for review; it does not itself publish your integration.
