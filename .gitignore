@@ -1,0 +1,4 @@
+.DS_Store
+.review/
+.mintlify/
+node_modules/

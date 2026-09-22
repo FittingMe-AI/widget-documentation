@@ -48,8 +48,10 @@
 
 /* --------------------------------------------------------------------------
    Titres
-   fm-tokens.css : h1–h3 en Playfair Display, graisse regular, tracking
-   display ; h4–h6 en Outfit semibold, capitales, tracking caps.
+   Documentation : Outfit pour tous les titres (instruction fondateur,
+   2026-09-18), famille définie dans docs.json. Graisses et interlettrages
+   de fm-tokens.css : h1–h3 regular, tracking display ; h4–h6 semibold,
+   capitales, tracking caps.
    -------------------------------------------------------------------------- */
 h1,
 h2,
@@ -64,6 +66,99 @@ h6 {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--fm-tracking-caps);
+}
+
+/* --------------------------------------------------------------------------
+   Documentation navigation hierarchy
+   Brand typography: semibold caps for section labels; Outfit for page links.
+   Brand surfaces: grey hover, beige active page, square edges and hairlines.
+   Shared sidebar classes cover both desktop navigation and the mobile drawer.
+   -------------------------------------------------------------------------- */
+.sidebar-group-header {
+  padding-left: 0;
+  padding-bottom: 8px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--fm-noir-120);
+  color: var(--fm-noir);
+  cursor: default;
+}
+
+.sidebar-group-header .sidebar-title {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sidebar-group > li > a {
+  align-items: center;
+  min-height: 40px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-left: 2px solid transparent;
+  color: var(--fm-noir);
+  text-decoration: none;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+/* Decorative chevron: the link's accessible name remains its page title. */
+.sidebar-group > li > a::after {
+  content: "";
+  flex: 0 0 5px;
+  width: 5px;
+  height: 5px;
+  margin-left: auto;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0.45;
+}
+
+.sidebar-group > li > a:hover {
+  color: var(--fm-noir);
+  background: var(--fm-grey-050);
+  border-left-color: var(--fm-grey-200);
+}
+
+.sidebar-group > li > a[aria-current="page"] {
+  color: var(--fm-noir);
+  background: var(--fm-beige-tint);
+  border-left-color: var(--fm-beige-deep);
+  font-weight: 600;
+  text-shadow: none;
+}
+
+.sidebar-group > li > a:focus-visible {
+  outline: 2px solid var(--fm-beige-deep);
+  outline-offset: -2px;
+}
+
+.dark .sidebar-group-header {
+  color: var(--fm-white);
+  border-bottom-color: var(--fm-white-200);
+}
+
+.dark .sidebar-group > li > a {
+  color: var(--fm-grey);
+}
+
+.dark .sidebar-group > li > a:hover {
+  color: var(--fm-white);
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: var(--fm-white-200);
+}
+
+.dark .sidebar-group > li > a[aria-current="page"] {
+  color: var(--fm-white);
+  background: rgba(180, 173, 145, 0.16);
+  border-left-color: var(--fm-beige);
+}
+
+@media (max-width: 1023px) {
+  .sidebar-group > li > a {
+    min-height: 44px;
+  }
 }
 
 /* --------------------------------------------------------------------------

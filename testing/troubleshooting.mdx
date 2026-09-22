@@ -1,0 +1,100 @@
+---
+title: "Troubleshoot integration problems"
+description: "Use visible state, command verdicts and browser evidence to isolate failures."
+---
+
+## Capture the failing step
+
+1. Open browser DevTools on the actual product page and inspect the Console, Network and Elements panels.
+2. Reproduce once with a fresh page.
+3. Record the exact step. Distinguish script loading, boot, opening, image fetching and generation.
+
+## No button or no iframe
+
+| Observable symptom | Check | Corrective action |
+| --- | --- | --- |
+| Loader request fails or is blocked | Network request to `/v2/fittingme-loader.js`; host `script-src`; blocker console messages | Use the verified loader address and allow it in the storefront policy. Test the store's normal blocker/consent setup. |
+| Loader loaded but no iframe exists | Container exists before execution; selector matches; console names missing or unknown fields | Use [supported attributes](/reference/configuration), give the container a unique ID and execute one script for it. |
+| A duplicate-container warning appears | Two tags target the same actual element | Keep one owner per placement; destroy before replacing. |
+| Custom button stays hidden | Subscribe to `amorçage`; inspect `FittingMe.resolve(container)` | Reveal only on `éligible`. Do not test iframe height for eligibility. |
+| Iframe exists but its document is blocked | Console framing/CSP error, actual widget response's `frame-ancestors`, host `frame-src` and any `X-Frame-Options` | Confirm the origin with FittingMe. Portal domain configuration alone cannot change widget-host framing policy. |
+| A page opened from disk never connects | `location.origin` is `null` | Serve HTTP/HTTPS from an authorized origin; do not use `file:`. |
+
+## Understand the boot result
+
+- `inéligible`: the service reports Try-On unavailable for this context. Check the product identity and FittingMe's prepared-catalogue confirmation or supplied-image setup. No public ineligibility reason is exposed.
+- `indéterminé`: the embed could not establish availability. Read `code_transport` when present, inspect the failing request and check service/environment compatibility. Do not label the product ineligible.
+- No result: first verify the loader and iframe actually executed. A local status timer is not an outcome from FittingMe.
+
+### Interpret the failing request
+
+| Response | What to investigate |
+| --- | --- |
+| `401` | The key or service environment |
+| `403` on session opening | Check its Problem Document, which can identify a domain or entitlement refusal. Bootstrap eligibility and session authorization are distinct checks. |
+| `429` or service failure | Its own retry/recovery path, not a new product identifier |
+
+## A command is accepted but nothing opens
+
+1. Wait for `ouverture`. `accepté` only means the loader accepted a command.
+2. Check that you passed the container **element**, that it is eligible, and that the matching iframe can receive commands.
+3. For a direct host, verify the exact three-key envelope, `loader_major=3`, both origin/source checks and the exact outbound target origin.
+
+### Fullscreen placement failures
+
+For `plein_écran_impossible`, inspect the ancestor/property named in the console. Remove or relocate the embed outside transforms, filters, perspective, containment or `will-change` settings that create a conflicting containing block. Raising `z-index` alone cannot repair a clipped fixed-position frame.
+
+See all [loader verdicts](/reference/loader-api#command-verdicts). An `amorçage_incomplet` verdict can mean an undetermined boot outcome, not just “wait longer.”
+
+## Image or generation fails
+
+1. Check that the URL is direct HTTPS imagery, structurally valid and accessible without browser-only authentication. Bootstrap does not fetch the image: an eligible result cannot prove that a CDN request or generation will succeed. Expiring signed URLs, unsafe redirects, unsupported content and CDN access rules can fail later.
+2. Verify the selected product/color and supplied image were configured **before** mount. Changing a gallery, script attribute or React prop without recreating the embed leaves the old context. A supplied URL never falls back to catalogue imagery on failure. Follow [product replacement](/guides/product-changes).
+3. If entitlement and inputs look correct but launching returns a service-side restriction, record the exact sanitized code and ask FittingMe to verify that retailer/environment. A legacy launch restriction is not evidence of a general product permission policy.
+
+## Focus, Back, scrolling or navigation breaks
+
+### Focus return
+
+For a custom trigger, restore focus on the matching `fermeture`, provided its button still exists. The widget cannot focus a retailer-owned button itself. A provided trigger's return happens inside the iframe.
+
+### History and scrolling
+
+Wait for closure before collapsing or removing the frame. Let the loader own its history behavior; a direct host must own its command-created entry and never consume a router entry. Close before your SPA commits navigation. If the page remains scroll-locked, look for a removed open iframe, an unresolved close, or competing modal code that overwrote scroll styles.
+
+### Multiple placements
+
+With multiple embeds, verify every command and event is mapped to its own container. Do not use a single mutable “current product” variable for all tracking handlers.
+
+## Analytics is missing or duplicated
+
+1. Check [event timing and replay](/reference/events) first. Completion is announced on close, not when the render first paints. Late listeners do not receive past opens or completions. Repeated subscriptions can each receive boot replay.
+2. Count retailer emission separately from tag firing and analytics ingestion. If a record exists in `dataLayer` but not GA4, inspect the GTM trigger, variable mapping, target property, consent state and DebugView configuration. Follow [the three tracking boundaries](/tracking/gtm-ga4#verify-three-separate-boundaries).
+
+## Read a backend Problem Document safely
+
+Errors use `application/problem+json` and RFC 9457 fields. A typical shape is:
+
+```json
+{
+  "type": "https://fittingme.ai/problems/validation_error",
+  "title": "Requête invalide",
+  "status": 400,
+  "detail": "Example diagnostic text; do not match this text in code.",
+  "instance": "/v1/widget/bootstrap",
+  "code": "validation_error",
+  "field": "garment_image_url"
+}
+```
+
+This illustrates the shape; use the actual response's status and code for diagnosis. Framework parsing errors can occur before business validation.
+
+- `type` is a stable identifier, not a page to open.
+- `code` follows its final path segment.
+- `field` and `capability` appear only when applicable.
+- `instance` omits the query.
+
+### Prepare a support reproduction
+
+1. Record the environment, page origin, browser/viewport, expected and observed step, command verdict, event names and Problem Document code/field for FittingMe.
+2. Remove keys, shopper photos, session URLs, tokens and signed query strings. Do not send an unredacted HAR or screenshot of the full iframe URL.

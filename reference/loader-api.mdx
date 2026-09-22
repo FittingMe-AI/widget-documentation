@@ -1,0 +1,95 @@
+---
+title: "Loader JavaScript API"
+description: "Address a specific embed, observe its state and manage its lifetime."
+---
+
+The first successfully configured loader script installs `window.FittingMe`. Later scripts use that same global object. Loading the script is not the same as finishing the embed's bootstrap: subscribe to the [boot event](/reference/events) before enabling your button.
+
+## Address an embed explicitly
+
+Pass the **container DOM element** you created, or the iframe DOM element inside it. Use the container for a stable placement reference. Do not pass a selector, product identifier, journey name or generated iframe ID string.
+
+```javascript
+const placement = document.getElementById("product-tryon");
+const state = window.FittingMe.resolve(placement);
+```
+
+A missing container returns `null` from `getElementById`; check it before calling commands. A destroyed element is remembered as destroyed until a new live embed is mounted in that same container. The replacement is a new embed, even though the placement element is the same.
+
+## Commands and state
+
+| Call | Return | Behavior |
+| --- | --- | --- |
+| `FittingMe.open(placement)` | Verdict string | Requests opening this embed; sequences closure of another active drawer. Use a real button gesture for browser Back behavior. |
+| `FittingMe.close(placement)` | Verdict string | Requests closure or cancels a pending opening sequence. Repeated close on a closed embed is accepted without a new close event. |
+| `FittingMe.destroy(placement)` | Verdict string | Removes a closed embed, its iframe, listeners and coordination state. Refuses an open drawer. |
+| `FittingMe.resolve(placement)` | State object or `undefined` | Reads current state silently. Read again when needed; the returned object is a snapshot, not a live handle. |
+| `FittingMe.on(handler)` | Unsubscribe function | Subscribes globally to the four public events. Each event identifies its container in `encart`. |
+
+### Resolved state snapshot
+
+A resolved state has this shape:
+
+```javascript
+{
+  encart: placement,       // Container element, even if you resolved by iframe
+  parcours: "tryon",
+  issue: "éligible",      // undefined until a boot outcome is known
+  tiroir_ouvert: false
+}
+```
+
+The state exposes no session identifier and no command methods. Do not use the legacy implicit-target calls or internal registry fields in new integrations.
+
+## Command verdicts
+
+| Exact return value | Meaning | Calls |
+| --- | --- | --- |
+| `accepté` | Command accepted, possibly with no effect if already in that state | `open`, `close`, `destroy` |
+| `encart_inconnu` | Reference does not identify an embed | All three |
+| `encart_détruit` | Reference identifies a destroyed embed | All three |
+| `amorçage_incomplet` | No boot outcome yet, or the outcome is `indéterminé` | `open` |
+| `encart_inéligible` | Boot outcome is `inéligible` | `open` |
+| `plein_écran_impossible` | An ancestor prevents correct fullscreen placement | `open` |
+| `tiroir_ouvert` | Destruction attempted with a drawer open | `destroy` |
+
+`accepté` is **not** an opening, closing or generation result. Only the observed event establishes that transition. A repeated accepted open on an already open drawer creates no new opening event. The loader bounds sibling-close and open-confirmation waits at 600 ms and reports silence in the console; those bounds do not turn silence into a successful observed transition.
+
+## Subscribe once and filter by placement
+
+```javascript
+const unsubscribe = window.FittingMe.on(event => {
+  if (event.encart !== placement) return;
+  if (event.jalon === "amorçage") {
+    button.hidden = event.issue !== "éligible";
+  }
+});
+
+// When this owner no longer needs notifications:
+unsubscribe();
+unsubscribe(); // Safe: the returned function is idempotent.
+```
+
+### Subscription behavior
+
+- **Immediate replay:** `on()` immediately replays the last boot outcome of each living embed. It can therefore call your handler **before it returns**. Initialize everything the handler uses first.
+- **Separate registrations:** each registration is separate, including repeated registrations of the same function.
+- **Unsubscribe during delivery:** calling unsubscribe does not retract the event already being delivered.
+- **Handler failures:** exceptions in one handler are isolated from other subscribers.
+
+Use the [Events reference](/reference/events) for exact payloads and replay rules. Never send the container element itself to analytics; map it to your own placement and product fields.
+
+## Close before destroying
+
+For an open drawer:
+
+1. Subscribe for its `fermeture`.
+2. Call `close(placement)`.
+3. Wait for that observed event, then call `destroy(placement)`. Keep the container in the DOM until destruction succeeds.
+4. Remove your subscription and the script element afterward.
+
+If already closed, destroy it directly; do not wait for a close event that will not occur.
+
+A pending open must settle or be cancelled before replacement. Use a bounded wait, surface failure and keep the embed owned if teardown cannot complete. Do not hide a timeout by deleting the iframe. The [custom-button example](/quickstarts/custom-button) includes a cleanup function and [Product changes](/guides/product-changes) applies it to navigation.
+
+Destroying an embed does not revoke global subscriptions and does not delete retained shopper data. It ends that embed's local lifetime. Do not assign over or delete `window.FittingMe` when your component unmounts; other embeds may still use it.

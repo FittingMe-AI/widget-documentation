@@ -1,0 +1,94 @@
+---
+title: "Track Try-On usage"
+description: "Build a vendor-neutral handler with retailer-owned context and one subscription per owner."
+---
+
+FittingMe exposes four [public events](/reference/events). They let you observe your placements without receiving shopper photos or session capabilities. Your subscription is separate from the widget's automatic FittingMe service tracking: unsubscribing does not disable that internal tracking.
+
+Decide which usage signals you need and apply your store's existing analytics consent controls. Do not copy entire event objects or network payloads to analytics.
+
+## A vendor-neutral adapter
+
+Copy this function into your storefront module. Call it after the loader is available, once per owner. It maps exact wire names to retailer-defined analytics names and snapshots your own product context. These English analytics names are examples, not new FittingMe events.
+
+```javascript
+function subscribeTryOn({ api, placement, productId, placementName, canTrack, send }) {
+  const context = Object.freeze({ product_id: productId, placement: placementName });
+  const names = {
+    "amorçage": "tryon_boot",
+    "ouverture": "tryon_open",
+    "fermeture": "tryon_close",
+    "complétion": "tryon_complete"
+  };
+  let lastBoot;
+  return api.on(event => {
+    if (event.encart !== placement || !Object.hasOwn(names, event.jalon)) return;
+    // Remember boot state even when analytics consent is absent: do not backfill it.
+    if (event.jalon === "amorçage") {
+      const signature = JSON.stringify([event.issue, event.code_transport ?? null]);
+      if (signature === lastBoot) return;
+      lastBoot = signature;
+    }
+    if (!canTrack()) return;
+    const record = {
+      name: names[event.jalon],
+      ...context,
+      boot_outcome: event.jalon === "amorçage" ? event.issue : null,
+      transport_code: event.jalon === "amorçage" ? event.code_transport ?? null : null,
+      open_origin: event.jalon === "ouverture" ? event.origine : null
+    };
+    try { send(record); } catch { console.warn("Retailer Try-On analytics delivery failed."); }
+  });
+}
+```
+
+### Check emission locally
+
+1. Mount the custom-button quickstart.
+2. Run the code below to subscribe with an in-memory sink.
+3. Open, complete and close the actual journey, then inspect `localRecords`.
+4. On teardown, call `stopTracking()` after any close/completion delivery.
+
+```javascript
+const localRecords = [];
+const stopTracking = subscribeTryOn({
+  api: window.FittingMe,
+  placement: document.getElementById("product-tryon"),
+  productId: "YOUR_PRODUCT_ID",
+  placementName: "product-main",
+  canTrack: () => true, // Local in-memory inspection only; no external delivery.
+  send: record => localRecords.push(record)
+});
+// Open, complete and close the actual journey, then inspect localRecords.
+// This array is retailer-owned test instrumentation, not an SDK event store.
+// On teardown, after any close/completion delivery:
+// stopTracking();
+```
+
+### Connect your production sink
+
+Replace the local sink and gate with your existing analytics adapter and consent state for production. Prefer a consent-aware queue that does not block the UI. The adapter supplies `null` for fields absent from the current event so a downstream data layer does not accidentally reuse a prior boot outcome or opening origin.
+
+## Avoid duplicate subscriptions
+
+1. Keep the unsubscribe function with the owner that created it. An SPA effect, route callback and GTM tag must not each independently subscribe to the same placement.
+2. Keep the handler active until closure and any following completion have been delivered. Do not unsubscribe inside your `fermeture` handler if you also need `complétion`.
+3. Call the unsubscribe function before replacing the product context or installing another subscription.
+
+### Replay and gaps
+
+Boot is a replayed **state**. The adapter suppresses repeated identical boot state within one subscription; a new subscription can still receive the same boot state again. Do not count boot as unique visitors. Open, close and completion are unreplayed facts. Missing them while unsubscribed is a real gap, not something the API fills in later.
+
+## Interpret the measurements
+
+Count observed `tryon_open`, not clicks or accepted commands, when measuring drawer use. A custom button is reported as `open_origin: "commande"`. Completion is observed on close and is not a purchase, a billable unit or a guaranteed one-to-one measure of generated renders.
+
+Add non-sensitive context your retailer already owns: product ID, color ID, placement name or your own consented visit/session reference. There is no FittingMe session or shopper correlation identifier in these events. Never extract private session URLs from network traffic to create one.
+
+## Direct hosts
+
+1. Normalize only messages that passed both source and origin validation in your [direct host](/reference/fittingme-3). Do not add a second unrestricted `window.message` analytics listener beside your validated protocol handler.
+2. Supply placement/product context locally and derive command origin locally.
+3. Count opening only after successful host layout. `hauteur` and `disposition` are layout signals, not usage events.
+
+Use [GTM and GA4](/tracking/gtm-ga4) to forward the adapter's records, or [Commerce analytics](/tracking/commerce) to correlate them with your store's existing events.

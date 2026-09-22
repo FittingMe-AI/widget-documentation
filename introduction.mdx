@@ -1,28 +1,38 @@
 ---
-title: "FittingMe integration documentation"
-sidebarTitle: "Introduction"
-description: "Embed the FittingMe Sizing Journey and Try-On Journey on a retailer product page."
+title: "Virtual try-on for your storefront"
+description: "Choose an integration, prepare your first product and open a real Try-On Journey."
 ---
 
-FittingMe delivers two independent Shopper Journeys on retailer product pages: the **Sizing Journey** and the **Try-On Journey**. Each journey is placed as its own Journey Embed, with its own trigger, drawer, and session.
+FittingMe lets a shopper supply a photo and see a generated image of themselves wearing a garment. You place a **Journey Embed** on a product page. It contains the Try-On interface and opens it in a drawer. Each embed has one product context and its own session.
 
-The public integration surface is a standalone loader script. A loader tag reads a bounded set of `data-*` attributes, mounts one iframe in the selected container, and connects the host page to one journey.
+## Choose your integration
 
-<CardGroup cols={2}>
-  <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Add one working Journey Embed to a product page.
-  </Card>
-  <Card title="Integration reference" icon="code" href="/guides/integration">
-    Review loader attributes and programmatic controls.
-  </Card>
-  <Card title="Multiple Journey Embeds" icon="layer-group" href="/guides/managing-multiple-widgets">
-    Place Sizing and Try-On independently on the same page.
-  </Card>
-  <Card title="Problem details" icon="triangle-exclamation" href="/api-reference/errors">
-    Handle RFC 9457 error responses.
-  </Card>
-</CardGroup>
+| Approach | What you build | What FittingMe handles |
+| --- | --- | --- |
+| [Provided button](/quickstarts/provided-button) | A container and a configured loader script | The Journey Trigger, iframe, drawer coordination and browser messaging |
+| [Your own button](/quickstarts/custom-button) — recommended for custom buttons | Your button, boot-state handling and focus return | The same Try-On interface, plus the loader's lifecycle and messaging |
+| [Direct fittingme/3](/quickstarts/direct-protocol) — advanced | The iframe host, validated protocol, fullscreen layout, history, scroll lock, focus return and teardown | The interface inside the iframe and its service requests |
 
-<Note>
-  This documentation covers the retailer-facing embed contract. It does not document internal administration, QA tooling, or the future Retailer Portal.
-</Note>
+A custom button opens the FittingMe interface. It does not replace the interface with a retailer-built upload or result screen. Use the loader unless you need to own the iframe host itself.
+
+## Get to your first try-on
+
+1. [Obtain access and configure a key](/start/access-keys-domains). FittingMe provides initial access; your retailer admin manages keys and domains in the Retailer Portal.
+2. [Prepare a product identifier and garment image URL](/start/first-product).
+3. Copy one complete quickstart, replace its placeholders, and serve it from an authorized HTTP or HTTPS origin.
+4. Open the drawer, complete the consent steps, supply a test photo and generate a try-on. Close the drawer and verify the observed events.
+5. Work through the [go-live checklist](/testing/go-live) on your actual storefront.
+
+All three quickstarts use a garment image you supply. They do not need a catalogue import. If FittingMe has prepared your catalogue, follow [Use a prepared catalogue](/guides/prepared-catalogue) instead.
+
+## Move from a product page to your application
+
+| Your next task | Guide |
+| --- | --- |
+| Handle color selectors and SPA navigation | [Product and image changes](/guides/product-changes) |
+| Add more than one placement | [Multiple embeds](/guides/multiple-embeds) |
+| Mount and clean up in the browser with React | [React and Next.js](/guides/react-nextjs) |
+
+## Look up the integration contract
+
+[Configuration](/reference/configuration), the [loader API](/reference/loader-api), the [direct protocol](/reference/fittingme-3) and [events](/reference/events) define the integration contract. Tracking recipes build on these events; FittingMe does not emit your store's purchases.
