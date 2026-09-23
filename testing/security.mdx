@@ -1,0 +1,55 @@
+---
+title: "Meet security and privacy requirements"
+sidebarTitle: "Security and privacy"
+description: "Configure the browser boundary and keep storefront credentials, photos, and analytics in their proper places."
+---
+
+Your storefront loads a FittingMe script and iframe. The iframe runs the shopper journey and communicates with FittingMe services. Your integration should use the public loader API instead of inspecting iframe contents or collecting private session data.
+
+## Separate the credentials
+
+| Value | Where it belongs |
+| --- | --- |
+| Publishable retailer key | Browser embed configuration for its authorised hostnames. |
+| Portal sign-in, password, authenticator codes | The authorised person's portal login only. |
+| Internal administrative or service credentials | Never in storefront source, client bundles, or browser examples. |
+| Capture links, session capabilities, private image URLs | The intended shopper flow; exclude from analytics and public support reports. |
+
+Use separate keys for local development and production. Review domain restrictions and rotation using [prerequisites](/start/prerequisites) and [maintenance](/maintenance/updates).
+
+## Allow the loader and frame
+
+If your site uses Content Security Policy, add the FittingMe widget origin to the applicable directives:
+
+```text
+script-src: https://widget.fittingme.ai
+frame-src:  https://widget.fittingme.ai
+```
+
+These are **additions to your site's existing policy**, not a complete header. Preserve the directives and nonce or hash rules required by your site. Inline scripts in the examples also need your existing nonce/hash policy, or move them to an allowed external application script. Do not broadly add `unsafe-inline` to make an example work.
+
+The iframe's network policy is separate from the parent page's policy. Add other parent-page permissions only when your actual integration makes those requests. Use the widget origin assigned to your environment; do not mix test and production origins.
+
+## Confirm the three independent access checks
+
+1. **Your storefront CSP** must permit the loader and frame, as above.
+2. **FittingMe’s framing policy** must permit your storefront origin and any frame ancestors. Ask FittingMe to confirm approval; changing your CSP or the portal key domains does not update that policy. A failure blocks the frame before bootstrap.
+3. **The key’s authorised domains** must permit the storefront hostname when a journey session opens. Successful bootstrap does not prove that this check will pass.
+
+See [framing approval](/start/prerequisites#confirm-storefront-framing-approval). Validate these checks on the actual preview and production origins.
+
+## Preserve the iframe boundary
+
+The loader configures sandbox permissions and validates message source and origin. Avoid wrapping it in another restrictive sandbox or replacing its iframe attributes. For a custom integration, follow the exact [direct-embed protocol](/reference/protocol).
+
+Use HTTPS for production pages and public garment media. Treat browser console errors about blocked scripts, framing, or cross-origin requests as configuration evidence. Fix the matching configuration; do not disable origin validation or post private messages to `*`.
+
+## Map the shopper data flow
+
+The storefront supplies a product identifier and, when used, a garment image URL. The shopper supplies a photo through FittingMe's journey. Public loader events report integration milestones without exposing the photo or result URL.
+
+Coordinate with the client on the privacy notices, consent configuration, and retention terms applicable to its account. This guide does not establish a retention period or substitute for those account-specific terms. The widget's generation consent and your storefront's analytics consent serve different purposes; do not treat one as automatic permission for the other.
+
+## Before launch
+
+Confirm that your analytics adapter excludes private data, third-party scripts cannot collect capture links through your instrumentation, and support screenshots or network exports are redacted. Verify the integration under the actual CSP and consent manager used in production.

@@ -1,0 +1,51 @@
+---
+title: "Connect products and garment images"
+sidebarTitle: "Products and images"
+description: "Choose an image source and make each embed refer to the garment actually displayed."
+---
+
+Each embed needs `data-product-id`. It can use an image you supply or a product already prepared in FittingMe's catalogue. Start with the supplied-image approach unless FittingMe has confirmed your catalogue is ready.
+
+| Approach | Supply | Use when |
+| --- | --- | --- |
+| Supplied image | Product identifier and `data-garment-image-url` | You can provide the correct garment image from the storefront. |
+| Prepared catalogue | Product identifier; omit `data-garment-image-url` | FittingMe has onboarded the product and confirmed try-on availability. |
+
+## Supply an image
+
+1. Choose a stable product identifier from your storefront. Keep it consistent between the displayed product, the embed, and your own analytics.
+2. Select the garment image for that product or colour. Confirm it represents the item the shopper sees.
+3. Verify that the URL meets the requirements below and is retrievable by FittingMe's services.
+4. Set `data-product-id` and `data-garment-image-url` before loading the script. Use the [quickstart](/start/quickstart) as the complete example.
+5. Generate a result and visually verify the garment. Loading the source image in your browser does not establish server-side accessibility.
+
+### Image URL requirements
+
+- The downloaded image must decode as **JPEG or PNG**, with at most **20 MiB (20,971,520 bytes)**. WebP, AVIF, GIF, and SVG are not accepted garment formats. Renaming a file does not change its format.
+- Width and height must each be at most **8,192 pixels**. Malformed images and images that exceed decoding limits are rejected even when their download is under 20 MiB.
+- FittingMe follows at most **three redirects**. Prefer a direct image response; each redirect and destination must remain publicly accessible and pass the service's URL checks.
+- Absolute HTTPS URL, with a hostname.
+- At most 1,024 Unicode characters, both before and after URL normalisation.
+- No embedded username or password, fragment (`#...`), whitespace, or control characters.
+- Reachable without a shopper's cookies, login, or a private network connection.
+
+Use a stable media URL. A URL that expires during a shopper's journey can interrupt generation. Keep image credentials and private customer data out of query strings.
+
+These are garment-image requirements, separate from the shopper-photo formats accepted in the upload screen. Configure an image CDN to return JPEG or PNG consistently; automatic WebP/AVIF negotiation can make a working browser image unsuitable for generation.
+
+An eligible bootstrap does not download and validate the garment. An unsupported image can fail only after **Start**, currently with a generic temporary-unavailability message and no dedicated public loader error event. Check the actual response bytes, size, and redirects before retrying; eligibility is not proof that generation will succeed.
+
+An explicitly supplied invalid or inaccessible image is an error. FittingMe does not silently replace it with a catalogue image. To use catalogue lookup, **omit the image attribute entirely**; an empty attribute is invalid.
+
+## Use a prepared catalogue
+
+1. Arrange catalogue onboarding with your FittingMe contact. Agree the product identifiers and source images using the client's product data.
+2. Obtain confirmation that the intended products are ready for try-on in the environment you will use.
+3. Pass the exact agreed identifier in `data-product-id` and omit `data-garment-image-url`.
+4. Test both a confirmed eligible product and a product that should not offer try-on.
+
+You do not need to implement catalogue administration endpoints in the browser. Read the embed's [bootstrap outcome](/reference/events#bootstrap-outcome) to determine whether it can open. A temporary failure is different from a product being ineligible.
+
+## Change products deliberately
+
+Product and image inputs belong to one embed for its lifetime. Editing attributes on an already-executed script does not reconfigure it. Follow [product and variant changes](/integration/product-changes) when navigation or a colour selection changes the garment.

@@ -1,0 +1,35 @@
+---
+title: "Release notes and compatibility"
+sidebarTitle: "Releases and compatibility"
+description: "Understand which integration surface you use and what to verify when it changes."
+---
+
+Your installation depends on the loader, widget, and API working together. Record the storefront release and configuration used for your acceptance test, and review integration notices from FittingMe before rolling out related changes.
+
+## Compatibility baseline
+
+| Surface | Current contract covered by this guide |
+| --- | --- |
+| Loader asset | `https://widget.fittingme.ai/v2/fittingme-loader.js` |
+| Try-on widget | `https://widget.fittingme.ai/tryon/` |
+| Public API base | `https://api.fittingme.ai` |
+| Supplied-image messages | `fittingme/3`, with `loader_major=3` |
+| Catalogue-only messages | `fittingme/2`, selected by the loader when no image is supplied |
+
+The asset's `/v2/` path and the message protocol major describe different things. Do not edit that path to `/v3/` to enable supplied images. The loader selects the appropriate protocol from the configuration.
+
+The hosted loader URL is stable and does not contain a content hash. It is not a pin to an immutable release. Avoid an additional permanent cache or vendored copy that can outlive compatible widget/API changes.
+
+## Supplied-image compatibility
+
+Supplied-image integration adds `data-garment-image-url`. It requires major-3 messaging in both directions. An older loader can reject the attribute, and an incompatible widget can refuse the protocol. There is no silent downgrade from an image-bearing embed to catalogue lookup.
+
+When enabling this input on an existing installation, verify the assigned environment supports it and rerun the [complete journey checks](/testing/journey).
+
+## Release-note information to act on
+
+For an announced change, identify the affected configuration, methods, event fields, browser behaviour, and required migration steps. Distinguish a documentation clarification from a behaviour change. Confirm when a change is available in the environment your client uses.
+
+For the rollout date of a specific fix or a client-specific migration, obtain confirmation from FittingMe for the environment your storefront uses.
+
+Use [update, disable, or remove FittingMe](/maintenance/updates) for the operational steps.

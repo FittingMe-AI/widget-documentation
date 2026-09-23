@@ -20,7 +20,7 @@ async function publicMdx(directory = root) {
 }
 const inventory = await publicMdx();
 for (const page of inventory) if (!pages.includes(page)) errors.push(`Unlisted public page: ${page}`);
-if (pages.length !== 19 || new Set(pages).size !== 19) errors.push(`Expected 19 distinct pages, found ${pages.length}.`);
+if (pages.length !== 22 || new Set(pages).size !== 22) errors.push(`Expected 22 distinct pages, found ${pages.length}.`);
 for (const page of pages) {
   let source;
   try { source = await readFile(resolve(root, `${page}.mdx`), 'utf8'); }

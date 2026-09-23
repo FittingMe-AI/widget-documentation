@@ -1,0 +1,65 @@
+---
+title: "Errors and recovery"
+sidebarTitle: "Errors and recovery"
+description: "Distinguish loader validation, command refusal, and service responses before choosing a fix."
+---
+
+Errors can arise before an iframe exists, while commanding it, or during a shopper journey. Identify that layer first.
+
+| Layer | Where to look | Reference |
+| --- | --- | --- |
+| Loader configuration | Browser console; no mounted embed | [Configuration](/reference/configuration) |
+| Loader command | Synchronous return value and console | [Command verdicts](/reference/javascript#command-verdicts) |
+| Bootstrap availability | `amorçage` event or `resolve()` | [Bootstrap outcomes](/reference/events#bootstrap-outcome) |
+| Service request | Network response and widget error state | Problem Details below |
+
+## Problem Details responses
+
+FittingMe service errors use `application/problem+json`. A response can contain:
+
+| Field | Meaning |
+| --- | --- |
+| `type` | Stable error identifier under `https://fittingme.ai/problems/`. It is not a browsable help page. |
+| `title` | Short description of the error class. |
+| `status` | HTTP status. |
+| `detail` | Explanation for the occurrence. Do not parse this human-readable text as an enum. |
+| `code` | Machine-readable final segment of `type`. |
+| `instance` | Request path identifying the occurrence context; it excludes the query string. |
+| `field` | Relevant input field, when applicable. |
+| `capability` | Relevant capability, when applicable. |
+
+A proxy, browser block, or transport failure may not produce a JSON response. Record that distinction rather than assuming every failed request has a `code`.
+
+## Common journey errors
+
+| Code or status | What to check | Recovery |
+| --- | --- | --- |
+| HTTP 401 | Key missing, invalid, wrong environment, or revoked. | Correct the key configuration and start a new attempt. |
+| HTTP 403 | Domain access, consent, or entitlement; read the specific code. | Correct the identified cause. Repeating the same request will not grant access. |
+| `origin_not_allowed` / HTTP 403 | The session-opening origin is outside the key’s permitted domains. | Correct the key domain list for the actual storefront hostname, then reopen. |
+| `origin_underivable` / HTTP 403 | The service could not derive the embedding origin. | Use an HTTP(S) storefront page and the supported loader/protocol. Check proxies or embedding policies with FittingMe; do not forge origin headers. |
+| `validation_error` | Input named by `field`, if present. | Correct the input; do not retry unchanged. |
+| `consent_required` | Generation consent was not recorded for the active session. | Return through the widget's consent step. |
+| `capability_not_entitled` | Retailer access to try-on. | Ask FittingMe to confirm the account's capability. |
+| `not_found` | Resource or active journey context no longer available. | Start a fresh journey; check product/context configuration if repeated. |
+| `conflict` | Another generation is already in progress. | Follow the existing attempt instead of submitting another. |
+| `payload_too_large` | Uploaded photo exceeds the accepted size. | Follow the photo input guidance; use a smaller supported photo. |
+| `unsupported_media_type` | Unsupported photo type. | Choose a supported photo through the widget. |
+| `rate_limited` / HTTP 429 | Too many requests. | Honour `Retry-After` when supplied; avoid parallel retries. |
+| `service_unavailable` | A required service cannot complete the request. | Use bounded retry through the widget; escalate persistent failures. |
+| `maintenance_shutoff` | The journey has been disabled by the service. | Keep shopping available and seek service status from your FittingMe contact. |
+| `internal_error` / HTTP 500 | Unexpected service failure. | Retry through a fresh controlled attempt; report recurrence. |
+
+This table covers integration-relevant failures. An unfamiliar code should be reported with its safe diagnostic context; do not turn it into an eligible or ineligible product state by guesswork.
+
+## Failures without a public error event
+
+A browser `frame-ancestors` refusal blocks the iframe before bootstrap and has no API error body. Request [FittingMe framing approval](/start/prerequisites#confirm-storefront-framing-approval). Key-domain refusal happens later, when the journey session opens, even if bootstrap was eligible.
+
+Invalid garment bytes, including WebP, can currently surface after Start as generic temporary unavailability, without a dedicated public loader error event. Verify [garment requirements](/integration/products#image-url-requirements) before retrying. Inspect the failing request in browser developer tools; do not assume the host subscription receives every service error.
+
+## Avoid retry loops
+
+The widget owns the shopper journey and its request handling. Your host page should not inspect its private session, poll generation endpoints, or replay captured requests to force progress. Provide a clear unavailable state when bootstrap remains indeterminate, and preserve the rest of the storefront.
+
+See [troubleshooting](/troubleshooting/symptoms) for symptom-specific checks and [support](/troubleshooting/support) for escalation.

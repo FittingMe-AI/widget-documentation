@@ -1,0 +1,72 @@
+---
+title: "Prerequisites and access"
+sidebarTitle: "Prerequisites and access"
+description: "Gather the access, domains, and product inputs you need before writing integration code."
+---
+
+You are ready for the quickstart when you have retailer access, a publishable key, approval to embed on your storefront, matching environment addresses, a product identifier, and a usable garment image URL. Access is invitation-based; there is no anonymous self-service key in this guide.
+
+## Gather these inputs
+
+| Input | How to obtain it | Ready when |
+| --- | --- | --- |
+| Permission to edit the storefront | Your client or storefront administrator | You can add a container and an external script to a product page. |
+| FittingMe retailer access with try-on enabled | Your client's FittingMe contact | The retailer is provisioned and try-on access is confirmed. |
+| A publishable retailer key | A retailer Admin in the [Retailer Portal](https://app.fittingme.ai) | You have copied the full key through your team's approved credential-sharing method. |
+| Authorised hostnames | The Admin configuring the key | The exact hostname used for testing is permitted. |
+| Permission to frame the widget | Your client's FittingMe contact | FittingMe has confirmed that the widget's framing policy allows your exact storefront origin in this environment. |
+| Environment addresses | Your client's FittingMe contact | The loader/widget origin, API base, and retailer key all belong to the intended environment. |
+| A product identifier | Your storefront's product data | You can supply a stable identifier for the displayed product. |
+| A garment image | Your client's product media | You have a publicly retrievable JPEG or PNG, no larger than 20 MiB, matching the garment. |
+
+If you will use an existing FittingMe catalogue instead of supplying the image, obtain confirmation that your product is ready and its identifier matches the catalogue. Catalogue onboarding is assisted by FittingMe; it is not a prerequisite for the image-based quickstart. See [product inputs](/integration/products).
+
+## Obtain portal access
+
+1. Ask the client's retailer Admin or FittingMe contact for access to the correct retailer. Complete the invitation and sign-in flow.
+2. Complete authenticator setup when the portal requests it. Do not share an Admin's password or authenticator codes.
+3. Select the client's retailer. If you cannot create or manage keys, ask an Admin to perform the next steps; key management requires the Admin role.
+
+## Create a key for your test environment
+
+The portal currently uses French labels. The labels below identify the relevant controls.
+
+1. Open **Clés d'environnement** and choose **Créer une clé**.
+2. Give the key a name that identifies its use, such as your client's test storefront.
+3. Enter the allowed bare hostnames, without `https://`, ports, or paths. For example: `preview.example.com`.
+4. Create the key and copy its full value immediately. The full key is shown once; subsequent screens expose its prefix, not a recoverable copy.
+5. Store it through your team's approved configuration workflow. Use that value for `data-retailer-key`.
+
+The key is intended for the browser embed and will be visible in that browser. It is not a portal login, an internal service credential, or an administrative key. Domain restrictions are part of its configuration.
+
+## Configure domains correctly
+
+- List the exact storefront hostnames, including `www` where used.
+- Wildcards use the form `*.example.com`. List the apex `example.com` separately when your storefront uses it.
+- A key must have at least one domain and can have at most 20.
+- `localhost` must be the only domain on a dedicated local-development key. Do not combine it with production domains.
+- Use `http://localhost:PORT` for a local HTTP page. Opening an HTML file directly produces an unsuitable page origin; `127.0.0.1` is a different hostname from `localhost`.
+
+Removing a hostname can break installations still using it. Review the affected storefronts before saving a domain change.
+
+## Confirm storefront framing approval
+
+Send FittingMe each origin you will embed from, including scheme and port, for example `https://preview.example.com` or `http://localhost:8080`. Include preview, production, and any additional ancestor origins if your platform nests the storefront inside another frame. Obtain confirmation for the widget environment you will use before testing.
+
+FittingMe manages the widget response's `frame-ancestors` policy separately from the portal's key domain list. Adding a key domain does **not** update this policy. A new storefront can need a FittingMe configuration change and deployment before the browser permits the widget to load. There is no storefront JavaScript workaround.
+
+The browser checks framing before bootstrap. The API checks the key's domain permission when the journey session opens, so an eligible bootstrap alone does not prove domain access. Test both loading the frame and starting the journey.
+
+## Use the portal installation snippet
+
+Treat the portal snippet as the starting configuration for its selected key and environment. The supplied-image quickstart adds `data-garment-image-url`; a snippet without it uses catalogue lookup and requires a prepared product. Set `data-journey="tryon"` and choose `data-trigger-mode="encart"` for the widget-provided button. A snippet using `hôte` needs your own button and has the [current Back limitation](/integration/appearance#complete-custom-button-example).
+
+Use one installation per container. Replace the portal snippet with your adapted example rather than running both.
+
+## Check storefront restrictions
+
+Ask the storefront owner whether it blocks external scripts or frames, delays scripts until consent, or restricts third-party integrations in preview mode. The baseline requirements are in [security and privacy](/testing/security). Resolve a platform restriction before attempting to work around it in code.
+
+The quickstart uses production addresses. For another environment, replace both the script URL's widget origin and `data-api-base`, as well as the key. Changing only the API address and key leaves the production widget in place. In the direct example, replace the widget URL and `config.api_base` together.
+
+**Next:** [Add try-on to a product page](/start/quickstart).

@@ -1,38 +1,49 @@
 ---
-title: "Virtual try-on for your storefront"
-description: "Choose an integration, prepare your first product and open a real Try-On Journey."
+title: "What you will build"
+sidebarTitle: "What you will build"
+description: "Add virtual try-on to your client's product pages, from first installation to production."
 ---
 
-FittingMe lets a shopper supply a photo and see a generated image of themselves wearing a garment. You place a **Journey Embed** on a product page. It contains the Try-On interface and opens it in a drawer. Each embed has one product context and its own session.
+FittingMe lets a shopper see a garment on a photo of themselves without leaving your client's product page. You add an entry point to the storefront; FittingMe provides the try-on drawer, photo and consent steps, generation, and result.
 
-## Choose your integration
+**Start with one product and the FittingMe loader.** The loader is a JavaScript file that creates and manages an isolated iframe. You do not need to build the try-on screens or call the generation API yourself.
 
-| Approach | What you build | What FittingMe handles |
-| --- | --- | --- |
-| [Provided button](/quickstarts/provided-button) | A container and a configured loader script | The Journey Trigger, iframe, drawer coordination and browser messaging |
-| [Your own button](/quickstarts/custom-button) — recommended for custom buttons | Your button, boot-state handling and focus return | The same Try-On interface, plus the loader's lifecycle and messaging |
-| [Direct fittingme/3](/quickstarts/direct-protocol) — advanced | The iframe host, validated protocol, fullscreen layout, history, scroll lock, focus return and teardown | The interface inside the iframe and its service requests |
+<CardGroup cols={2}>
+  <Card title="Build your first integration" icon="code" href="/start/prerequisites">Prepare access, then add a working try-on to one product page.</Card>
+  <Card title="Fix an integration" icon="wrench" href="/troubleshooting/symptoms">Start with what you see: a missing button, a rejected command, or a failed journey.</Card>
+  <Card title="Look up an interface" icon="book-open" href="/reference/configuration">Find configuration, JavaScript methods, events, and errors.</Card>
+  <Card title="Update an installation" icon="arrows-rotate" href="/maintenance/updates">Change keys, test updates, or remove the integration safely.</Card>
+</CardGroup>
 
-A custom button opens the FittingMe interface. It does not replace the interface with a retailer-built upload or result screen. Use the loader unless you need to own the iframe host itself.
+## The shopper experience
 
-## Get to your first try-on
+1. The shopper opens try-on from a product page.
+2. FittingMe asks for the required consent and photo. On desktop, the shopper can use the phone handoff; the available photo options depend on the device and session.
+3. FittingMe generates and displays the try-on result.
+4. The shopper closes the drawer and continues shopping on your site.
 
-1. [Obtain access and configure a key](/start/access-keys-domains). FittingMe provides initial access; your retailer admin manages keys and domains in the Retailer Portal.
-2. [Prepare a product identifier and garment image URL](/start/first-product).
-3. Copy one complete quickstart, replace its placeholders, and serve it from an authorized HTTP or HTTPS origin.
-4. Open the drawer, complete the consent steps, supply a test photo and generate a try-on. Close the drawer and verify the observed events.
-5. Work through the [go-live checklist](/testing/go-live) on your actual storefront.
+An eligible product, an opened drawer, and a completed try-on are different milestones. Your integration can observe availability and opening through [public events](/reference/events); completion is reported only when a completed-result drawer closes, and is not a unique-generation count.
 
-All three quickstarts use a garment image you supply. They do not need a catalogue import. If FittingMe has prepared your catalogue, follow [Use a prepared catalogue](/guides/prepared-catalogue) instead.
+## Who owns what
 
-## Move from a product page to your application
-
-| Your next task | Guide |
+| You and your client | FittingMe |
 | --- | --- |
-| Handle color selectors and SPA navigation | [Product and image changes](/guides/product-changes) |
-| Add more than one placement | [Multiple embeds](/guides/multiple-embeds) |
-| Mount and clean up in the browser with React | [React and Next.js](/guides/react-nextjs) |
+| Storefront access, installation, and page layout | Hosted loader, widget, and try-on services |
+| Correct product identifier and garment image | Photo capture and try-on generation |
+| Product and variant selection, cart, and checkout | Consent screens and journey state |
+| Storefront security policy and analytics consent | Public integration events and error responses |
+| Testing on the client's actual storefront | Access provisioning and assisted catalogue onboarding |
 
-## Look up the integration contract
+The widget does not own your product selector, cart, or checkout. A try-on completion is not an order or a size recommendation. This guide covers virtual try-on.
 
-[Configuration](/reference/configuration), the [loader API](/reference/loader-api), the [direct protocol](/reference/fittingme-3) and [events](/reference/events) define the integration contract. Tracking recipes build on these events; FittingMe does not emit your store's purchases.
+## Does this fit your storefront?
+
+The recommended integration needs a page where you can add an HTML container and load an external script. Your security policy must allow the FittingMe iframe. Server-rendered pages and browser-rendered applications can use the loader; dynamic applications also need explicit cleanup when the product changes.
+
+Use [direct embedding](/integration/direct-embed) only when you need to own the iframe integration yourself. That approach also makes you responsible for message validation, layout, scrolling, focus, and browser history.
+
+## Your route to production
+
+[Prepare access](/start/prerequisites) → [Add one product](/start/quickstart) → [Adapt the integration](/integration/products) → [Test the journey](/testing/journey) → [Launch](/testing/launch).
+
+Keep the first installation small. Add a custom button, tracking, and application-specific behaviour after that product works.

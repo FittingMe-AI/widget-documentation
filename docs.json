@@ -32,7 +32,7 @@
     "links": [
       {
         "label": "Contact",
-        "href": "https://fittingme.ai/contact/"
+        "href": "/troubleshooting/support"
       }
     ]
   },
@@ -42,52 +42,55 @@
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Start here",
+            "group": "Get started",
             "pages": [
               "introduction",
-              "start/access-keys-domains",
-              "start/first-product"
-            ]
-          },
-          {
-            "group": "Quickstarts",
-            "pages": [
-              "quickstarts/provided-button",
-              "quickstarts/custom-button",
-              "quickstarts/direct-protocol"
+              "start/prerequisites",
+              "start/quickstart"
             ]
           },
           {
             "group": "Integration guides",
             "pages": [
-              "guides/product-changes",
-              "guides/multiple-embeds",
-              "guides/react-nextjs",
-              "guides/prepared-catalogue"
+              "integration/products",
+              "integration/product-changes",
+              "integration/react",
+              "integration/appearance",
+              "integration/analytics",
+              "integration/direct-embed"
             ]
           },
           {
-            "group": "Reference",
+            "group": "Test and launch",
+            "pages": [
+              "testing/journey",
+              "testing/security",
+              "testing/launch"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/symptoms",
+              "troubleshooting/support"
+            ]
+          },
+          {
+            "group": "Technical reference",
             "pages": [
               "reference/configuration",
-              "reference/loader-api",
-              "reference/fittingme-3",
-              "reference/events"
+              "reference/javascript",
+              "reference/events",
+              "reference/errors",
+              "reference/compatibility",
+              "reference/protocol"
             ]
           },
           {
-            "group": "Tracking",
+            "group": "Maintenance",
             "pages": [
-              "tracking/usage",
-              "tracking/gtm-ga4",
-              "tracking/commerce"
-            ]
-          },
-          {
-            "group": "Testing and troubleshooting",
-            "pages": [
-              "testing/troubleshooting",
-              "testing/go-live"
+              "maintenance/releases",
+              "maintenance/updates"
             ]
           }
         ]
@@ -96,5 +99,79 @@
   },
   "footer": {
     "socials": {}
-  }
+  },
+  "redirects": [
+    {
+      "source": "/quickstart",
+      "destination": "/start/quickstart"
+    },
+    {
+      "source": "/quickstarts/provided-button",
+      "destination": "/start/quickstart"
+    },
+    {
+      "source": "/quickstarts/custom-button",
+      "destination": "/integration/appearance"
+    },
+    {
+      "source": "/quickstarts/direct-protocol",
+      "destination": "/integration/direct-embed"
+    },
+    {
+      "source": "/start/access-keys-domains",
+      "destination": "/start/prerequisites"
+    },
+    {
+      "source": "/start/first-product",
+      "destination": "/integration/products"
+    },
+    {
+      "source": "/guides/product-changes",
+      "destination": "/integration/product-changes"
+    },
+    {
+      "source": "/guides/multiple-embeds",
+      "destination": "/integration/product-changes"
+    },
+    {
+      "source": "/guides/react-nextjs",
+      "destination": "/integration/react"
+    },
+    {
+      "source": "/guides/prepared-catalogue",
+      "destination": "/integration/products"
+    },
+    {
+      "source": "/reference/loader-api",
+      "destination": "/reference/javascript"
+    },
+    {
+      "source": "/reference/fittingme-3",
+      "destination": "/reference/protocol"
+    },
+    {
+      "source": "/tracking/usage",
+      "destination": "/integration/analytics"
+    },
+    {
+      "source": "/tracking/gtm-ga4",
+      "destination": "/integration/analytics"
+    },
+    {
+      "source": "/tracking/commerce",
+      "destination": "/integration/analytics"
+    },
+    {
+      "source": "/testing/go-live",
+      "destination": "/testing/launch"
+    },
+    {
+      "source": "/testing/troubleshooting",
+      "destination": "/troubleshooting/symptoms"
+    },
+    {
+      "source": "/guides/integration",
+      "destination": "/start/prerequisites"
+    }
+  ]
 }

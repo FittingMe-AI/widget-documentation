@@ -1,0 +1,96 @@
+---
+title: "Quickstart: add try-on to a product page"
+sidebarTitle: "Quickstart"
+description: "Install the loader, supply one garment image, and complete your first virtual try-on."
+---
+
+This example adds FittingMe's own try-on button beneath a product image. It uses a garment image URL, so you can start without a prepared FittingMe catalogue.
+
+## 1. Prepare three values
+
+Complete [prerequisites and access](/start/prerequisites), then replace:
+
+| Placeholder | Replace with |
+| --- | --- |
+| `YOUR_PUBLISHABLE_KEY` | The retailer key authorised for the hostname serving this page. |
+| `YOUR_PRODUCT_ID` | Your stable identifier for this product. |
+| `https://images.example.com/YOUR_GARMENT.jpg` | A publicly retrievable HTTPS JPEG or PNG, at most 20 MiB. Use the same image in both places below. |
+
+Confirm FittingMe has approved your storefront origin for framing, separately from the key domains. The example uses production; replace both widget and API addresses for another environment. Placeholder values cannot produce a working widget.
+
+Use a direct image URL, not a product-page URL or a private media-library link. Follow the [format, size, and redirect requirements](/integration/products#image-url-requirements). If an image URL contains query separators, write them as `&amp;` in HTML attributes.
+
+## 2. Add the complete example
+
+Save this as `try-on.html`, or adapt its product section to your storefront template. The empty container is reserved for FittingMe; the loader replaces its contents.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Try on this garment</title>
+  <style>
+    body { margin: 0; padding: 24px; font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 480px; margin: auto; }
+    .product-image { display: block; width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Example garment</h1>
+    <img class="product-image"
+      src="https://images.example.com/YOUR_GARMENT.jpg"
+      alt="The garment available to try on">
+    <div id="fittingme-widget-container"></div>
+  </main>
+  <script src="https://widget.fittingme.ai/v2/fittingme-loader.js"
+    data-api-base="https://api.fittingme.ai"
+    data-retailer-key="YOUR_PUBLISHABLE_KEY"
+    data-product-id="YOUR_PRODUCT_ID"
+    data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
+    data-journey="tryon"
+    data-locale="en"
+    data-trigger-mode="encart"
+    data-container="#fittingme-widget-container"></script>
+</body>
+</html>
+```
+
+Put the container before the script. Load the page through your storefront or a local HTTP server on an authorised hostname. If Python 3 is available and you are using a dedicated `localhost` key, run this from the file's directory:
+
+```bash
+python3 -m http.server 8080 --bind 127.0.0.1
+```
+
+Then open `http://localhost:8080/try-on.html`. Keep the terminal running while testing.
+
+## 3. Verify a complete try-on
+
+1. Load the page. The product image and FittingMe entry point should appear.
+2. Open try-on. The drawer should cover its intended area without being clipped by the storefront.
+3. Follow the consent and photo steps. If using the desktop phone handoff, complete the linked capture journey and return to the product page.
+4. Start generation and wait for the result to display.
+5. Close the drawer. The product page should remain usable and scroll normally.
+
+Your first integration succeeds when the **correct garment appears in a completed result** and the shopper can return to the page. A visible button alone does not verify the services or product input.
+
+## If it does not work
+
+| Observation | First check |
+| --- | --- |
+| No button | Confirm the script loaded and the container existed before it ran. Check the console for rejected attributes or a `frame-ancestors` block; the latter needs FittingMe framing approval. |
+| Image displayed on your page, but try-on fails | Confirm JPEG/PNG bytes, size, redirects, and retrieval without cookies or sign-in. An eligible button does not verify these. |
+| Authentication or access failure | Check the key, its environment, its authorised hostname, and retailer try-on access. |
+| Drawer clipped or opening refused | Check ancestor transforms and containment using [layout troubleshooting](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open). |
+
+Continue with [symptom-based troubleshooting](/troubleshooting/symptoms) if these checks do not resolve it.
+
+## Continue your integration
+
+- [Connect the client's real products](/integration/products).
+- [Handle product and variant changes](/integration/product-changes), including multiple embeds.
+- [Use React or another dynamic storefront](/integration/react).
+- [Customise the button and language](/integration/appearance).
+- [Run the launch checks](/testing/launch).

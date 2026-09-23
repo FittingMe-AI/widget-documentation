@@ -1,41 +1,22 @@
-# FittingMe integration documentation
+# FittingMe developer documentation
 
-Nineteen retailer-facing pages for virtual try-on, built with Mintlify. The
-approved structure and scope are in [the design brief](drafts/documentation-design.md).
+Public virtual try-on integration documentation, rewritten around the founder-approved developer goals and six-group structure. The 22 MDX pages follow the client developer from prerequisites through launch and maintenance.
 
-The site includes three complete HTML quickstarts, onboarding, catalogue handoff,
-product changes, multiple embeds, React/Next.js, shared contract references,
-tracking recipes, troubleshooting and browser release checks. `docs.json` owns
-navigation. The existing logo, fonts, palette and `style.css` remain the brand
-foundation.
+- Navigation and site presentation: `docs.json`.
+- Approved goals, acceptance exercise, and page responsibilities: `drafts/documentation-design.md`.
+- Implementation evidence: `drafts/documentation-provenance.md`.
+- Local checks and remaining acceptance limitations: `drafts/local-review.md`.
 
-## Local preview and checks
+## Validate and preview
 
-Use the workspace's Node 24 installation:
+Use Node 24 from the workspace's configured runtime:
 
 ```sh
 export PATH="$HOME/.local/opt/node/bin:$PATH"
 node scripts/validate-docs.mjs
-mint dev --no-open --telemetry false
+mint dev --port 3003 --no-open
 ```
 
-The CLI prints its available local port. Preview assets/fonts can require network
-access. Search in the local preview requires Mintlify CLI authentication; page
-navigation and content rendering do not.
+The preview is available at `http://localhost:3003`. Mintlify's local search requires CLI login; page navigation and rendering work independently. Do not publish as part of previewing.
 
-The validator checks the 19-route navigation, metadata, local links, fenced code,
-complete HTML example syntax and retired/unfinished vocabulary. Browser checks
-must additionally verify actual rendering and the examples against functioning
-services. See the unpublished [provenance record](drafts/documentation-provenance.md)
-for source revisions and [local review record](drafts/local-review.md) for measured
-coverage, URLs and dependencies.
-
-`drafts/`, `.review/` and `scripts/` are excluded from the Mintlify site. `.review/`
-is also Git-ignored: it contains pinned source snapshots, generated local assets
-and verification evidence. Published examples contain placeholders only.
-
-## Publication
-
-This work remains local for founder review. Do not push, merge or deploy until
-the founder explicitly approves publication after that review. A push to this
-repository's default branch may publish the site.
+Keep exact API definitions in the reference pages, verify behaviour against owning source, and exercise changed runnable examples against functioning services. Preserve the source/operational distinction in the review record. No credentials belong in public files or verification reports.

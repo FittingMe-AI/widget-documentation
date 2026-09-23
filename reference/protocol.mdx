@@ -1,0 +1,79 @@
+---
+title: "Advanced: direct-embed protocol"
+sidebarTitle: "Direct-embed protocol"
+description: "The URL inputs, message envelope, and browser responsibilities for an integration without the loader."
+---
+
+Use this reference only when you own the iframe integration. The [loader](/start/quickstart) implements these responsibilities for the normal integration path.
+
+The direct example in this guide supplies a garment image and therefore uses **`fittingme/3`**. Use the loader for prepared-catalogue integration.
+
+## Iframe URL
+
+Start from `https://widget.fittingme.ai/tryon/` and use `URL.searchParams` to encode inputs.
+
+| Parameter | Requirement |
+| --- | --- |
+| `api_base` | Required API base for the environment. |
+| `retailer_key` | Required publishable retailer key. |
+| `product_id` | Required product identifier. |
+| `journey` | `tryon`. |
+| `garment_image_url` | Required for this major-3 recipe; follows the [image URL rules](/integration/products#image-url-requirements). |
+| `host_origin` | Exact `window.location.origin`, including the port when present; no path. |
+| `loader_major` | `3`. |
+| `trigger_mode` | `hôte` for a host-owned button. |
+| `locale` | Optional `en` or `fr`. |
+
+Set sandbox and permissions **before** assigning the iframe URL:
+
+```html
+<iframe title="Virtual try-on"
+  sandbox="allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-storage-access-by-user-activation"
+  allow="web-share"></iframe>
+```
+
+The actual document URL contains a retailer key. Exclude it from analytics, support logs, and screenshots of developer tools.
+
+## Message envelope
+
+```javascript
+({ protocole: 'fittingme/3', message: 'ouvrir', champs: {} });
+```
+
+The envelope has exactly these three keys. `champs` is an object. Preserve the French message names and their accents.
+
+Before processing a received message, verify **both** `event.source === iframe.contentWindow` and `event.origin === widgetOrigin`. A foreign frame must not be able to change your state or force a protocol-mismatch shutdown. Send messages using the exact target origin, never `*`.
+
+## Messages
+
+| Direction | `message` | `champs` | Required host action |
+| --- | --- | --- | --- |
+| Widget → host | `amorçage` | `issue`; optional `code_transport` and `geometrie_tiroir: true` | Enable opening only for `éligible`; distinguish ineligible from indeterminate. |
+| Widget → host | `hauteur` | `hauteur_px`: number | Save the closed height and apply it when not fullscreen. Zero is valid. |
+| Widget → host | `ouverture` | Optional `ouverture` counter | Expand the iframe, lock page scrolling, and manage host-command history. |
+| Widget → host | `fermeture` | Empty object | Restore in-flow height, scrolling, focus, and the appropriate history state. |
+| Widget → host | `complétion` | Empty object | Observe a completed result at close, after `fermeture`; not a unique generation count. |
+| Host → widget | `ouvrir` | Empty object for this recipe | Request opening after eligibility; do not resend while open. |
+| Host → widget | `fermer` | Empty object | Request closure. Observe the closing announcement. |
+| Host → widget | `disposition` | `capacite: 'geometrie_tiroir'`; optional `ouverture`, `largeur_px`, `hauteur_px` | Negotiate geometry when offered and acknowledge the corresponding opening after layout. |
+
+Public loader events and wire messages are different interfaces. Wire envelopes do not carry `encart`; the parent already knows its iframe. The loader adds the container identity and opening origin when publishing its own events.
+
+## Geometry negotiation
+
+When bootstrap announces `geometrie_tiroir: true`, the host can acknowledge that capability with `disposition`. When the widget later supplies an `ouverture` counter, expand the iframe, allow layout to settle, then return that same counter with the actual viewport width and height in pixels. Do not reuse measurements from a previous opening.
+
+## Host responsibilities
+
+- Validate message origin, source, protocol, shape, and known names.
+- Stop communicating with an established peer that announces an incompatible major; do not silently downgrade.
+- Mount with zero height until the widget reports its closed height.
+- Keep the fullscreen iframe outside ancestors that clip or redefine fixed positioning.
+- Coordinate siblings if your application supports multiple direct embeds.
+- Pair opening and closing, preserve page scroll styles, restore focus, and handle Back.
+- Apply bounded UI timeouts for missing bootstrap or opening confirmation.
+- Close before replacing the product/image; release your listeners and iframe on disposal.
+
+The [completion timing and duplicate limits](/reference/events#completion-is-not-conversion) also apply to direct protocol events. `locale` configures the widget, not the separate phone capture page.
+
+See the [complete direct example](/integration/direct-embed). Extend it only after testing these responsibilities in your actual application.

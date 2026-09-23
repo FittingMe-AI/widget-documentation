@@ -1,0 +1,106 @@
+---
+title: "Integrate with React and dynamic storefronts"
+sidebarTitle: "React and dynamic pages"
+description: "Keep the embed connected across React remounts and choose an explicit product-navigation policy."
+---
+
+For the first React integration, keep the Journey Embed in a stable page template **outside the React root**, and use full page navigation when the product or garment image changes. React can observe its state without owning or removing the iframe. The widget-provided button remains available if a React component unmounts.
+
+This pattern requires control of the page shell. It does not provide in-place SPA product switching. If your framework controls the entire document, use a stable layout with an explicitly tested lifecycle or ask FittingMe to review your integration before adopting it.
+
+## 1. Place the embed outside React ownership
+
+Start from the complete [quickstart HTML](/start/quickstart). Keep its product image, widget container, and configured loader script in the page template. Add a separate React mount point alongside the container:
+
+```html
+<!-- Render these siblings in the page template, outside React. -->
+<div id="try-on-react-root"></div>
+<div id="fittingme-widget-container"></div>
+<!-- Put the configured loader script from the quickstart after the container. -->
+```
+
+Mount your existing React application or status component into `try-on-react-root`. The loader uses `data-container="#fittingme-widget-container"` and `data-trigger-mode="encart"`. Do not render the widget container inside that React root, clear its parent, or use a route transition that removes it.
+
+The product template owns the container and script until the document unloads. A React effect owns only its subscription and timers. No `close()` or `destroy()` belongs in this effect's cleanup.
+
+## 2. Observe state from React
+
+This component works whether React mounts before or after the loader. Its 15-second deadline is an application choice, not a service guarantee. Bootstrap replay supplies the outcome when the subscription is registered after bootstrap.
+
+```jsx
+'use client';
+import { useEffect, useState } from 'react';
+
+export function TryOnStatus() {
+  const [message, setMessage] = useState('Loading try-on…');
+
+  useEffect(() => {
+    let unsubscribe = () => {};
+    let poll;
+    let connected = false;
+    let expired = false;
+    setMessage('Loading try-on…');
+    const deadline = setTimeout(() => {
+      expired = true;
+      clearTimeout(poll);
+      setMessage('Try-on is taking longer than expected. Reload to retry.');
+    }, 15000);
+
+    const connect = () => {
+      if (expired || connected) return;
+      const container = document.getElementById('fittingme-widget-container');
+      const fm = window.FittingMe;
+      if (!container || !fm?.resolve(container)) {
+        poll = setTimeout(connect, 100);
+        return;
+      }
+      connected = true;
+      unsubscribe = fm.on(event => {
+        if (event.encart !== container || event.jalon !== 'amorçage') return;
+        clearTimeout(deadline);
+        setMessage(event.issue === 'éligible' ? '' :
+          event.issue === 'inéligible' ? 'Try-on is unavailable for this product.' :
+          'Try-on is temporarily unavailable.');
+      });
+    };
+    connect();
+
+    return () => {
+      expired = true;
+      clearTimeout(poll);
+      clearTimeout(deadline);
+      unsubscribe();
+      // The page owns the embed. Leave its connected DOM and loader intact.
+    };
+  }, []);
+
+  return <p role="status">{message}</p>;
+}
+```
+
+Use your application's existing `createRoot` entry point to render `<TryOnStatus />`. The component reports availability; it does not install the widget or track completion. Keep [analytics](/integration/analytics) subscribed for the lifetime of the page-owned embed.
+
+React may run setup and cleanup an extra time in development. This example removes only its own subscription and timers, so remounting cannot remove an open widget. See React's [effect lifecycle reference](https://react.dev/reference/react/useEffect).
+
+## 3. Change products with a full page load
+
+Use normal document navigation, such as an `<a href="https://store.example.com/products/next-product">`, for product and colour changes that need another garment image. Disable router interception for those links. Render the new product's inputs into the new page template. Unrelated React updates can leave the embed in place.
+
+A full page unload is not an analytics-delivery guarantee. In particular, navigating away from an open result may prevent a completion observation. Read the [completion limits](/reference/events#completion-is-not-conversion) before deciding what to count.
+
+## In-place SPA integration limits
+
+React does not await asynchronous effect cleanup before removing its DOM. Calling `close()` then immediately `destroy()` on an open embed returns `tiroir_ouvert`; removing the container anyway can leave the next page unscrollable. Waiting asynchronously inside the cleanup does not keep a React-owned container connected.
+
+An in-place integration needs an owner that retains the connected container, prevents new opens, and confirms closure **before** permitting removal or route replacement. It must also account for completion messages arriving after closure; the public loader exposes no “all close messages delivered” signal. See [product replacement](/integration/product-changes#close-before-replacing). This page does not supply a general safe SPA teardown adapter.
+
+Calling `open()` from React also has the loader's [browser Back limitation](/integration/appearance#complete-custom-button-example). The page-level pattern above uses the widget's own button.
+
+## Verify application behaviour
+
+- Delay the loader; mount, unmount, and remount the status component before it arrives.
+- In development Strict Mode and the production build, confirm there is still only one intended widget.
+- Open the drawer, unmount the React status component, and close the drawer. The widget must remain connected and restore page scrolling normally.
+- Remount the status component; confirm it receives the current bootstrap outcome.
+- Follow a product link; confirm it causes a full page load with the correct product and image.
+- Block the loader request and verify that the status stops waiting after its deadline while normal shopping remains usable.

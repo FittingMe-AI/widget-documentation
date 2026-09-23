@@ -1,74 +1,57 @@
 ---
-title: "Events"
-description: "The exact retailer-visible milestones, their payloads and their timing."
+title: "Events and payloads"
+sidebarTitle: "Events and payloads"
+description: "The four public milestones, their exact fields, and when subscribers receive them."
 ---
 
-With the loader, use `FittingMe.on(handler)`. It calls your handler with an ordinary JavaScript object; these are not DOM events dispatched on the container. With a direct host, consume the validated protocol messages described below.
+Subscribe with `window.FittingMe.on(handler)`. Each event identifies its embed with `encart`, the container DOM element. Event names and some values are French identifiers; keep their spelling and accents in code.
 
-## Public loader events
+## Event catalogue
 
-| `jalon` | Payload in addition to `jalon` | Meaning and timing | Replay |
+| `jalon` | Additional fields | Meaning | Replayed to a new subscriber? |
 | --- | --- | --- | --- |
-| `amorçage` | `encart`, `issue`; optional `code_transport` only for `indéterminé` | Embed learned its boot outcome | Latest known outcome for every living embed is delivered synchronously to each new subscriber |
-| `ouverture` | `encart`, `origine` | Drawer opened and the loader established fullscreen placement | Never |
-| `fermeture` | `encart` | An announced open drawer closed; presentation may finish before this is emitted | Never |
-| `complétion` | `encart` | A completed journey is announced on closing its drawer | Never |
+| `amorçage` | `issue`; optional `code_transport` | Latest bootstrap outcome. | Yes, for each live embed with a known outcome. |
+| `ouverture` | `origine`: `tap` or `commande` | Drawer opening was announced and accepted by the loader. | No. |
+| `fermeture` | None | A previously announced open drawer closed. | No. |
+| `complétion` | None | A completed result was observed when the drawer closed; sent after `fermeture`. | No. |
 
-### Placement and opening origin
+Every event also has `jalon` and `encart`. There is no timestamp, product identifier, session identifier, shopper photo, result URL, or order identifier in this public payload.
 
-- `encart` is the container **element**, not its ID string.
-- `origine` is `tap` for the provided trigger or `commande` for a loader command. A custom button click is therefore `commande`, just like a programmatic open; this field alone does not prove a human clicked.
+## Bootstrap outcome
 
-## Boot outcomes
+| `issue` | Interpretation |
+| --- | --- |
+| `éligible` | The embed can offer its journey. You may enable a custom trigger. |
+| `inéligible` | This embed has no journey to open for the current product context. |
+| `indéterminé` | Bootstrap did not establish eligibility. Treat this as a failure to determine availability, not an ineligible product. |
 
-| Exact `issue` | Interpretation | Host action |
-| --- | --- | --- |
-| `éligible` | Try-On is available in this product context | Reveal your button or surrounding Try-On copy |
-| `inéligible` | Try-On is not available in this context | Keep that UI hidden; no ineligibility reason is exposed |
-| `indéterminé` | Availability could not be established | Keep the trigger unavailable, show a recoverable service message and diagnose the failure |
+Eligibility is not a successful session or generation. Key-domain permission is checked when a session opens, and a supplied garment image is downloaded and decoded later.
 
-Initialize optional retailer-owned UI hidden, then reveal it on `éligible`. Zero iframe height alone does not tell you eligibility: the custom-button mode has zero height when closed even when eligible.
+`code_transport` may be a string on an indeterminate event. Use it as diagnostic information; do not infer a business reason from an HTTP transport outcome.
 
-### Transport codes
+## Opening origin
 
-`code_transport`, when present, is a string such as `"401"`, `"503"`, `"réseau"` (network) or `"délai"` (timeout). `"200"` can accompany an unreadable successful response. It is not an ineligibility reason or a full Problem Document. An image acknowledgement mismatch can produce `indéterminé` without this field.
+- `tap`: the shopper used the widget-provided entry point.
+- `commande`: the host page requested opening through the loader.
 
-## Completion is observed on close
+A custom button that calls `open(container)` produces `commande`, even though a shopper clicked that button.
 
-The current widget emits these messages in order:
+## Timing and ownership
 
-1. `fermeture`.
-2. `complétion`, when applicable.
-3. Its closed height.
+Register tracking before enabling the shopper to interact. A late subscription receives bootstrap state but cannot recover previous opens or completions. Bootstrap replay must not be counted as a new shopper visit.
 
-It does not emit the public completion event immediately when a render first appears.
+Each subscription sees all embeds. Filter using DOM element identity and attach your own product context from the component or page that owns that embed. Remove the subscription when its owner is disposed.
 
-### Repeat closes and restored journeys
+A close event follows an opening that was actually announced. Calling `close()` on an already-closed embed need not produce an event. Likewise, an accepted command is not itself an analytics event.
 
-- Closing the same completed result again does not create another completion.
-- An observed return to an incomplete journey rearms that transition.
-- A newly created embed can announce a restored completed journey on close.
+## Completion is not conversion
 
-### Counting and listener lifetime
+`complétion` is emitted **on drawer closure, after `fermeture`**, when the journey has a completed result that this embed has not already announced. Displaying the result alone emits no completion. Closing and reopening the same completed result in the same embed does not repeat it; a later incomplete journey can rearm the event.
 
-Consequently, completion counts are not generation-job counts, billing units or unique shoppers. Keep your listener alive through the close delivery; defer destruction to a later task if you need the completion that follows that close. No completion replay exists for a late subscriber.
+A fresh embed or page reload can resume that same result and emit completion again when closed. This is a new emission, despite the event not being replayed to late subscribers. There is no public session or event ID to deduplicate it across embeds or reloads.
 
-## Transport mapping
+Destroying an embed or unsubscribing inside `fermeture` can drop the following `complétion`. The public loader API has no notification that all close-related messages have been delivered. Keep the embed and tracking subscription alive after closure when observing completion. Do not use arbitrary timers as a delivery guarantee.
 
-Direct messages have `{ protocole: "fittingme/3", message, champs }`:
+Treat this as an observation of a completed result at close, not a count of unique generations. It does not establish that the shopper bought the item, selected a size, or added anything to a cart. Do not fabricate an image-download or order payload from this event.
 
-| Wire `message` | `champs` | Loader projection |
-| --- | --- | --- |
-| `amorçage` | `{ issue, code_transport? , geometrie_tiroir? }` | Boot event; layout capability remains internal |
-| `ouverture` | `{ ouverture? }` | Opening event after host layout; loader derives `origine` locally |
-| `fermeture` | `{}` | Closing event, paired with an opening |
-| `complétion` | `{}` | Completion event |
-| `hauteur` | `{ hauteur_px }` | Host layout only; no public event |
-
-Neither the placement nor opening origin crosses the wire: a direct host identifies the iframe by its source window and derives the opening origin from its own pending command. The optional opening counter belongs to [layout negotiation](/reference/fittingme-3#layout-coordination), not shopper identity.
-
-## What is deliberately absent
-
-These events contain no shopper photo, render URL, session capability, purchase, price, conversion attribution or detailed ineligibility reason. Add your own non-sensitive product and placement context when handling them. FittingMe's internal service tracking is a separate surface and is not a feed you can subscribe to through this API.
-
-See [Track Try-On usage](/tracking/usage) for a vendor-neutral adapter, and [Commerce analytics](/tracking/commerce) for optional correlation with events your store already owns.
+For a complete tracking adapter, see [track engagement and try-on results](/integration/analytics).

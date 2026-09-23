@@ -1,0 +1,54 @@
+---
+title: "Complete the production launch checklist"
+sidebarTitle: "Launch checklist"
+description: "Make a release decision using verified configuration, complete journeys, and a recovery path."
+---
+
+Run this checklist against the client's real product-page template. Assign a developer or client owner to each unfinished item before enabling the integration for shoppers.
+
+## Configuration
+
+- [ ] Production retailer access includes try-on.
+- [ ] The key belongs to the intended retailer and environment.
+- [ ] All production hostnames are authorised on the key, including required apex and `www` hosts.
+- [ ] FittingMe has separately confirmed framing approval for every production storefront origin and any frame ancestors.
+- [ ] Widget, API, and key use the same intended environment; loading the frame and opening the session both work.
+- [ ] No localhost key, placeholder, preview URL, or administrative credential remains in the storefront build.
+- [ ] Product identifiers and garment images match the displayed items; actual garment responses are JPEG/PNG, at most 20 MiB, with at most three redirects.
+- [ ] Catalogue-based products have confirmed readiness.
+- [ ] The production security policy allows the loader and iframe.
+
+## Shopper experience
+
+- [ ] A complete try-on has succeeded on representative production-template products.
+- [ ] Desktop-to-phone handoff has been checked; real-device camera/browser coverage is recorded separately.
+- [ ] Required mobile and desktop browsers have been exercised.
+- [ ] Closing and reopening work; scrolling and focus restore correctly.
+- [ ] Back is verified for the actual opening method. The known loader `open()` gap is not marked as passed; use the native trigger or the tested normal-page direct integration when Back is required.
+- [ ] Product/colour changes, multiple embeds, and SPA navigation are tested where used.
+- [ ] Failed script loading, unavailable images, cancellation, and retry leave normal shopping usable.
+- [ ] Widget language and the separate phone page’s browser-selected language are checked, along with long text, keyboard interaction, and zoom.
+
+## Data and measurement
+
+- [ ] Privacy and consent configuration have been reviewed with the client.
+- [ ] Analytics respects the storefront's consent decision.
+- [ ] Events are attributed to the right product without duplicate subscriptions.
+- [ ] Completion is treated as a result-at-close observation; reload duplication and teardown loss are understood. It is not used as a unique-generation or purchase count.
+- [ ] Logging and support exports exclude keys, photo data, and private capabilities.
+
+## Release and recovery
+
+- [ ] The client has reviewed and accepted the working integration.
+- [ ] You can disable the entry point or remove the integration through a known storefront release/configuration change.
+- [ ] The previous storefront build or configuration is recoverable.
+- [ ] An owner will check real traffic immediately after enabling it.
+- [ ] The team knows the [support route](/troubleshooting/support) and what diagnostic information to provide.
+
+## Verify after enabling
+
+Open an actual public product page in a fresh browser session. Repeat the complete journey and inspect normal storefront navigation. Check for CSP errors, unexpected access rejection, broken image retrieval, or unusual failure rates in your existing monitoring.
+
+If the integration disrupts shopping, disable its entry point or remove its installation and verify normal product browsing. Revoke a key only when that is the intended action for every installation using it; see [update, disable, or remove](/maintenance/updates).
+
+Keep launch evidence with the client's release record. Passing a local test does not establish that the production hostname, key, security policy, and dependencies are configured correctly.
