@@ -10,29 +10,29 @@ You are ready for the quickstart when you have retailer access, a publishable ke
 
 | Input | How to obtain it | Ready when |
 | --- | --- | --- |
-| Permission to edit the storefront | Your client or storefront administrator | You can add a container and an external script to a product page. |
-| FittingMe retailer access with try-on enabled | Your client's FittingMe contact | The retailer is provisioned and try-on access is confirmed. |
+| Permission to edit the storefront | The storefront owner or administrator | You can add a container and an external script to a product page. |
+| FittingMe retailer access with try-on enabled | Your FittingMe contact | The retailer is provisioned and try-on access is confirmed. |
 | A publishable retailer key | A retailer Admin in the [Retailer Portal](https://app.fittingme.ai) | You have copied the full key through your team's approved credential-sharing method. |
 | Authorised hostnames | The Admin configuring the key | The exact hostname used for testing is permitted. |
-| Permission to frame the widget | Your client's FittingMe contact | FittingMe has confirmed that the widget's framing policy allows your exact storefront origin in this environment. |
-| Environment addresses | Your client's FittingMe contact | The loader/widget origin, API base, and retailer key all belong to the intended environment. |
+| Permission to frame the widget | Your FittingMe contact | FittingMe has confirmed that the widget's framing policy allows your exact storefront origin in this environment. |
+| Environment addresses | Your FittingMe contact | The loader/widget origin, API base, and retailer key all belong to the intended environment. |
 | A product identifier | Your storefront's product data | You can supply a stable identifier for the displayed product. |
-| A garment image | Your client's product media | You have a publicly retrievable JPEG or PNG, no larger than 20 MiB, matching the garment. |
+| A garment image | Your storefront's product media | You have a publicly retrievable JPEG or PNG, no larger than 20 MiB, matching the garment. |
 
 If you will use an existing FittingMe catalogue instead of supplying the image, obtain confirmation that your product is ready and its identifier matches the catalogue. Catalogue onboarding is assisted by FittingMe; it is not a prerequisite for the image-based quickstart. See [product inputs](/integration/products).
 
 ## Obtain portal access
 
-1. Ask the client's retailer Admin or FittingMe contact for access to the correct retailer. Complete the invitation and sign-in flow.
+1. Ask a retailer Admin or your FittingMe contact for access to the correct retailer. Complete the invitation and sign-in flow.
 2. Complete authenticator setup when the portal requests it. Do not share an Admin's password or authenticator codes.
-3. Select the client's retailer. If you cannot create or manage keys, ask an Admin to perform the next steps; key management requires the Admin role.
+3. Select the retailer account you are integrating. If you cannot create or manage keys, ask an Admin to perform the next steps; key management requires the Admin role.
 
 ## Create a key for your test environment
 
 The portal currently uses French labels. The labels below identify the relevant controls.
 
 1. Open **Clés d'environnement** and choose **Créer une clé**.
-2. Give the key a name that identifies its use, such as your client's test storefront.
+2. Give the key a name that identifies its use, such as your test storefront.
 3. Enter the allowed bare hostnames, without `https://`, ports, or paths. For example: `preview.example.com`.
 4. Create the key and copy its full value immediately. The full key is shown once; subsequent screens expose its prefix, not a recoverable copy.
 5. Store it through your team's approved configuration workflow. Use that value for `data-retailer-key`.

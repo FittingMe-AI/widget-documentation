@@ -1,5 +1,7 @@
 # Local review — developer documentation rewrite, 2026-09-23
 
+The redesign documented below was subsequently published in merge `0ff3b23057d5245cb950d94dc80fe77ca7ee95ff`. For the later audience-wording correction and its current content fingerprints, see [audience review](audience-review.md). The evidence below records the earlier review.
+
 ## Review deliverable
 
 - Documentation: **http://localhost:3003/introduction** (Mintlify 4.2.851, Node 24.18.0).

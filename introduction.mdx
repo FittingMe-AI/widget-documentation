@@ -1,10 +1,12 @@
 ---
 title: "What you will build"
 sidebarTitle: "What you will build"
-description: "Add virtual try-on to your client's product pages, from first installation to production."
+description: "Add virtual try-on to your storefront's product pages, from first installation to production."
 ---
 
-FittingMe lets a shopper see a garment on a photo of themselves without leaving your client's product page. You add an entry point to the storefront; FittingMe provides the try-on drawer, photo and consent steps, generation, and result.
+This guide is for developers integrating FittingMe into a retailer's storefront, whether you work in-house or as an external integrator.
+
+FittingMe lets a shopper see a garment on a photo of themselves without leaving your storefront's product page. You add an entry point to the storefront; FittingMe provides the try-on drawer, photo and consent steps, generation, and result.
 
 **Start with one product and the FittingMe loader.** The loader is a JavaScript file that creates and manages an isolated iframe. You do not need to build the try-on screens or call the generation API yourself.
 
@@ -26,13 +28,13 @@ An eligible product, an opened drawer, and a completed try-on are different mile
 
 ## Who owns what
 
-| You and your client | FittingMe |
+| Your storefront team | FittingMe |
 | --- | --- |
 | Storefront access, installation, and page layout | Hosted loader, widget, and try-on services |
 | Correct product identifier and garment image | Photo capture and try-on generation |
 | Product and variant selection, cart, and checkout | Consent screens and journey state |
 | Storefront security policy and analytics consent | Public integration events and error responses |
-| Testing on the client's actual storefront | Access provisioning and assisted catalogue onboarding |
+| Testing on your actual storefront | Access provisioning and assisted catalogue onboarding |
 
 The widget does not own your product selector, cart, or checkout. A try-on completion is not an order or a size recommendation. This guide covers virtual try-on.
 

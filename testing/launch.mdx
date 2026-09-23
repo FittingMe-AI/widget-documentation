@@ -4,7 +4,7 @@ sidebarTitle: "Launch checklist"
 description: "Make a release decision using verified configuration, complete journeys, and a recovery path."
 ---
 
-Run this checklist against the client's real product-page template. Assign a developer or client owner to each unfinished item before enabling the integration for shoppers.
+Run this checklist against your actual product-page template. Assign an owner to each unfinished item before enabling the integration for shoppers.
 
 ## Configuration
 
@@ -31,7 +31,7 @@ Run this checklist against the client's real product-page template. Assign a dev
 
 ## Data and measurement
 
-- [ ] Privacy and consent configuration have been reviewed with the client.
+- [ ] Privacy and consent configuration have been reviewed with the retailer's privacy owner.
 - [ ] Analytics respects the storefront's consent decision.
 - [ ] Events are attributed to the right product without duplicate subscriptions.
 - [ ] Completion is treated as a result-at-close observation; reload duplication and teardown loss are understood. It is not used as a unique-generation or purchase count.
@@ -39,7 +39,7 @@ Run this checklist against the client's real product-page template. Assign a dev
 
 ## Release and recovery
 
-- [ ] The client has reviewed and accepted the working integration.
+- [ ] The working integration has been reviewed and accepted through your storefront's release approval process.
 - [ ] You can disable the entry point or remove the integration through a known storefront release/configuration change.
 - [ ] The previous storefront build or configuration is recoverable.
 - [ ] An owner will check real traffic immediately after enabling it.
@@ -51,4 +51,4 @@ Open an actual public product page in a fresh browser session. Repeat the comple
 
 If the integration disrupts shopping, disable its entry point or remove its installation and verify normal product browsing. Revoke a key only when that is the intended action for every installation using it; see [update, disable, or remove](/maintenance/updates).
 
-Keep launch evidence with the client's release record. Passing a local test does not establish that the production hostname, key, security policy, and dependencies are configured correctly.
+Keep launch evidence with your storefront's release record. Passing a local test does not establish that the production hostname, key, security policy, and dependencies are configured correctly.

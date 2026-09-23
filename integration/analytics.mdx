@@ -65,12 +65,12 @@ Use one subscription per owning integration component. If analytics reports dupl
 
 Subscribe for the lifetime of the embed. Immediate teardown on `fermeture` can lose `complétion`; a late subscription cannot recover it. Even with correct subscription handling, page closure or navigation can prevent delivery. See [completion timing](/reference/events#completion-is-not-conversion).
 
-Do not replay events that occurred before analytics consent by constructing a queue of past shopper activity. Apply the client's consent rules at dispatch time.
+Do not replay events that occurred before analytics consent by constructing a queue of past shopper activity. Apply your storefront's consent rules at dispatch time.
 
 ## Verify the measurements
 
 1. With analytics disabled, complete a journey and confirm your analytics receives no adapter events.
-2. Enable analytics through the client's consent flow and complete a new journey.
+2. Enable analytics through your storefront's consent flow and complete a new journey.
 3. Confirm opening uses the correct product identifier. A displayed result alone must not count as completion; close the drawer and check `fermeture` followed by `complétion`. Reopen and close the same result: no second completion is expected from that embed.
 4. Reload and resume a completed result. Closing can produce another completion observation; verify that your report does not label it a distinct generation. Navigate to another product with a full page load and check attribution again.
 5. Compare a purchase with the storefront's order event independently. Completion alone must not register a conversion.

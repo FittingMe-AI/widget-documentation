@@ -81,3 +81,7 @@ Additional b2b source fingerprints at the selected immutable commit:
 | `backend/src/error.rs` | 81953 | `9f33b1a81c1f3b9d487cd84ad564921e8f66d5ab9a3dea1f791beda0c3605f06` |
 
 See `review-response.md` for disposition and `local-review.md` for current verification and remaining acceptance limits.
+
+## Audience wording correction — 2026-09-23
+
+Source: the founder's clarification in this task that the reader may be an in-house developer or an external integrator working for the retailer. The retailer is FittingMe's customer and must not be assumed to be the developer's client. Fourteen public pages, the design brief, README and writing guidance were aligned with that instruction. No technical contract or executable example changed; all 15 code fences and `docs.json` match published merge `0ff3b23057d5245cb950d94dc80fe77ca7ee95ff`. See `audience-review.md` for the current verification and content fingerprints.
