@@ -2,7 +2,7 @@
 
 The founder approved the 12 goals, the practical acceptance exercise, and then the six-group structure in this task. Content is written from those decisions, without adapting the previous documentation prose. Existing hosting/brand infrastructure is retained; redirects preserve incoming links without determining the new structure.
 
-Scope: client developers integrating virtual try-on. Sizing remains outside this publication. Portal coverage is limited to access, keys, domains, and integration prerequisites. Internal service implementation and administration are outside the guide.
+Scope: developers integrating virtual try-on for a retailer, whether they work in-house or as external integrators. Address the reader directly; the retailer is FittingMe's customer, not necessarily the developer's client. Sizing remains outside this publication. Portal coverage is limited to access, keys, domains, and integration prerequisites. Internal service implementation and administration are outside the guide.
 
 ## Agreed goals
 

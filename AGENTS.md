@@ -132,6 +132,7 @@ Presentation follows the FittingMe design system, whose canonical source is `pub
 ## Content and navigation
 
 - Keep retailer integration pages in English unless the site adopts an explicit localization structure.
+- Address the developer directly, whether they work in-house for the retailer or as an external integrator. Refer to "your storefront", "your team", or "the retailer" as appropriate; do not assume the retailer is the developer's client. Name specific roles, such as retailer Admin or release owner, when an action belongs to them.
 - Use active voice, second person, sentence-case headings, and concise paragraphs.
 - Keep examples copyable and use placeholders such as `YOUR_PUBLISHABLE_KEY`.
 - Add, move, or delete a page and its `docs.json` navigation entry together.
