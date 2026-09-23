@@ -1,0 +1,108 @@
+---
+title: "Customise appearance and language"
+sidebarTitle: "Appearance and language"
+description: "Choose the entry point, style your own button, and select the widget language."
+---
+
+Keep the widget-provided entry point for the first installation. Switch to a host-controlled button when your storefront needs its own text, styling, placement, or interaction.
+
+## Choose the trigger
+
+| Mode | Configuration | Your responsibility |
+| --- | --- | --- |
+| FittingMe entry point | `data-trigger-mode="encart"` | Place the container in the page. FittingMe renders the trigger. |
+| Your button | `data-trigger-mode="hôte"` | Render an accessible button, wait for eligibility, and call `open(container)`. |
+
+The value `hôte` contains an accent. The container is still required in host-button mode, even when its closed height is zero. Do not hide or remove the iframe container to hide your button.
+
+## Complete custom-button example
+
+**Current limitation:** a drawer opened with `FittingMe.open(container)` does not reliably close on browser Back. The first Back can leave the drawer open and the page scroll-locked; a further Back can leave the product page. This affects this custom-button example. Use the widget-provided entry point for the default integration. If Back must work with your own button, the [direct-embed example](/integration/direct-embed) implements its own history handling for a normal page; it is not a SPA router adapter.
+
+Replace the same three placeholders as in the [quickstart](/start/quickstart). This example keeps the button disabled until the embed is eligible and gives the shopper an explicit unavailable state when bootstrap cannot complete.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Try on this garment</title>
+  <style>
+    body { margin: 0; padding: 24px; font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 480px; margin: auto; }
+    img { display: block; width: 100%; height: auto; }
+    button { padding: 12px 24px; font: inherit; cursor: pointer; }
+    button:disabled { cursor: wait; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Example garment</h1>
+    <img src="https://images.example.com/YOUR_GARMENT.jpg" alt="Garment">
+    <button id="try-on" type="button" disabled aria-describedby="try-on-status">
+      Try it on
+    </button>
+    <p id="try-on-status" role="status">Checking try-on availability…</p>
+    <div id="fittingme-widget-container"></div>
+  </main>
+  <script src="https://widget.fittingme.ai/v2/fittingme-loader.js"
+    data-api-base="https://api.fittingme.ai"
+    data-retailer-key="YOUR_PUBLISHABLE_KEY"
+    data-product-id="YOUR_PRODUCT_ID"
+    data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
+    data-journey="tryon"
+    data-locale="en"
+    data-trigger-mode="hôte"
+    data-container="#fittingme-widget-container"></script>
+  <script>
+    const container = document.getElementById('fittingme-widget-container');
+    const button = document.getElementById('try-on');
+    const status = document.getElementById('try-on-status');
+    const fm = window.FittingMe;
+    if (!fm) {
+      status.textContent = 'Try-on could not load. Please reload the page.';
+    } else {
+      const deadline = setTimeout(() => {
+        status.textContent = 'Try-on is taking longer than expected. Please reload to retry.';
+      }, 15000);
+      const unsubscribe = fm.on(event => {
+        if (event.encart !== container) return;
+        if (event.jalon === 'amorçage') {
+          clearTimeout(deadline);
+          button.disabled = event.issue !== 'éligible';
+          status.textContent = event.issue === 'éligible' ? '' :
+            event.issue === 'inéligible' ? 'Try-on is unavailable for this product.' :
+            'Try-on is temporarily unavailable. Please reload to retry.';
+        }
+        if (event.jalon === 'fermeture') button.focus();
+      });
+      button.addEventListener('click', () => {
+        const verdict = fm.open(container);
+        if (verdict !== 'accepté') {
+          status.textContent = 'Try-on could not open. Please try again.';
+        }
+      });
+      // A full page navigation releases this document and its subscription.
+      // A SPA must call unsubscribe() as part of its component cleanup.
+    }
+  </script>
+</body>
+</html>
+```
+
+The 15-second message is an example UI deadline, not a service-level promise. Keep normal browsing and purchasing available when try-on cannot load.
+
+## Set the language
+
+Use `data-locale="en"` or `data-locale="fr"`. Locale negotiation is case-insensitive; a regional form such as `en-GB` can fall back to `en`. Missing or unsupported values fall back to French. Specify the language rather than relying on the shopper's browser to choose it. This configures the embedded widget. The separate phone capture page currently uses the phone browser’s language and does not inherit `data-locale`; test that page separately.
+
+Changing language requires a newly configured embed. Translate your own button and status messages separately.
+
+## Understand the styling boundary
+
+Your CSS can style the product page, the surrounding section, and your custom button. The widget lives in its own iframe; storefront CSS does not restyle its internal screens. Retailer branding is resolved by FittingMe for the retailer. Arrange supported brand settings with the client's FittingMe contact or authorised portal workflow; do not invent theme attributes on the loader script.
+
+Place the container outside transformed or contained ancestors that would prevent a fullscreen drawer. See [layout troubleshooting](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open).
+
+**Verify:** keyboard activation, focus after closing, a failed bootstrap, both supported languages, and mobile layout. The custom button must never call `open()` before eligibility is known.

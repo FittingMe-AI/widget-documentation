@@ -1,0 +1,50 @@
+---
+title: "Handle product and variant changes"
+sidebarTitle: "Product and variant changes"
+description: "Keep try-on aligned with the selected product and understand the limits of in-place replacement."
+---
+
+An embed's product identifier and garment image are fixed at creation. For the default integration, use a full page load when either changes. Render the new embed with the new page's product inputs.
+
+## Decide whether to replace the embed
+
+| Storefront change | Integration action |
+| --- | --- |
+| Navigate to another product | Load the new document with its own inputs. |
+| Select a colour with a different garment image | Navigate to a page for that product/colour with the new image. |
+| Select a size while product and image remain the same | Keep the embed; your storefront owns size selection and cart. |
+| Re-render unrelated page content | Keep the existing embed and its container connected. |
+| Require in-place product navigation | Implement and test the ownership constraints below before using this approach. |
+
+The public loader API does not expose a product-update or selected-size setter. Editing executed script attributes or passing a variant to `open()` does not change the garment.
+
+## Close before replacing
+
+For an in-place integration, the owner must prevent new opens and retain the original container in the document until cleanup succeeds:
+
+1. Subscribe to that embed's `fermeture` before requesting closure if it is open.
+2. Call `FittingMe.close(container)` and check its verdict. This is an asynchronous close request, even though the verdict is synchronous.
+3. Wait for confirmed closure before calling `destroy(container)`. Use a bounded wait; if it expires, keep the embed connected and stop the replacement. Offer a full page navigation or reload as recovery.
+4. Require `destroy(container)` to return `accepté` before removing its script/container and mounting a new embed with a fresh container identity.
+
+Calling `close()` then `destroy()` immediately while open can return `tiroir_ouvert`. Removing the DOM after that refusal can strand the page's scroll lock. Framework cleanup must not remove the container before these steps finish.
+
+**Completion limit:** `fermeture` is followed by `complétion` when a completed result is being announced. Destroying or unsubscribing inside the close handler, including immediately after awaiting a promise resolved by that handler, can discard completion. The public API has no signal that all close-related messages have been delivered. A timeout cannot guarantee delivery, and waiting for completion alone would hang for unfinished journeys.
+
+For this reason, this guide does not provide a lossless close-and-destroy helper. Keep page-owned embeds and tracking alive after normal closure, and use full document navigation for the default product-change path. If in-place replacement is mandatory, agree its event-loss limits and test its route ownership with FittingMe. Public events cannot supply unique-generation counts even without teardown; see [completion semantics](/reference/events#completion-is-not-conversion).
+
+## Multiple embeds on one page
+
+Give each embed a distinct container and script. Use each widget-provided entry point and keep the containers mounted for the page's lifetime. Subscriptions are global, so filter using the actual container element:
+
+```javascript
+const jacket = document.getElementById('jacket-tryon');
+const unsubscribe = window.FittingMe.on(event => {
+  if (event.encart !== jacket) return;
+  // Handle this embed's milestone using your own product context.
+});
+```
+
+The loader coordinates one open drawer at a time. Loading a second script into the same live container is ignored as a duplicate. A string selector is not a substitute for the element argument in the command API.
+
+**Verify:** visit several products, change colours, navigate away and back, and confirm that every result corresponds to the active product. Check scroll restoration after closure and after any route transition. For React ownership, see [dynamic storefronts](/integration/react).

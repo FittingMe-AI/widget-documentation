@@ -1,85 +1,49 @@
 ---
-title: "Configuration parameters"
-description: "The supported Try-On loader attributes and direct iframe query parameters."
+title: "Loader configuration"
+sidebarTitle: "Loader configuration"
+description: "Required inputs, optional attributes, defaults, and validation rules for the script embed."
 ---
 
-Configuration is read when the embed is created. Treat all values below as immutable for that embed: close, destroy and recreate it to change them. Updating an existing script's attributes does not reconfigure its iframe.
+Load `https://widget.fittingme.ai/v2/fittingme-loader.js` once **per embed**, with its configuration on that script element. Each script mounts one iframe into an existing container.
 
-## Loader attributes
+## Required attributes
 
-Use the attributes on the script that loads `https://widget.fittingme.ai/v2/fittingme-loader.js`. Create its container first. Unknown `data-*` attributes on that script are rejected; put your own tracking metadata on another element.
-
-### Required attributes
-
-| Attribute → iframe parameter | Requirement and default | Purpose, constraints and example |
+| Attribute | Value | Requirement |
 | --- | --- | --- |
-| `data-api-base` → `api_base` | Required; no default | Matching API base, normally `https://api.fittingme.ai`. Use the base origin, with no route or query. |
-| `data-retailer-key` → `retailer_key` | Required; no default | Full public retailer key, e.g. `YOUR_PUBLISHABLE_KEY`. A prefix or admin token is not a substitute. |
-| `data-product-id` → `product_id` | Required; no default | Nonempty retailer product identity, e.g. `YOUR_PRODUCT_ID`. Match the prepared catalogue identity when using catalogue mode. |
-| `data-journey` → `journey` | Required; no default | Set `tryon` for this documentation. Omitting it does not choose a journey. |
+| `data-api-base` | API base URL, normally `https://api.fittingme.ai` | Must match the key's environment. |
+| `data-retailer-key` | Publishable retailer key | Required; use the key authorised for the storefront hostname. |
+| `data-product-id` | Merchant product identifier | Required even when supplying a garment image. |
+| `data-journey` | `tryon` | Required for the integration in this guide. |
 
-### Optional attributes
+Missing or blank required inputs prevent mounting. There is no implicit journey choice.
 
-| Attribute → iframe parameter | Requirement and default | Purpose, constraints and example |
+## Optional attributes
+
+| Attribute | Default when omitted | Behaviour |
 | --- | --- | --- |
-| `data-garment-image-url` → `garment_image_url` | Optional; absent selects catalogue imagery | A supplied garment image; see the exact rules below. Presence selects protocol major 3. |
-| `data-locale` → `locale` | Optional; resolved default `fr` | Supported interface languages: `en`, `fr`, `es`. Case-insensitive matching, then language fallback (`en-GB` → `en`), then `fr` for an unknown or missing locale. |
-| `data-trigger-mode` → `trigger_mode` | Optional; default `encart` | `encart`: provided button; `hôte`: retailer-owned button and zero closed height. Set the mode explicitly; preserve the accented value. The current widget falls back to `encart` for other values; use only the two documented values. |
-| `data-container` → no query parameter | Optional; `#fittingme-widget-container` | CSS selector resolving to one existing container. Use unique IDs, e.g. `#product-tryon`. Missing targets do not mount. A second script targeting the same element is ignored. |
-| `data-widget-url` → no query parameter | Optional; `https://widget.fittingme.ai/{journey}/` default | Override with a complete document address, e.g. a matching test environment's `/tryon/`. The loader substitutes `{journey}` in its built-in default only; supply a resolved URL in your override. |
+| `data-garment-image-url` | Catalogue lookup | Absolute HTTPS image URL. If present, it must be valid and non-empty. |
+| `data-container` | `#fittingme-widget-container` | CSS selector resolving to the existing container. Its contents belong to FittingMe. |
+| `data-trigger-mode` | Widget-provided entry point | `encart` for the FittingMe entry point; `hôte` for a button controlled by your page. |
+| `data-locale` | French fallback | Widget language: `en` or `fr`; supported regional forms fall back to their base language. The separate phone capture page uses its browser’s language. |
+| `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Explicit widget document override for an assigned environment. Keep loader, widget, and API compatible. |
 
-The loader trims ordinary attribute values. The image attribute is different: it rejects whitespace instead of trimming it. There is no supported live product/image update command or host-supplied theme, privacy link or shopper-photo parameter on this surface. Retailer presentation comes from the service.
+`data-sizing-domain` belongs to the separate Sizing integration and is unnecessary for try-on.
 
-## Garment image URL
+## Validation and forwarding
 
-A supplied `garment_image_url` must:
+- The loader accepts a closed list of `data-*` attributes. Do not attach analytics or framework metadata to this script; put it on your own element instead.
+- Normal configuration values are trimmed. Image URLs use stricter validation: leading or trailing whitespace is invalid.
+- Unknown `data-*` attributes and unsupported journeys are rejected in the console.
+- An unknown locale falls back; it does not create a new translation. Set `data-locale="en"` explicitly for an English storefront.
+- `data-container` and `data-widget-url` configure the loader; they are not forwarded as widget query parameters.
+- The loader derives `host_origin` from the page and chooses the message protocol major. Do not add `data-host-origin` or `data-loader-major`.
 
-- Be an absolute HTTPS URL with a host, returning a supported image to the service.
-- Contain at most **1,024 Unicode characters**, both as supplied and after URL serialization.
-- Contain no whitespace, control characters, URL username/password or `#` fragment.
-- Be publicly reachable. Service-side validation and fetching reject private/reserved network destinations, including unsafe redirects or DNS results.
+An image-bearing embed uses message protocol major 3. An embed using catalogue lookup uses major 2. The `/v2/` loader URL is an asset path; it does not mean that an image-bearing embed sends major-2 messages.
 
-### Image selection and lifetime
+## Lifetime
 
-- **Omitted attribute:** uses catalogue imagery. An empty attribute is invalid.
-- **Supplied image:** takes precedence over catalogue imagery, but does not bypass entitlement or an explicit product exclusion. It is immutable for the resulting session.
-- **Invalid or unavailable supplied image:** does not fall back to another image.
+All inputs are read when that script executes. Changing the script's attributes afterwards has no effect. See [product changes](/integration/product-changes) for replacement.
 
-### Encode the URL once
+If the selector does not find a container, nothing is mounted. If another live embed already owns the element, the duplicate is ignored. Use one unique container per embed and insert it before the script.
 
-In HTML, escape query separators:
-
-```html
-<script src="https://widget.fittingme.ai/v2/fittingme-loader.js"
-  data-api-base="https://api.fittingme.ai"
-  data-retailer-key="YOUR_PUBLISHABLE_KEY"
-  data-product-id="YOUR_PRODUCT_ID"
-  data-journey="tryon"
-  data-trigger-mode="encart"
-  data-garment-image-url="https://images.example.com/garment.jpg?color=navy&amp;view=front"
-  data-container="#product-tryon"></script>
-```
-
-In JavaScript use the raw URL with `&`, then `setAttribute()` or `URL.searchParams.set()` to encode it once. Preserve signed query values and ordering. A host-page image loading successfully does not prove that the generation service can fetch it.
-
-## Direct iframe query parameters
-
-For the documented direct path, set these on `https://widget.fittingme.ai/tryon/` using `URLSearchParams`:
-
-| Parameter | Requirement | Value |
-| --- | --- | --- |
-| `api_base`, `retailer_key`, `product_id`, `journey` | Required | Same meanings above; `journey=tryon` |
-| `garment_image_url` | Required for this direct guide | Supplied HTTPS image following the rules above |
-| `loader_major` | Required | String `3`, agreeing with every `fittingme/3` message |
-| `host_origin` | Required | Actual `window.location.origin`, e.g. `https://shop.example.com`; no path. Never guess it or copy the widget origin here. |
-| `locale` | Optional | Same locale negotiation above |
-| `trigger_mode` | Optional | Same trigger modes above; the direct quickstart uses `hôte` |
-
-The loader derives `host_origin` and selects `loader_major` itself. Do not add corresponding `data-*` attributes to a loader script. `data-container` and `data-widget-url` shape the host placement; they are not widget query parameters. Start with an artifact URL without extra query parameters to avoid duplicate configuration.
-
-## Precedence and lifetime
-
-- **Precedence:** explicit loader attributes override loader-local defaults. Optional omitted values use the widget's default or service-owned behavior. A supplied image wins over catalogue imagery.
-- **Lifetime:** a different locale, key, API, product, image, trigger mode or widget document requires a new embed; a moved placement should also be recreated deliberately.
-
-[Product changes](/guides/product-changes) shows the safe order. [Loader API](/reference/loader-api) describes the commands; [fittingme/3](/reference/fittingme-3) defines direct-host responsibilities.
+See [the complete quickstart](/start/quickstart) for copyable HTML, [image requirements](/integration/products#image-url-requirements), and [JavaScript methods](/reference/javascript).

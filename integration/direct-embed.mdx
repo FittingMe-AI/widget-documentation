@@ -1,0 +1,192 @@
+---
+title: "Advanced: embed without the loader"
+sidebarTitle: "Direct embedding"
+description: "Build a single supplied-image iframe integration when you need to own the host behaviour."
+---
+
+Use the loader unless you need direct control of the iframe. Without it, your application takes responsibility for security checks, sizing, scrolling, focus, history, timeouts, and cleanup.
+
+This complete example covers **one host-button embed on a normal page**, using a supplied garment image. It is not a multiple-embed coordinator or a SPA router adapter. For React, start with the [stable page-level integration](/integration/react); in-place SPA teardown has additional lifecycle limits.
+
+## Prepare the inputs
+
+Complete [prerequisites](/start/prerequisites). Replace the retailer key, product identifier, and image URL below. Serve the file on an authorised HTTP/HTTPS origin. The iframe is appended directly to the body so product-layout transforms do not trap its fullscreen positioning.
+
+## Add the example
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Direct virtual try-on</title>
+  <style>
+    body { margin: 0; padding: 24px; font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 480px; margin: auto; }
+    img { width: 100%; height: auto; }
+    button { padding: 12px 24px; font: inherit; }
+    #tryon-frame { display: block; width: 100%; height: 0; border: 0; }
+    #tryon-frame[data-open] {
+      position: fixed; inset: 0; width: 100%; height: 100dvh !important;
+      z-index: 2147480000; background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Example garment</h1>
+    <img src="https://images.example.com/YOUR_GARMENT.jpg" alt="Garment">
+    <button id="open-tryon" type="button" disabled>Try it on</button>
+    <p id="status" role="status">Checking try-on availability…</p>
+  </main>
+  <script>
+    const button = document.getElementById('open-tryon');
+    const status = document.getElementById('status');
+    const url = new URL('https://widget.fittingme.ai/tryon/');
+    const config = {
+      api_base: 'https://api.fittingme.ai',
+      retailer_key: 'YOUR_PUBLISHABLE_KEY',
+      product_id: 'YOUR_PRODUCT_ID',
+      garment_image_url: 'https://images.example.com/YOUR_GARMENT.jpg',
+      journey: 'tryon', locale: 'en', trigger_mode: 'hôte',
+      host_origin: window.location.origin, loader_major: '3'
+    };
+    for (const [name, value] of Object.entries(config)) url.searchParams.set(name, value);
+    const widgetOrigin = url.origin;
+    const frame = document.createElement('iframe');
+    frame.id = 'tryon-frame';
+    frame.title = 'Virtual try-on';
+    frame.setAttribute('sandbox', 'allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-storage-access-by-user-activation');
+    frame.setAttribute('allow', 'web-share');
+    const historyToken = crypto.randomUUID();
+    let eligible = false, opened = false, opening = false, closedThread = false;
+    let closedHeight = 0, geometry = false, openingTimer;
+    let savedScroll = [];
+    const bootstrapTimer = setTimeout(() => {
+      status.textContent = 'Try-on could not become ready. Reload to retry.';
+    }, 15000);
+
+    function send(message, champs = {}) {
+      if (!closedThread) frame.contentWindow?.postMessage(
+        { protocole: 'fittingme/3', message, champs }, widgetOrigin);
+    }
+
+    function lockScroll() {
+      savedScroll = [document.documentElement, document.body].map(element => {
+        const styles = ['overflow-x', 'overflow-y'].map(name =>
+          [name, element.style.getPropertyValue(name), element.style.getPropertyPriority(name)]);
+        element.style.setProperty('overflow-x', 'hidden');
+        element.style.setProperty('overflow-y', 'hidden');
+        return { element, styles };
+      });
+    }
+
+    function restorePage() {
+      frame.removeAttribute('data-open');
+      frame.style.height = `${closedHeight}px`;
+      for (const { element, styles } of savedScroll) {
+        for (const [name, value, priority] of styles) {
+          if (value) element.style.setProperty(name, value, priority);
+          else element.style.removeProperty(name);
+        }
+      }
+      savedScroll = [];
+      opened = false;
+      button.disabled = !eligible || closedThread;
+      button.focus();
+    }
+
+    window.addEventListener('message', event => {
+      if (event.source !== frame.contentWindow || event.origin !== widgetOrigin || closedThread) return;
+      const data = event.data;
+      if (!data || typeof data !== 'object' || typeof data.protocole !== 'string') return;
+      if (!data.protocole.startsWith('fittingme/')) return;
+      if (data.protocole !== 'fittingme/3') {
+        closedThread = true;
+        clearTimeout(bootstrapTimer);
+        clearTimeout(openingTimer);
+        restorePage();
+        status.textContent = 'Incompatible try-on integration. Contact the site team.';
+        return;
+      }
+      if (Object.keys(data).length !== 3 || !Object.hasOwn(data, 'message') ||
+          !Object.hasOwn(data, 'champs') || !data.champs ||
+          typeof data.champs !== 'object' || Array.isArray(data.champs)) return;
+      const fields = data.champs;
+      switch (data.message) {
+        case 'amorçage':
+          if (!['éligible', 'inéligible', 'indéterminé'].includes(fields.issue)) return;
+          clearTimeout(bootstrapTimer);
+          eligible = fields.issue === 'éligible';
+          button.disabled = !eligible || opened || opening;
+          status.textContent = eligible ? '' : fields.issue === 'inéligible' ?
+            'Try-on is unavailable for this product.' : 'Try-on is temporarily unavailable.';
+          geometry = fields.geometrie_tiroir === true;
+          if (geometry) send('disposition', { capacite: 'geometrie_tiroir' });
+          break;
+        case 'hauteur':
+          if (!Number.isFinite(fields.hauteur_px) || fields.hauteur_px < 0) return;
+          closedHeight = fields.hauteur_px;
+          if (!opened) frame.style.height = `${closedHeight}px`;
+          break;
+        case 'ouverture':
+          if (opened) return;
+          clearTimeout(openingTimer);
+          opened = true; opening = false;
+          lockScroll();
+          frame.setAttribute('data-open', '');
+          history.pushState({ ...history.state, fmDirect: historyToken }, '', location.href);
+          frame.focus();
+          if (geometry && Number.isInteger(fields.ouverture)) {
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              if (opened) send('disposition', {
+                capacite: 'geometrie_tiroir', ouverture: fields.ouverture,
+                largeur_px: frame.clientWidth, hauteur_px: frame.clientHeight
+              });
+            }));
+          }
+          break;
+        case 'fermeture':
+          clearTimeout(openingTimer);
+          opening = false;
+          if (!opened) return;
+          restorePage();
+          if (history.state?.fmDirect === historyToken) history.back();
+          break;
+        case 'complétion':
+          status.textContent = 'Your try-on is ready.';
+          break;
+      }
+    });
+
+    button.addEventListener('click', () => {
+      if (!eligible || opened || opening || closedThread) return;
+      opening = true; button.disabled = true;
+      send('ouvrir');
+      openingTimer = setTimeout(() => {
+        send('fermer');
+        opening = false;
+        status.textContent = 'Try-on did not confirm opening. Reload to retry.';
+      }, 2000);
+    });
+    window.addEventListener('popstate', () => {
+      if (opened && history.state?.fmDirect !== historyToken) send('fermer');
+    });
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && opened) send('fermer');
+    });
+    frame.src = url.href;
+    document.body.appendChild(frame);
+  </script>
+</body>
+</html>
+```
+
+The bootstrap and opening deadlines are example UI policies. Production applications must provide recovery for unconfirmed closure too; a full page reload is a safe way to reset this single-page example. Do not mix the example's history handling with a router without defining ownership.
+
+## Verify before adopting this approach
+
+Complete a try-on, close using the widget, reopen, then close using browser Back. Check scroll restoration and keyboard focus each time. Verify that messages from another frame or origin do not affect the integration, and that incompatible versions produce an explicit failure.
+
+For the message definitions and responsibilities, use the [protocol reference](/reference/protocol). For product changes, close and recreate the iframe with a new URL; changing one query parameter of a live journey is not a supported state update.

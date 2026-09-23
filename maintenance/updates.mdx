@@ -1,0 +1,47 @@
+---
+title: "Update, disable, or remove FittingMe"
+sidebarTitle: "Update, disable, or remove"
+description: "Change configuration and keys without losing a working storefront or an escape route."
+---
+
+Keep the integration's configuration, owning component, and release procedure identifiable. Test changes in the client's test storefront before enabling them in production.
+
+## Update an integration
+
+1. Record the currently working storefront build, key prefix, product-input approach, and service environment. Do not copy the full key into the release record.
+2. Review the [compatibility baseline](/maintenance/releases) and the change notice applicable to your update.
+3. Apply the change in the test storefront using a matching test configuration.
+4. Run the [journey checks](/testing/journey), including failure and navigation cases affected by the change.
+5. Obtain the client's normal release approval and keep the previous storefront configuration recoverable.
+6. Verify an actual public product page after enabling the change.
+
+## Rotate a retailer key
+
+An Admin performs rotation in **Clés d'environnement** using **Faire tourner…**. Rotation creates a new current key and leaves the previous key valid until it is revoked. The new full key is shown once.
+
+1. Copy and store the new key through the team's approved workflow.
+2. Replace the old value in all intended storefront deployments and configuration sources.
+3. Verify fresh page loads and complete a try-on with the new value. Check every affected hostname.
+4. Allow for cached pages and outstanding rollout steps before revoking the previous key.
+5. Revoke the previous key when it is no longer needed. Revocation is immediate; it can break any installation still using it.
+
+Do not start another rotation in the same key lineage while a previous key remains in rotation. Different key lineages can serve different environments independently.
+
+## Disable the entry point
+
+Use a storefront feature flag or deployment change to stop mounting new embeds and remove or disable custom try-on buttons. Keep normal product selection, cart, and checkout available.
+
+For an already-mounted page, follow the [closure and removal constraints](/integration/product-changes#close-before-replacing). Keep the container connected until destruction is accepted, and account for pending completion messages. A full page load into a template without the integration is the default removal path. Removing only the visible button does not destroy a running iframe.
+
+A key revocation affects every installation using that key. Reserve it for the intended credential-level action rather than treating it as a page-specific visibility toggle.
+
+## Remove the integration
+
+1. Stop mounting the loader or direct iframe in the product template.
+2. Remove custom buttons and related event subscriptions.
+3. Remove the owned containers and configuration from the storefront.
+4. Verify product browsing, navigation, cart, and checkout.
+5. Ask the Admin to retire unused keys once no other installation needs them.
+6. Remove FittingMe-specific security-policy allowances only after checking that no other site feature uses them.
+
+Removing storefront code does not, by itself, close the client's account or define deletion of previously processed data. Arrange account and data requests through the client's FittingMe contact.

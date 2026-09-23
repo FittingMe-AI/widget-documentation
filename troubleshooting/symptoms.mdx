@@ -1,0 +1,91 @@
+---
+title: "Find a fix by symptom"
+sidebarTitle: "Find a fix"
+description: "Start with what is failing, identify the boundary, and take the next useful action."
+---
+
+Keep the product page open with browser developer tools. Inspect the loader request, the widget iframe, and failed network requests. Do not paste complete request URLs, keys, photos, or capture links into support messages.
+
+## Nothing appears
+
+1. In Network, find `fittingme-loader.js`. If it did not load, check the URL, CSP, consent manager, and script-blocking extensions.
+2. Confirm the configured container exists before the script executes and is not inside a hidden or unmounted component.
+3. Check the console for a missing required input, an unknown `data-*` attribute, or an invalid image URL. Correct the script before reloading. Some loader diagnostics are currently in French. A missing container can fail silently, so check the selector even when the console is empty.
+4. If the loader mounted an iframe but bootstrap never arrives, inspect the console for a `frame-ancestors` refusal. Ask FittingMe to approve the storefront origin in the widget environment; neither your own CSP nor the portal key domain list can fix the widget’s framing policy.
+5. After script loading, inspect the state without exposing credentials:
+
+```javascript
+const container = document.getElementById('fittingme-widget-container');
+const fm = window.FittingMe;
+const state = fm?.resolve(container);
+console.table({
+  loaderAvailable: Boolean(fm),
+  embedMounted: Boolean(state),
+  bootstrapOutcome: state?.issue ?? 'not reported',
+  drawerOpen: state?.tiroir_ouvert ?? false
+});
+```
+
+`undefined` state means there is no live embed for that element. An `inéligible` outcome means it cannot offer the journey. `indéterminé` means availability could not be established; inspect the failed request instead of labelling the product unsupported.
+
+In `hôte` trigger mode, you must render your own button. A zero-height closed iframe is expected in that mode.
+
+## Authentication or domain access fails
+
+1. Confirm the key belongs to the intended retailer and API environment.
+2. Verify it is current or still valid during rotation, not revoked.
+3. Compare the browser hostname with the key's authorised domains, including `www` and preview subdomains.
+4. For local testing, use a dedicated `localhost` key and open an HTTP URL on `localhost`, not a file URL or `127.0.0.1`.
+5. If the request is forbidden despite a valid key and domain, confirm try-on entitlement with FittingMe.
+
+An eligible bootstrap does not prove key-domain access: that check happens when the journey session opens. `origin_not_allowed` means the hostname is not permitted; `origin_underivable` means the service could not derive the embedding origin. See [error codes](/reference/errors).
+
+See [access setup](/start/prerequisites). Do not add administrative credentials to the browser or change the widget to use a different authentication scheme.
+
+## The image works on the page but generation fails
+
+Your browser may have cookies or access that FittingMe's servers do not. Check that the URL returns image content without sign-in, has not expired, and is accepted by the client's CDN for server-side retrieval. A successful image tag alone is insufficient evidence.
+
+Check the actual downloaded bytes: the garment must be JPEG or PNG, at most 20 MiB, with no more than three redirects. A WebP can appear eligible and then fail after Start with generic temporary unavailability and no dedicated public host event. Retrying the same unsupported bytes will not fix it.
+
+If you supplied `data-garment-image-url`, check its [validation rules](/integration/products#image-url-requirements). An explicit failed image will not fall back to the catalogue.
+
+## The wrong garment appears
+
+Compare the displayed product with the product identifier and image used when the embed was created. Editing script attributes after execution does not update the iframe. Close and [replace the embed](/integration/product-changes) on product or colour changes.
+
+For catalogue lookup, ask FittingMe to verify the agreed product-to-image mapping. Do not mask a mismatch by displaying a different product title around the old embed.
+
+## The drawer is clipped or refuses to open
+
+Inspect the ancestors of the container. `transform`, `filter`, certain `will-change` values, and containment can change how a fixed-position iframe is laid out. The loader can refuse opening with `plein_écran_impossible`; its console message identifies the offending ancestor and property.
+
+Move the container into an appropriate layout location or remove the unnecessary containing-block property. Increasing only the iframe's `z-index` does not repair a containing block. Recheck sticky headers, page scrolling, mobile widths, and closing after the change.
+
+## A custom button does nothing
+
+- Wait for `amorçage` with `issue === 'éligible'` before enabling it.
+- Pass the container element to `open()`, not its ID or selector string.
+- Inspect the returned [command verdict](/reference/javascript#command-verdicts).
+- Observe `ouverture` to confirm opening. `accepté` alone does not prove the drawer appeared.
+- Confirm loader, widget, and API belong to a compatible environment, especially for supplied-image embeds.
+
+## Product navigation leaves duplicates or broken scrolling
+
+Do not remove a container after `destroy()` returns `tiroir_ouvert`. An accepted `close()` has not necessarily finished; React removes its DOM before asynchronous cleanup can complete. If the page is already stranded, a full page reload restores a clean document. Use the [page-owned React pattern](/integration/react) and [replacement constraints](/integration/product-changes#close-before-replacing).
+
+## Browser Back leaves the drawer open
+
+If the opening came from `FittingMe.open(container)`, including a custom button, this is a known loader limitation. A further Back can leave the product page. Keep the widget-provided entry point for the default integration; the normal-page [direct example](/integration/direct-embed) owns its history explicitly. Do not mark custom-button Back as passed merely because the native widget trigger works.
+
+Check [dynamic storefront ownership](/integration/react) and reproduce with slow network loading and rapid navigation.
+
+## Photo handoff or generation does not finish
+
+Keep the original product page open and confirm that the capture link belongs to the currently active attempt. Retry through the widget's available controls rather than reusing a saved QR URL from an older attempt.
+
+Inspect the failing response's status and safe error code. Consent, capture validation, temporary service failure, and rate limiting have different recovery actions in [errors and recovery](/reference/errors). If the issue persists across a fresh attempt, collect the [support details](/troubleshooting/support).
+
+## Analytics events are missing or duplicated
+
+Subscribe before interaction, filter by `event.encart`, and remove old subscriptions on navigation. Bootstrap is replayed to a late subscriber; completion is not. Completion arrives only after closing a completed result, after `fermeture`. Immediate teardown can drop it, and a new embed can emit it again for a resumed result after reload. These observations cannot count unique generations. Verify analytics consent and the destination configuration separately from the loader event. Use the [tracking guide](/integration/analytics).

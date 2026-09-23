@@ -6,7 +6,7 @@ This repository publishes the retailer-facing FittingMe integration documentatio
 
 The current documentation scope is virtual try-on only: onboarding, Journey Embed placement, the public loader contract, direct `fittingme/3` integration, configuration, tracking and observable integration failures. Sizing is deferred while it is still being developed.
 
-The founder-approved scope and 19-page structure are recorded in `drafts/documentation-design.md`. Catalogue onboarding is FittingMe-assisted and catalogue integration uses the loader; direct protocol examples use `fittingme/3` with a supplied garment image URL.
+The founder-approved scope, developer goals and 22-page structure (approved 2026-09-23) are recorded in `drafts/documentation-design.md`. Catalogue onboarding is FittingMe-assisted and catalogue integration uses the loader; direct protocol examples use `fittingme/3` with a supplied garment image URL.
 
 ## Repository boundary
 
@@ -38,7 +38,7 @@ size is not the criterion.
 Changes in other repositories trigger an update only through an actual effect on
 this documented surface. Sizing, internal administration, model training and
 billing internals do not enter the public guide merely because their code changes.
-Keep the approved Try-On scope and 19-page navigation unless a scope change is
+Keep the approved Try-On scope and 22-page navigation unless a scope change is
 explicitly approved. Pure refactors, test/CI changes, or fixes restoring already
 documented behavior need no public prose edit if the existing content remains true.
 

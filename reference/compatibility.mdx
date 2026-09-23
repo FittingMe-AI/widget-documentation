@@ -1,0 +1,43 @@
+---
+title: "Browser support and integration limits"
+sidebarTitle: "Browser support and limits"
+description: "Understand the browser capabilities and product boundaries your storefront must account for."
+---
+
+Validate the integration on the browsers and devices your client supports. An automated browser-engine check does not establish support for every phone, embedded webview, privacy setting, or camera permission state.
+
+## Browser and platform requirements
+
+The integration uses JavaScript, iframes, cross-origin messaging, browser history, and network access to FittingMe. Production pages and supplied garment images should use HTTPS. The storefront must permit the script and frame under its security policy.
+
+Test representative Chromium, Firefox, and Safari/WebKit browsers, plus physical mobile devices used by your audience. Camera and photo-picker behaviour, storage restrictions, downloads, and sharing can differ by device. An unavailable optional browser feature must not prevent the shopper from closing the drawer and returning to the product page.
+
+This reference does not promise an unverified minimum browser-version matrix. If the client requires a specific old browser or embedded webview, confirm it with FittingMe and include it in acceptance testing before launch.
+
+## Layout
+
+The widget adapts between mobile and desktop layouts. Your page must allow the iframe to expand beyond its closed entry-point size. Ancestors that establish a fixed-position containing block can prevent a correct drawer; see [layout troubleshooting](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open).
+
+Test narrow screens, short viewports, text zoom, landscape orientation, and overlays. Do not hard-code the iframe to the height of its closed button.
+
+## Integration boundaries
+
+| Capability | Boundary |
+| --- | --- |
+| Product/image changes | Require a new embed; no live mutation API. Prefer a full page load; in-place teardown can lose pending completion messages. |
+| Browser Back | Widget-trigger opening is supported; loader `open()` has a known Back gap. The direct example owns its own history on a normal page. |
+| Framing | FittingMe must permit the storefront origin separately from key domains and the storefront CSP. |
+| Completion tracking | Sent at close, not result display; may repeat after reload and cannot count unique generations. |
+| Multiple embeds | Distinct containers; subscriptions require attribution; one drawer at a time. |
+| Public JavaScript state | Eligibility and drawer state; no private session/photo/result capability. |
+| Selected size and checkout | Owned by the storefront; no documented loader setter for size or cart mutation. |
+| Appearance | Host-owned UI is styleable; internal iframe styling uses supported retailer branding. |
+| Locale | Widget: English and French, with French fallback. Separate phone capture uses the phone browser’s language. |
+| Catalogue onboarding | Assisted by FittingMe; product readiness must be confirmed. |
+| Sizing | Outside this virtual try-on integration guide. |
+
+## Numeric configuration limits
+
+Garment images must be JPEG/PNG, at most 20 MiB, with no more than three redirects. Image URLs are limited to 1,024 Unicode characters before and after URL normalisation. Key domain lists contain 1–20 entries; `localhost` is exclusive. See [image rules](/integration/products#image-url-requirements) and [domain setup](/start/prerequisites#configure-domains-correctly).
+
+Account-specific quotas, service commitments, and privacy retention terms are established through your client's FittingMe agreement. Do not derive them from an example timeout or a successful development run.

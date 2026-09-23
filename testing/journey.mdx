@@ -1,0 +1,59 @@
+---
+title: "Test the complete shopper journey"
+sidebarTitle: "Test the journey"
+description: "Verify the integration on your client's real storefront with observable expected results."
+---
+
+Test the actual product template and functioning FittingMe services. Use an authorised test environment, a known usable garment image, and test photos you have permission to use.
+
+Record the storefront build, hostname, browser, device, product identifier, image source, and time of each run. Keep keys, private photo data, and capture links out of shared reports.
+
+## Complete the normal journey
+
+| Action | Expected result |
+| --- | --- |
+| Open a supported product page | The correct product image is shown; one intended embed mounts. |
+| Open try-on | The drawer is visible and usable; the page behind it does not scroll unexpectedly. |
+| Read and accept the required consent | The photo step becomes available through the normal journey. |
+| Provide a test photo | The journey acknowledges the photo or gives an actionable validation error. |
+| Start generation | Progress is visible, followed by a usable result or a recoverable failure. |
+| Inspect the result | It corresponds to the garment selected on the product page. |
+| Close | The product page is usable, scrolling is restored, and focus returns appropriately. |
+| Reopen | The journey resumes or restarts consistently with the state shown to the shopper. |
+
+Repeat using both the widget-provided entry point and any custom button you ship.
+
+## Verify the desktop-to-phone handoff
+
+1. Open the desktop journey and display the QR handoff.
+2. Scan it on a phone, or decode it locally and open the URL in a separate browser context for a desktop handoff check.
+3. Complete the linked photo step and observe the original desktop page resume.
+4. Close or cancel the handoff and confirm the shopper can retry without mixing old and new attempts.
+
+A separate context on the same computer verifies the linked-session handoff. It does **not** verify a physical phone's camera, permissions, browser, or operating-system behaviour. Record those separately and test real devices for your supported audience.
+
+## Exercise failures deliberately
+
+| Case | Expected result |
+| --- | --- |
+| Wrong or revoked test key | Inspect HTTP 401 in Network; the widget can remain invisible without a parent-console error. The rest of the product page stays usable. |
+| Origin missing FittingMe framing approval | Browser blocks the frame before bootstrap. Ask FittingMe to approve it. |
+| Framing-approved origin missing from the key domains | Session opening is refused, possibly after eligible bootstrap. Inspect `origin_not_allowed` and fix the key domain list. |
+| Invalid or unavailable supplied image | Another catalogue image is not substituted. Unsupported bytes can produce generic temporary unavailability after Start; check format, size, and redirects. |
+| Product not enabled in a prepared catalogue | Your custom trigger remains unavailable after an ineligible outcome. |
+| Blocked script or failed network request | Your page does not wait forever or block cart and checkout. |
+| Cancel during photo capture or generation | The UI offers a valid next step; reopening does not revive obsolete work. |
+| Rapid double click | No duplicate drawers or duplicate host handlers. |
+| Product or colour change | Replacement follows the documented lifecycle and uses the new garment. |
+
+Use disposable test keys for revocation tests. Do not revoke a key used by a live storefront to create a failure scenario.
+
+## Check layout and accessibility
+
+Test phone and desktop widths, orientation changes, keyboard navigation, browser Back, Escape, 200% text zoom, and the site's sticky headers or overlays. Verify long translated labels and both drawer-open and drawer-closed states.
+
+Check each opening path separately: native widget trigger, loader `open()`, and direct protocol have different history ownership. Loader-command openings have a known Back failure; do not count that path as passing.
+
+For React, unmount the status component while the page-owned drawer is open, then close it and verify scrolling. Confirm product links perform a full document load. For a custom SPA implementation, add delayed script loading, quick route changes, and component remounts. For multiple embeds, open each in turn and verify attribution and cleanup.
+
+**Next:** complete the [production launch checklist](/testing/launch). Keep any untested device or scenario visible in your release decision.

@@ -1,0 +1,86 @@
+---
+title: "JavaScript API"
+sidebarTitle: "JavaScript API"
+description: "Address an embed, control its drawer, read its state, and release it safely."
+---
+
+The loader creates `window.FittingMe`. Wait for the script to load before accessing it. Script loading and embed eligibility are separate: opening requires an eligible [bootstrap outcome](/reference/events#bootstrap-outcome).
+
+## Address an embed
+
+Pass the actual container or iframe DOM element. Container references are usually easiest to own in application code.
+
+```javascript
+const container = document.getElementById('fittingme-widget-container');
+const fm = window.FittingMe;
+const state = fm.resolve(container);
+```
+
+Do not pass a selector string to the command methods. Do not use generated iframe IDs as your application identifiers.
+
+## Methods
+
+| Method | Returns | Behaviour |
+| --- | --- | --- |
+| `resolve(element)` | State snapshot or `undefined` | Reads a live embed. Unknown or destroyed references return `undefined` without an error. |
+| `open(element)` | Verdict string | Requests opening. Requires completed, eligible bootstrap. An already-open drawer is accepted without reopening. |
+| `close(element)` | Verdict string | Requests closure and withdraws pending opening. Closing an already-closed embed is accepted. |
+| `destroy(element)` | Verdict string | Removes the closed embed and its loader-owned resources. Refuses while its drawer is open. |
+| `on(handler)` | Unsubscribe function | Subscribes to all embeds on the page. Filter each event by `encart`. |
+
+**Current Back limitation:** openings requested with `open(element)` do not reliably close on browser Back, including when called from a custom button or a React handler. Prefer the widget-provided entry point, or implement and test history ownership through the [direct protocol](/integration/direct-embed).
+
+Calling `close(element)` followed immediately by `destroy(element)` is unsafe while open: destruction returns `tiroir_ouvert`. Removing the container anyway can leave the page scroll-locked. `fermeture` confirms closure, but does not guarantee that a following `complétion` has been delivered. See [replacement limits](/integration/product-changes#close-before-replacing).
+
+Commands return synchronously. `accepté` means the command was accepted; observe events for the resulting state. An open request made before bootstrap completes is refused, not queued for later.
+
+## State snapshot
+
+```javascript
+// Shape returned by resolve(container); values shown are illustrative.
+({
+  encart: container,
+  parcours: 'tryon',
+  issue: 'éligible',
+  tiroir_ouvert: false
+});
+```
+
+`issue` is `undefined` until bootstrap has an outcome. Afterwards it is `éligible`, `inéligible`, or `indéterminé`. `tiroir_ouvert` is a boolean. Each call returns a fresh snapshot; retaining one does not give you a live state object.
+
+## Command verdicts
+
+| Exact value | Meaning | Next action |
+| --- | --- | --- |
+| `accepté` | Accepted, possibly with no change because the requested state already holds. | Observe the event or reread state. |
+| `encart_inconnu` | The element identifies no known embed. | Check the element and mount sequence. |
+| `encart_détruit` | The referenced embed was destroyed. | Stop using the old reference or mount a new embed. |
+| `amorçage_incomplet` | Bootstrap is pending or indeterminate. | Wait for a new outcome or diagnose the bootstrap failure. |
+| `encart_inéligible` | The embed is not eligible to open. | Check product inputs and retailer availability. |
+| `plein_écran_impossible` | An ancestor prevents correct fullscreen layout. | Correct the containing-block problem reported in the console. |
+| `tiroir_ouvert` | Destruction was requested while the drawer was open. | Close, wait for closure, then destroy. |
+
+Keep these values, including accents, exactly as written when comparing strings. Refused commands report an error in the console and do not carry out the requested action.
+
+## Subscribe and clean up
+
+```javascript
+const unsubscribe = fm.on(event => {
+  if (event.encart !== container) return;
+  if (event.jalon === 'amorçage') {
+    const canOpen = event.issue === 'éligible';
+    // Update your button state using canOpen.
+  }
+});
+
+// When this subscriber's owner is disposed:
+unsubscribe();
+```
+
+The last known bootstrap outcome is delivered synchronously during subscription for each live embed. Opening, closing, and completion events are not replayed. Initialise values used by the handler before calling `on()`; do not call a not-yet-assigned unsubscribe variable from a replayed bootstrap handler.
+
+Unsubscribing more than once is safe. Destroying an embed does not unsubscribe your global handler. Follow [replacement and cleanup](/integration/product-changes) for the full sequence.
+
+## Older call forms
+
+Compatibility methods such as bare `open()`, `get()`, and handle methods target embeds differently and do not share the explicit command-verdict contract above. Use element-addressed commands for new integrations, especially pages with more than one embed.

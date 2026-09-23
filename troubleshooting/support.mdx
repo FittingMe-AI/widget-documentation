@@ -1,0 +1,33 @@
+---
+title: "Get help from FittingMe"
+sidebarTitle: "Get help"
+description: "Send a reproducible integration problem with enough safe context to investigate."
+---
+
+Use your client's established FittingMe support contact. If you do not have one, ask your client to introduce its onboarding contact, or email [contact@fittingme.ai](mailto:contact@fittingme.ai), the address listed on the [FittingMe website](https://fittingme.ai/).
+
+Contact FittingMe when you need retailer access, entitlement, storefront framing approval, assisted catalogue onboarding, a confirmed service-side failure, or help after the relevant [symptom checks](/troubleshooting/symptoms).
+
+## Prepare a useful report
+
+Include:
+
+1. The retailer name, environment, and affected storefront hostname.
+2. Date, time, and time zone of the failure.
+3. Browser/version, operating system, and whether you used a physical phone or desktop emulation.
+4. Whether you used the loader or a direct embed, and a supplied image or prepared catalogue.
+5. Exact reproduction steps, what you expected, and what happened.
+6. The loader's bootstrap outcome or command verdict, plus the failing response's HTTP status and safe error `code` where available.
+7. Whether it affects one product, one browser, or all attempts; note the last known working storefront build if relevant.
+
+Provide a minimal example with placeholders for credentials. Share an affected public product page only when your client permits it. Keep private preview links in the agreed support channel.
+
+## Redact before sharing
+
+Remove full retailer keys, cookies, authentication headers, session identifiers, capture/QR URLs, shopper photos, result URLs, and personal information. Browser network exports and screenshots can contain these values even when the visible error text does not.
+
+Do not open a Problem Details `type` URI expecting a support page. It is an error identifier; provide the safe `code` instead.
+
+## Report the impact clearly
+
+State whether normal browsing, cart, or checkout is affected. If shoppers cannot use the storefront, follow your prepared [disable procedure](/maintenance/updates#disable-the-entry-point) while investigating. Do not send repeated generation requests as a substitute for diagnosing a persistent failure.
