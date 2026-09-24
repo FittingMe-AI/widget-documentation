@@ -1,0 +1,49 @@
+---
+title: "Configuration du loader"
+sidebarTitle: "Configuration du loader"
+description: "Entrées obligatoires, attributs facultatifs, valeurs par défaut et règles de validation du script intégré."
+---
+
+Chargez `https://widget.fittingme.ai/v2/fittingme-loader.js` une seule fois **par intégration**, avec sa configuration sur l’élément script. Chaque script monte une iframe dans un conteneur existant.
+
+## Attributs obligatoires
+
+| Attribut | Valeur | Exigence |
+| --- | --- | --- |
+| `data-api-base` | URL de base de l’API, généralement `https://api.fittingme.ai` | Doit correspondre à l’environnement de la clé. |
+| `data-retailer-key` | Clé détaillant publiable | Obligatoire ; utilisez la clé autorisée pour le nom d’hôte de la boutique. |
+| `data-product-id` | Identifiant produit du commerçant | Obligatoire même si vous fournissez une image de vêtement. |
+| `data-journey` | `tryon` | Obligatoire pour l’intégration décrite dans ce guide. |
+
+Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n’est sélectionné implicitement.
+
+## Attributs facultatifs
+
+| Attribut | Valeur par défaut si omis | Comportement |
+| --- | --- | --- |
+| `data-garment-image-url` | Recherche dans le catalogue | URL HTTPS absolue d’une image. Si l’attribut est présent, sa valeur doit être valide et non vide. |
+| `data-container` | `#fittingme-widget-container` | Sélecteur CSS correspondant au conteneur existant. Son contenu est géré par FittingMe. |
+| `data-trigger-mode` | Point d’accès fourni par le widget | `encart` pour le point d’accès FittingMe ; `hôte` pour un bouton contrôlé par votre page. |
+| `data-locale` | Français par défaut | Langue du widget : `en` ou `fr` ; les variantes régionales prises en charge reviennent à leur langue de base. La page de capture sur téléphone utilise la langue de son navigateur. |
+| `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Remplacement explicite du document du widget pour un environnement attribué. Assurez la compatibilité du loader, du widget et de l’API. |
+
+`data-sizing-domain` appartient à l’intégration distincte de recommandations de taille et n’est pas nécessaire pour l’essayage virtuel.
+
+## Validation et transmission
+
+- Le loader n’accepte qu’une liste définie d’attributs `data-*`. N’ajoutez pas à ce script de métadonnées analytiques ou propres à votre framework ; placez-les plutôt sur un élément qui vous appartient.
+- Les valeurs de configuration ordinaires sont nettoyées de leurs espaces périphériques. Les URL d’image sont soumises à une validation plus stricte : un espace au début ou à la fin les invalide.
+- Les attributs `data-*` inconnus et les parcours non pris en charge sont signalés comme refusés dans la console.
+- Une langue inconnue entraîne un repli ; elle ne crée pas de traduction. Pour une boutique anglophone, définissez explicitement `data-locale="en"`.
+- `data-container` et `data-widget-url` configurent le loader ; ils ne sont pas transmis au widget comme paramètres d’URL.
+- Le loader déduit `host_origin` de la page et choisit la version majeure du protocole de messages. N’ajoutez ni `data-host-origin` ni `data-loader-major`.
+
+Une intégration avec image utilise la version majeure 3 du protocole de messages. Une intégration qui recherche l’image dans le catalogue utilise la version majeure 2. Le chemin `/v2/` de l’URL du loader désigne un fichier ; il ne signifie pas qu’une intégration avec image envoie des messages de version 2.
+
+## Durée de vie
+
+Toutes les entrées sont lues lors de l’exécution du script. Modifier ses attributs par la suite n’a aucun effet. Pour le remplacer, consultez [Changements de produit](/fr/integration/product-changes).
+
+Si le sélecteur ne trouve aucun conteneur, rien n’est monté. Si une autre intégration active utilise déjà l’élément, le doublon est ignoré. Prévoyez un conteneur unique par intégration et placez-le avant le script.
+
+Consultez le [démarrage rapide complet](/fr/start/quickstart) pour le code HTML à copier, les [exigences relatives aux images](/fr/integration/products#exigences-pour-l’url-de-l’image) et les [méthodes JavaScript](/fr/reference/javascript).

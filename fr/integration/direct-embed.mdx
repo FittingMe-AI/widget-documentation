@@ -1,0 +1,192 @@
+---
+title: "Avancé : intégrer sans le loader"
+sidebarTitle: "Intégration directe"
+description: "Créez une intégration iframe à image fournie si vous devez gérer vous-même le comportement de la page hôte."
+---
+
+Utilisez le loader, sauf si vous devez contrôler directement l’iframe. Sans le loader, votre application prend en charge les contrôles de sécurité, les dimensions, le défilement, le focus, l’historique, les délais d’attente et le nettoyage.
+
+Cet exemple complet présente **une seule intégration avec bouton hôte sur une page classique**, utilisant une image de vêtement fournie. Il ne coordonne pas plusieurs intégrations et ne sert pas d’adaptateur de routeur SPA. Avec React, commencez par l’[intégration stable au niveau de la page](/fr/integration/react) ; le démontage d’une intégration dans une SPA est soumis à des limites de cycle de vie supplémentaires.
+
+## Préparer les entrées
+
+Suivez la page [Prérequis](/fr/start/prerequisites). Remplacez ci-dessous la clé détaillant, l’identifiant produit et l’URL de l’image. Servez le fichier depuis une origine HTTP/HTTPS autorisée. L’iframe est ajoutée directement à `body`, pour éviter que les transformations de mise en page de la fiche produit ne piègent son positionnement plein écran.
+
+## Ajouter l’exemple
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Direct virtual try-on</title>
+  <style>
+    body { margin: 0; padding: 24px; font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 480px; margin: auto; }
+    img { width: 100%; height: auto; }
+    button { padding: 12px 24px; font: inherit; }
+    #tryon-frame { display: block; width: 100%; height: 0; border: 0; }
+    #tryon-frame[data-open] {
+      position: fixed; inset: 0; width: 100%; height: 100dvh !important;
+      z-index: 2147480000; background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Example garment</h1>
+    <img src="https://images.example.com/YOUR_GARMENT.jpg" alt="Garment">
+    <button id="open-tryon" type="button" disabled>Try it on</button>
+    <p id="status" role="status">Checking try-on availability…</p>
+  </main>
+  <script>
+    const button = document.getElementById('open-tryon');
+    const status = document.getElementById('status');
+    const url = new URL('https://widget.fittingme.ai/tryon/');
+    const config = {
+      api_base: 'https://api.fittingme.ai',
+      retailer_key: 'YOUR_PUBLISHABLE_KEY',
+      product_id: 'YOUR_PRODUCT_ID',
+      garment_image_url: 'https://images.example.com/YOUR_GARMENT.jpg',
+      journey: 'tryon', locale: 'en', trigger_mode: 'hôte',
+      host_origin: window.location.origin, loader_major: '3'
+    };
+    for (const [name, value] of Object.entries(config)) url.searchParams.set(name, value);
+    const widgetOrigin = url.origin;
+    const frame = document.createElement('iframe');
+    frame.id = 'tryon-frame';
+    frame.title = 'Virtual try-on';
+    frame.setAttribute('sandbox', 'allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-storage-access-by-user-activation');
+    frame.setAttribute('allow', 'web-share');
+    const historyToken = crypto.randomUUID();
+    let eligible = false, opened = false, opening = false, closedThread = false;
+    let closedHeight = 0, geometry = false, openingTimer;
+    let savedScroll = [];
+    const bootstrapTimer = setTimeout(() => {
+      status.textContent = 'Try-on could not become ready. Reload to retry.';
+    }, 15000);
+
+    function send(message, champs = {}) {
+      if (!closedThread) frame.contentWindow?.postMessage(
+        { protocole: 'fittingme/3', message, champs }, widgetOrigin);
+    }
+
+    function lockScroll() {
+      savedScroll = [document.documentElement, document.body].map(element => {
+        const styles = ['overflow-x', 'overflow-y'].map(name =>
+          [name, element.style.getPropertyValue(name), element.style.getPropertyPriority(name)]);
+        element.style.setProperty('overflow-x', 'hidden');
+        element.style.setProperty('overflow-y', 'hidden');
+        return { element, styles };
+      });
+    }
+
+    function restorePage() {
+      frame.removeAttribute('data-open');
+      frame.style.height = `${closedHeight}px`;
+      for (const { element, styles } of savedScroll) {
+        for (const [name, value, priority] of styles) {
+          if (value) element.style.setProperty(name, value, priority);
+          else element.style.removeProperty(name);
+        }
+      }
+      savedScroll = [];
+      opened = false;
+      button.disabled = !eligible || closedThread;
+      button.focus();
+    }
+
+    window.addEventListener('message', event => {
+      if (event.source !== frame.contentWindow || event.origin !== widgetOrigin || closedThread) return;
+      const data = event.data;
+      if (!data || typeof data !== 'object' || typeof data.protocole !== 'string') return;
+      if (!data.protocole.startsWith('fittingme/')) return;
+      if (data.protocole !== 'fittingme/3') {
+        closedThread = true;
+        clearTimeout(bootstrapTimer);
+        clearTimeout(openingTimer);
+        restorePage();
+        status.textContent = 'Incompatible try-on integration. Contact the site team.';
+        return;
+      }
+      if (Object.keys(data).length !== 3 || !Object.hasOwn(data, 'message') ||
+          !Object.hasOwn(data, 'champs') || !data.champs ||
+          typeof data.champs !== 'object' || Array.isArray(data.champs)) return;
+      const fields = data.champs;
+      switch (data.message) {
+        case 'amorçage':
+          if (!['éligible', 'inéligible', 'indéterminé'].includes(fields.issue)) return;
+          clearTimeout(bootstrapTimer);
+          eligible = fields.issue === 'éligible';
+          button.disabled = !eligible || opened || opening;
+          status.textContent = eligible ? '' : fields.issue === 'inéligible' ?
+            'Try-on is unavailable for this product.' : 'Try-on is temporarily unavailable.';
+          geometry = fields.geometrie_tiroir === true;
+          if (geometry) send('disposition', { capacite: 'geometrie_tiroir' });
+          break;
+        case 'hauteur':
+          if (!Number.isFinite(fields.hauteur_px) || fields.hauteur_px < 0) return;
+          closedHeight = fields.hauteur_px;
+          if (!opened) frame.style.height = `${closedHeight}px`;
+          break;
+        case 'ouverture':
+          if (opened) return;
+          clearTimeout(openingTimer);
+          opened = true; opening = false;
+          lockScroll();
+          frame.setAttribute('data-open', '');
+          history.pushState({ ...history.state, fmDirect: historyToken }, '', location.href);
+          frame.focus();
+          if (geometry && Number.isInteger(fields.ouverture)) {
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              if (opened) send('disposition', {
+                capacite: 'geometrie_tiroir', ouverture: fields.ouverture,
+                largeur_px: frame.clientWidth, hauteur_px: frame.clientHeight
+              });
+            }));
+          }
+          break;
+        case 'fermeture':
+          clearTimeout(openingTimer);
+          opening = false;
+          if (!opened) return;
+          restorePage();
+          if (history.state?.fmDirect === historyToken) history.back();
+          break;
+        case 'complétion':
+          status.textContent = 'Your try-on is ready.';
+          break;
+      }
+    });
+
+    button.addEventListener('click', () => {
+      if (!eligible || opened || opening || closedThread) return;
+      opening = true; button.disabled = true;
+      send('ouvrir');
+      openingTimer = setTimeout(() => {
+        send('fermer');
+        opening = false;
+        status.textContent = 'Try-on did not confirm opening. Reload to retry.';
+      }, 2000);
+    });
+    window.addEventListener('popstate', () => {
+      if (opened && history.state?.fmDirect !== historyToken) send('fermer');
+    });
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && opened) send('fermer');
+    });
+    frame.src = url.href;
+    document.body.appendChild(frame);
+  </script>
+</body>
+</html>
+```
+
+Les délais d’amorçage et d’ouverture sont des choix d’interface donnés à titre d’exemple. En production, l’application doit également prévoir un rétablissement si la fermeture n’est pas confirmée ; le rechargement complet est une manière sûre de réinitialiser cet exemple monopage. Ne combinez pas la gestion de l’historique de l’exemple avec un routeur sans en définir la responsabilité.
+
+## Vérifier avant d’adopter cette approche
+
+Effectuez un essayage, fermez-le depuis le widget, rouvrez-le, puis utilisez le bouton de retour du navigateur pour le fermer. Vérifiez à chaque fois le rétablissement du défilement et le focus clavier. Assurez-vous que les messages provenant d’une autre iframe ou origine n’affectent pas l’intégration et que les versions incompatibles déclenchent un échec explicite.
+
+Pour connaître les définitions des messages et les responsabilités, consultez la [référence du protocole](/fr/reference/protocol). Lors d’un changement de produit, fermez l’iframe puis recréez-la avec une nouvelle URL ; la modification d’un paramètre de requête au cours d’un parcours actif n’est pas une mise à jour d’état prise en charge.

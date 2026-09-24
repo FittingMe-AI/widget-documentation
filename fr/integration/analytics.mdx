@@ -1,0 +1,76 @@
+---
+title: "Suivre l’engagement et les résultats d’essayage"
+sidebarTitle: "Suivi analytique"
+description: "Transmettez les jalons publics à vos outils analytiques sans confondre disponibilité, fin d’essayage et achat."
+---
+
+Utilisez l’API d’abonnement du loader. Votre intégration gère le contexte produit ; les événements FittingMe identifient l’intégration par son élément conteneur.
+
+## Déterminer quoi mesurer
+
+| Question | Indicateur |
+| --- | --- |
+| Ce produit peut-il proposer l’essayage ? | `amorçage` avec `issue: 'éligible'`. |
+| Un acheteur a-t-il ouvert l’essayage ? | `ouverture`. |
+| Le panneau s’est-il fermé ? | `fermeture`. |
+| Cette intégration a-t-elle signalé un résultat terminé à sa fermeture ? | `complétion`, après `fermeture`. |
+| Combien de générations distinctes ont abouti ? | Les événements publics du loader ne le permettent pas ; aucun identifiant de déduplication n’est exposé. |
+| L’acheteur a-t-il ajouté un article au panier ou acheté ? | Événements de panier et de commande propres à votre boutique. |
+
+L’événement d’amorçage peut être rejoué lors de l’abonnement. Ne l’incluez pas dans le décompte des événements acheteur, sauf si vos outils le traitent explicitement comme une observation d’état.
+
+## Ajouter un adaptateur de suivi
+
+Exécutez ce code après le chargement du loader et avant d’activer un déclencheur personnalisé. Remplacez la valeur de remplacement du produit par le même contexte produit que celui utilisé pour créer l’intégration.
+
+```javascript
+const container = document.getElementById('fittingme-widget-container');
+const productId = 'YOUR_PRODUCT_ID';
+let analyticsAllowed = false;
+
+// Connect this function to your storefront's consent manager.
+function setTryOnAnalyticsConsent(allowed) {
+  analyticsAllowed = allowed === true;
+}
+
+const eventNames = {
+  ouverture: 'fittingme_opened',
+  fermeture: 'fittingme_closed',
+  complétion: 'fittingme_completed_result_closed',
+};
+
+const unsubscribe = window.FittingMe.on(event => {
+  if (event.encart !== container || !analyticsAllowed) return;
+  const name = eventNames[event.jalon];
+  if (!name) return;
+  const record = { event: name, product_id: productId };
+  if (event.jalon === 'ouverture') record.open_origin = event.origine;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push(record);
+});
+
+// Keep this subscription for the lifetime of the page-owned embed.
+// Do not unsubscribe in a fermeture handler: complétion can follow.
+```
+
+Les trois noms d’événements analytiques en anglais ci-dessus sont ceux de votre adaptateur ; ils ne désignent pas des événements FittingMe supplémentaires. L’ajout à `dataLayer` n’installe pas Google Tag Manager, ne configure pas de destination et ne garantit pas la transmission. Associez ces événements personnalisés dans la configuration analytique existante et vérifiez-les dans son mode aperçu ou débogage.
+
+Si vous utilisez un autre système analytique, remplacez l’appel final par sa fonction d’envoi approuvée. Conservez la correspondance des événements et le filtre par conteneur.
+
+## Limiter les données à l’essentiel
+
+Ne transmettez que les champs nécessaires. N’envoyez pas aux outils analytiques l’élément DOM, la clé détaillant, l’URL complète de l’iframe, le lien de capture, le jeton de session, la photo de l’acheteur ni l’URL du résultat.
+
+Utilisez un seul abonnement par composant responsable de l’intégration. Si vos outils signalent des doublons, recherchez d’abord les abonnements répétés avant d’ajouter une déduplication qui pourrait masquer des essayages répétés légitimes. Une nouvelle intégration ou un rechargement de page peut signaler à nouveau un résultat repris. L’événement de fin ne contient aucun identifiant unique d’événement ou de session permettant de le dédupliquer. Il ne permet donc pas de mesurer précisément les générations uniques, la facturation ou les conversions.
+
+Restez abonné pendant toute la durée de vie de l’intégration. Un démontage immédiat à la réception de `fermeture` peut faire perdre `complétion` ; un abonnement tardif ne peut pas le récupérer. Même si l’abonnement est géré correctement, la fermeture ou la navigation hors de la page peut empêcher la transmission. Consultez [le moment où la complétion est signalée](/fr/reference/events#la-complétion-n’est-pas-une-conversion).
+
+Ne rejouez pas, à l’aide d’une file d’événements passés, les événements survenus avant le consentement analytique. Appliquez les règles de consentement de votre boutique au moment de l’envoi.
+
+## Vérifier les mesures
+
+1. Désactivez le suivi analytique, terminez un parcours et vérifiez qu’aucun événement de l’adaptateur n’est transmis à vos outils.
+2. Activez le suivi analytique via le mécanisme de consentement de votre boutique et terminez un nouveau parcours.
+3. Vérifiez que l’ouverture utilise le bon identifiant produit. L’affichage d’un résultat ne suffit pas à compter une complétion ; fermez le panneau et vérifiez que `fermeture` est suivi de `complétion`. Rouvrez puis refermez ce même résultat : cette intégration ne doit pas signaler une deuxième complétion.
+4. Rechargez la page et reprenez un résultat terminé. Sa fermeture peut produire une nouvelle observation de complétion ; vérifiez que votre rapport ne la présente pas comme une génération distincte. Accédez ensuite à un autre produit par un rechargement complet et vérifiez de nouveau l’attribution.
+5. Comparez indépendamment un achat avec l’événement de commande de la boutique. La complétion seule ne doit pas être comptabilisée comme une conversion.

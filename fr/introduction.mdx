@@ -1,0 +1,51 @@
+---
+title: "Votre intégration"
+sidebarTitle: "Présentation"
+description: "Ajoutez l’essayage virtuel aux fiches produit de votre boutique, de l’installation au lancement."
+---
+
+Ce guide s’adresse aux développeurs qui intègrent FittingMe à la boutique d’un détaillant, qu’ils fassent partie de son équipe ou interviennent comme prestataires externes.
+
+FittingMe permet aux acheteurs de voir un vêtement sur une photo d’eux-mêmes sans quitter la fiche produit. Vous ajoutez un point d’accès à votre boutique ; FittingMe fournit le panneau d’essayage, les étapes de consentement et de photo, la génération et le résultat.
+
+**Commencez par un produit et le loader FittingMe.** Ce fichier JavaScript crée et gère une iframe isolée. Vous n’avez pas à construire les écrans d’essayage ni à appeler vous-même l’API de génération.
+
+<CardGroup cols={2}>
+  <Card title="Créer votre première intégration" icon="code" href="/fr/start/prerequisites">Préparez les accès, puis ajoutez l’essayage virtuel à une fiche produit.</Card>
+  <Card title="Dépanner une intégration" icon="wrench" href="/fr/troubleshooting/symptoms">Partez du symptôme : bouton absent, commande refusée ou parcours en échec.</Card>
+  <Card title="Consulter les références" icon="book-open" href="/fr/reference/configuration">Retrouvez la configuration, les méthodes JavaScript, les événements et les erreurs.</Card>
+  <Card title="Mettre à jour l’installation" icon="arrows-rotate" href="/fr/maintenance/updates">Faites tourner les clés, testez les changements ou supprimez l’intégration en toute sécurité.</Card>
+</CardGroup>
+
+## Parcours de l’acheteur
+
+1. L’acheteur ouvre l’essayage virtuel depuis une fiche produit.
+2. FittingMe demande le consentement requis et une photo. Sur ordinateur, l’acheteur peut poursuivre sur son téléphone ; les options photo disponibles dépendent de l’appareil et de la session.
+3. FittingMe génère et affiche le résultat de l’essayage.
+4. L’acheteur ferme le panneau et poursuit ses achats sur votre site.
+
+Un produit éligible, l’ouverture du panneau et un essayage terminé sont des jalons distincts. Votre intégration peut observer la disponibilité et l’ouverture grâce aux [événements publics](/fr/reference/events) ; la fin n’est signalée qu’à la fermeture du panneau contenant un résultat terminé, et ne correspond pas au nombre de générations uniques.
+
+## Répartition des responsabilités
+
+| Votre équipe boutique | FittingMe |
+| --- | --- |
+| Accès à la boutique, installation et mise en page | Loader hébergé, widget et services d’essayage |
+| Identifiant produit et image du vêtement corrects | Capture photo et génération de l’essayage |
+| Sélection du produit et de ses variantes, panier et paiement | Écrans de consentement et état du parcours |
+| Politique de sécurité de la boutique et consentement analytique | Événements publics d’intégration et réponses d’erreur |
+| Tests sur votre boutique réelle | Activation des accès et intégration assistée du catalogue |
+
+Le widget ne gère ni le sélecteur de produits, ni le panier, ni le paiement de votre boutique. Un essayage terminé n’est ni une commande ni une recommandation de taille. Ce guide porte sur l’essayage virtuel.
+
+## Votre boutique est-elle compatible ?
+
+L’intégration recommandée nécessite une page où vous pouvez ajouter un conteneur HTML et charger un script externe. Votre politique de sécurité doit autoriser l’iframe FittingMe. Le loader convient aux pages rendues côté serveur comme aux applications rendues dans le navigateur ; dans une application dynamique, vous devez aussi gérer explicitement le nettoyage lors d’un changement de produit.
+
+Utilisez l’[intégration directe](/fr/integration/direct-embed) uniquement si vous devez gérer vous-même l’iframe. Cette approche vous rend aussi responsable de la validation des messages, de la mise en page, du défilement, du focus et de l’historique du navigateur.
+
+## Votre parcours jusqu’au lancement
+
+[Préparer les accès](/fr/start/prerequisites) → [Ajouter un produit](/fr/start/quickstart) → [Adapter l’intégration](/fr/integration/products) → [Tester le parcours](/fr/testing/journey) → [Lancer](/fr/testing/launch).
+
+Gardez la première installation simple. Ajoutez un bouton personnalisé, le suivi analytique et les comportements propres à votre application une fois l’essayage de ce produit fonctionnel.

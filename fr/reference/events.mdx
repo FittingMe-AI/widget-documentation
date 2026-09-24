@@ -1,0 +1,57 @@
+---
+title: "Événements et données transmises"
+sidebarTitle: "Événements et données"
+description: "Les quatre jalons publics, leurs champs exacts et le moment où ils sont transmis aux abonnés."
+---
+
+Abonnez-vous avec `window.FittingMe.on(handler)`. Chaque événement identifie son intégration grâce à `encart`, l’élément conteneur du DOM. Les noms d’événement et certaines valeurs sont des identifiants français ; respectez leur orthographe et leurs accents dans le code.
+
+## Catalogue des événements
+
+| `jalon` | Champs supplémentaires | Signification | Rejoué à un nouvel abonné ? |
+| --- | --- | --- | --- |
+| `amorçage` | `issue` ; `code_transport` facultatif | Dernier résultat d’amorçage. | Oui, pour chaque intégration active dont le résultat est connu. |
+| `ouverture` | `origine` : `tap` ou `commande` | L’ouverture du panneau a été annoncée et acceptée par le loader. | Non. |
+| `fermeture` | Aucun | Un panneau dont l’ouverture avait été annoncée s’est fermé. | Non. |
+| `complétion` | Aucun | Un résultat terminé a été observé à la fermeture du panneau ; l’événement est envoyé après `fermeture`. | Non. |
+
+Chaque événement contient aussi `jalon` et `encart`. Cette donnée publique ne comporte ni horodatage, ni identifiant produit ou de session, ni photo de l’acheteur, ni URL du résultat, ni identifiant de commande.
+
+## Résultat de l’amorçage
+
+| `issue` | Interprétation |
+| --- | --- |
+| `éligible` | L’intégration peut proposer son parcours. Vous pouvez activer un déclencheur personnalisé. |
+| `inéligible` | Cette intégration ne peut pas ouvrir de parcours pour le contexte produit actuel. |
+| `indéterminé` | L’amorçage n’a pas établi l’éligibilité. Traitez-le comme un échec de détermination de disponibilité, et non comme un produit inéligible. |
+
+L’éligibilité ne signifie pas qu’une session ou une génération a réussi. L’autorisation de domaine de la clé est vérifiée à l’ouverture d’une session ; l’image de vêtement fournie est téléchargée et décodée ultérieurement.
+
+Dans un événement indéterminé, `code_transport` peut être une chaîne. Utilisez cette donnée à des fins de diagnostic ; ne déduisez pas une cause métier d’un résultat de transport HTTP.
+
+## Origine de l’ouverture
+
+- `tap` : l’acheteur a utilisé le point d’accès fourni par le widget.
+- `commande` : la page hôte a demandé l’ouverture via le loader.
+
+Un bouton personnalisé qui appelle `open(container)` produit la valeur `commande`, même si c’est l’acheteur qui a cliqué sur le bouton.
+
+## Moment de transmission et gestion
+
+Enregistrez le suivi avant de permettre à l’acheteur d’interagir. Un abonnement tardif reçoit l’état d’amorçage, mais ne peut pas récupérer les événements d’ouverture ou de complétion précédents. Ne comptabilisez pas le rejeu de l’amorçage comme une nouvelle visite.
+
+Chaque abonnement reçoit les événements de toutes les intégrations. Filtrez-les par identité de l’élément DOM et associez-y le contexte produit fourni par le composant ou la page qui gère l’intégration. Supprimez l’abonnement lorsque son propriétaire est démonté.
+
+Un événement de fermeture suit une ouverture qui a effectivement été annoncée. Appeler `close()` sur une intégration déjà fermée ne génère pas nécessairement d’événement. De même, l’acceptation d’une commande ne constitue pas en soi un événement analytique.
+
+## La complétion n’est pas une conversion
+
+`complétion` est émis **à la fermeture du panneau, après `fermeture`**, lorsque le parcours a produit un résultat terminé que cette intégration n’a pas déjà signalé. Le simple affichage du résultat ne déclenche pas cet événement. Fermer puis rouvrir le même résultat terminé dans la même intégration ne le répète pas ; un parcours ultérieur inachevé peut réarmer l’événement.
+
+Une nouvelle intégration ou un rechargement de page peut reprendre ce même résultat et émettre de nouveau l’événement de complétion à la fermeture. Il s’agit d’une nouvelle émission, même si l’événement n’est pas rejoué aux abonnés tardifs. Aucun identifiant public de session ou d’événement ne permet de le dédupliquer entre les intégrations ou les rechargements.
+
+Détruire une intégration ou se désabonner lors de `fermeture` peut faire perdre l’événement `complétion` qui suit. L’API publique du loader n’indique pas que tous les messages liés à la fermeture ont été transmis. Si vous observez la complétion, gardez l’intégration et l’abonnement de suivi actifs après la fermeture. Ne considérez pas une minuterie arbitraire comme une garantie de transmission.
+
+Traitez cet événement comme l’observation d’un résultat terminé à la fermeture, et non comme un décompte de générations uniques. Il ne prouve pas que l’acheteur a acheté l’article, choisi une taille ou ajouté un produit au panier. Ne créez pas de fausse donnée de téléchargement d’image ou de commande à partir de cet événement.
+
+Pour un adaptateur de suivi complet, consultez [Suivre l’engagement et les résultats d’essayage](/fr/integration/analytics).

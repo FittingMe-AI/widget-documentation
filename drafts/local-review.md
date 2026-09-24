@@ -1,5 +1,34 @@
 # Local review — developer documentation rewrite, 2026-09-23
 
+## French edition follow-up — 2026-09-24
+
+The current English edition at `origin/main` has 22 routes. The French edition
+mirrors those routes under `fr/` and is available in the local preview at
+**http://localhost:3200/fr/introduction**. English remains the default locale.
+All examples are unchanged and byte-identical to their English counterparts.
+
+| Check | Result |
+| --- | --- |
+| Node 24 validator | PASS: 22 English + 22 French pages, 180 internal links, 56 source anchor references, 30 fenced blocks (15 per locale), six complete HTML examples; zero errors. |
+| Rendered desktop pages | PASS: all 44 pages returned HTTP 200 with the expected H1 at 1440×1000; no page errors or document overflow; rendered code matches source. |
+| Rendered French anchors | PASS: all 32 cross-page fragment links exercised in the rendered pages resolve to a heading. |
+| Rendered mobile pages | PASS: all 22 French pages returned HTTP 200 at 390×844 with no document-width overflow; 24 tables and 15 code blocks remain reachable, including horizontal scrolling for wide content. |
+| Language selector | PASS: switched the same Events page from French to `/reference/events` in English and back to `/fr/reference/events`. |
+| Whitespace | PASS: `git diff --check`. |
+
+Representative screenshots and machine-readable measurements are in ignored
+`.review/french-localization-20260924/`. The exact renderer was Mintlify CLI 4.2.851
+with Node 24.18.0. Chrome DevTools MCP was unavailable and the Playwright MCP
+profile was occupied, so visual and responsive checks used an isolated bundled
+Playwright/Chromium process. Preview fonts/assets require network access; local
+search requires Mintlify CLI login. This is a documentation-only change, so no
+product journey was rerun and the existing integration examples were not changed.
+
+The founder explicitly requested publication of the French edition on
+2026-09-24. The clean release worktree is based on published English commit
+`9b885b409aeb7947329796b977ed9f01b8663a45`; the previously dirty documentation
+checkout was left untouched.
+
 The redesign documented below was subsequently published in merge `0ff3b23057d5245cb950d94dc80fe77ca7ee95ff`. For the later audience-wording correction and its current content fingerprints, see [audience review](audience-review.md). The evidence below records the earlier review.
 
 ## Review deliverable

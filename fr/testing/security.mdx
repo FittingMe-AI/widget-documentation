@@ -1,0 +1,55 @@
+---
+title: "Respecter les exigences de sécurité et de confidentialité"
+sidebarTitle: "Sécurité et confidentialité"
+description: "Configurez la frontière du navigateur et protégez les identifiants de la boutique, les photos et les données analytiques."
+---
+
+Votre boutique charge un script FittingMe et une iframe. Celle-ci exécute le parcours de l’acheteur et communique avec les services FittingMe. Votre intégration doit utiliser l’API publique du loader au lieu d’inspecter le contenu de l’iframe ou de collecter des données privées de session.
+
+## Séparer les identifiants
+
+| Valeur | Emplacement prévu |
+| --- | --- |
+| Clé détaillant publiable | Configuration de l’intégration dans le navigateur, pour les noms d’hôte autorisés. |
+| Connexion au portail, mot de passe et codes d’authentification | Uniquement pour la connexion au portail de la personne autorisée. |
+| Identifiants administratifs ou secrets de service internes | Jamais dans le code source de la boutique, les bundles client ni les exemples navigateur. |
+| Liens de capture, jetons de session et URL d’images privées | À utiliser uniquement dans le parcours de l’acheteur ; excluez-les des outils analytiques et des rapports d’assistance publics. |
+
+Utilisez des clés distinctes pour le développement local et la production. Consultez les pages [Prérequis](/fr/start/prerequisites) et [Maintenance](/fr/maintenance/updates) pour vérifier les restrictions de domaine et la rotation.
+
+## Autoriser le loader et l’iframe
+
+Si votre site utilise une Content Security Policy (CSP), ajoutez l’origine du widget FittingMe aux directives concernées :
+
+```text
+script-src: https://widget.fittingme.ai
+frame-src:  https://widget.fittingme.ai
+```
+
+Il s’agit d’**ajouts à la politique existante de votre site**, et non d’un en-tête complet. Conservez les directives et les règles de nonce ou de hachage nécessaires à votre site. Les scripts intégrés aux exemples doivent également respecter votre politique de nonce/hachage existante, ou être déplacés dans un script d’application externe autorisé. N’ajoutez pas globalement `unsafe-inline` pour faire fonctionner un exemple.
+
+La politique réseau de l’iframe est distincte de celle de la page parente. N’ajoutez des autorisations à cette dernière que si votre intégration effectue réellement ces requêtes. Utilisez l’origine du widget attribuée à votre environnement ; ne mélangez pas les origines de test et de production.
+
+## Confirmer les trois contrôles d’accès indépendants
+
+1. **La CSP de votre boutique** doit autoriser le loader et l’iframe, comme indiqué ci-dessus.
+2. **La politique d’encadrement de FittingMe** doit autoriser l’origine de votre boutique et tous ses ancêtres de frame. Demandez à FittingMe de confirmer l’autorisation ; modifier votre CSP ou les domaines de la clé dans le portail ne change pas cette politique. Un refus bloque l’iframe avant l’amorçage.
+3. **Les domaines autorisés de la clé** doivent inclure le nom d’hôte de la boutique à l’ouverture d’une session. Un amorçage réussi ne garantit pas que ce contrôle sera validé.
+
+Consultez [l’autorisation d’encadrement](/fr/start/prerequisites#faire-approuver-l’encadrement-de-la-boutique). Validez ces contrôles sur les véritables origines de préproduction et de production.
+
+## Préserver l’isolation de l’iframe
+
+Le loader configure les permissions du bac à sable et valide la source et l’origine des messages. Ne l’enveloppez pas dans un autre bac à sable restrictif et ne remplacez pas les attributs de son iframe. Pour une intégration personnalisée, suivez précisément le [protocole d’intégration directe](/fr/reference/protocol).
+
+Utilisez HTTPS pour les pages de production et les images de vêtements accessibles publiquement. Considérez les erreurs de console du navigateur concernant des scripts bloqués, l’encadrement ou les requêtes inter-origines comme des indices de configuration. Corrigez la configuration correspondante ; ne désactivez pas la validation de l’origine et n’envoyez pas de messages privés à `*`.
+
+## Cartographier les données de l’acheteur
+
+La boutique fournit un identifiant produit et, le cas échéant, l’URL d’une image du vêtement. L’acheteur fournit une photo au cours du parcours FittingMe. Les événements publics du loader signalent les jalons de l’intégration sans exposer la photo ni l’URL du résultat.
+
+Vérifiez les mentions de confidentialité, la configuration du consentement et les conditions de conservation propres au compte avec le responsable de la confidentialité du détaillant. Ce guide ne définit aucune durée de conservation et ne remplace pas ces conditions particulières. Le consentement à la génération demandé par le widget et le consentement analytique de votre boutique ont des finalités distinctes ; l’un ne vaut pas automatiquement pour l’autre.
+
+## Avant le lancement
+
+Vérifiez que votre adaptateur analytique exclut les données privées, que les scripts tiers ne peuvent pas récupérer les liens de capture par l’intermédiaire de votre instrumentation et que les captures d’écran ou exports réseau transmis à l’assistance sont expurgés. Testez l’intégration avec la CSP et le gestionnaire de consentement réellement utilisés en production.

@@ -1,0 +1,35 @@
+---
+title: "Notes de version et compatibilité"
+sidebarTitle: "Versions et compatibilité"
+description: "Identifiez les composants de votre intégration et les vérifications à effectuer lorsqu’ils changent."
+---
+
+Votre installation dépend du bon fonctionnement conjoint du loader, du widget et de l’API. Consignez la version de la boutique et la configuration utilisées lors des tests d’acceptation, puis consultez les avis d’intégration de FittingMe avant de déployer des changements associés.
+
+## Compatibilité de référence
+
+| Composant | Contrat actuel décrit dans ce guide |
+| --- | --- |
+| Fichier du loader | `https://widget.fittingme.ai/v2/fittingme-loader.js` |
+| Widget d’essayage | `https://widget.fittingme.ai/tryon/` |
+| URL de base de l’API publique | `https://api.fittingme.ai` |
+| Messages avec image fournie | `fittingme/3`, avec `loader_major=3` |
+| Messages avec recherche dans le catalogue | `fittingme/2`, sélectionné par le loader lorsqu’aucune image n’est fournie |
+
+Le chemin `/v2/` du fichier et la version majeure du protocole de messages désignent deux choses différentes. Ne modifiez pas ce chemin en `/v3/` pour activer les images fournies. Le loader choisit le protocole approprié selon la configuration.
+
+L’URL du loader hébergé est stable et ne contient pas d’empreinte du contenu. Elle ne pointe pas vers une version immuable. Évitez d’ajouter un cache permanent ou une copie embarquée qui pourrait subsister après des changements incompatibles du widget ou de l’API.
+
+## Compatibilité des images fournies
+
+L’intégration avec une image fournie utilise `data-garment-image-url`. Elle nécessite des messages de version majeure 3 dans les deux sens. Un ancien loader peut refuser l’attribut et un widget incompatible peut refuser le protocole. Une intégration avec image ne bascule pas silencieusement vers la recherche dans le catalogue.
+
+Lorsque vous activez cette entrée dans une installation existante, vérifiez que l’environnement attribué la prend en charge et recommencez les [tests du parcours complet](/fr/testing/journey).
+
+## Informations de version à prendre en compte
+
+Pour chaque changement annoncé, identifiez la configuration, les méthodes, les champs d’événement, le comportement du navigateur et les étapes de migration concernés. Distinguez une précision documentaire d’une modification de comportement. Vérifiez à quelle date le changement sera disponible dans l’environnement de votre boutique.
+
+Pour connaître la date de déploiement d’un correctif précis ou d’une migration propre à un détaillant, obtenez confirmation de FittingMe pour l’environnement utilisé par votre boutique.
+
+Pour connaître les étapes opérationnelles, consultez [Mettre à jour, désactiver ou supprimer FittingMe](/fr/maintenance/updates).

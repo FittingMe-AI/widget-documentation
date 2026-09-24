@@ -1,0 +1,47 @@
+---
+title: "Mettre à jour, désactiver ou supprimer FittingMe"
+sidebarTitle: "Mettre à jour ou supprimer"
+description: "Modifiez la configuration et les clés sans perturber la boutique ni perdre de solution de repli."
+---
+
+Identifiez clairement la configuration de l’intégration, le composant qui la gère et sa procédure de mise en production. Testez les modifications sur votre boutique de test avant de les activer en production.
+
+## Mettre à jour une intégration
+
+1. Consignez la version fonctionnelle de la boutique, le préfixe de la clé, l’approche de saisie des données produit et l’environnement de service. Ne copiez pas la clé complète dans l’enregistrement de mise en production.
+2. Consultez la [compatibilité de référence](/fr/maintenance/releases) et l’avis de changement correspondant à votre mise à jour.
+3. Appliquez le changement sur la boutique de test avec une configuration de test correspondante.
+4. Effectuez les [tests du parcours](/fr/testing/journey), y compris les scénarios d’échec et de navigation concernés par le changement.
+5. Suivez le processus habituel d’approbation des versions de votre boutique et gardez la possibilité de rétablir la configuration précédente.
+6. Après activation, vérifiez une véritable fiche produit publique.
+
+## Faire tourner une clé détaillant
+
+Un administrateur effectue la rotation dans **Clés d'environnement** à l’aide de **Faire tourner…**. Une nouvelle clé active est créée ; l’ancienne reste valide jusqu’à sa révocation. La nouvelle clé complète n’est affichée qu’une seule fois.
+
+1. Copiez et stockez la nouvelle clé selon le processus approuvé par l’équipe.
+2. Remplacez l’ancienne valeur dans tous les déploiements et fichiers de configuration de boutique concernés.
+3. Vérifiez le chargement de nouvelles pages et terminez un essayage avec la nouvelle valeur. Contrôlez chaque nom d’hôte concerné.
+4. Avant de révoquer l’ancienne clé, tenez compte des pages en cache et des étapes de déploiement encore en cours.
+5. Révoquez l’ancienne clé lorsqu’elle n’est plus nécessaire. La révocation est immédiate et peut interrompre toute installation qui l’utilise encore.
+
+Ne lancez pas une autre rotation sur la même lignée de clés tant qu’une rotation précédente est en cours. Des lignées de clés distinctes peuvent servir différents environnements séparément.
+
+## Désactiver le point d’accès
+
+Utilisez un indicateur de fonctionnalité de la boutique ou une modification du déploiement pour empêcher le montage de nouvelles intégrations, puis supprimez ou désactivez les boutons d’essayage personnalisés. Conservez la sélection normale des produits, le panier et le paiement.
+
+Pour une page déjà montée, respectez les [contraintes de fermeture et de suppression](/fr/integration/product-changes#fermer-avant-de-remplacer). Laissez le conteneur connecté jusqu’à ce que la destruction soit acceptée et tenez compte des événements de complétion en attente. Par défaut, rechargez la page avec un modèle qui ne contient pas l’intégration. Supprimer uniquement le bouton visible ne détruit pas l’iframe active.
+
+La révocation d’une clé concerne toutes les installations qui l’utilisent. Réservez cette action à la révocation effective d’un identifiant ; ne l’utilisez pas comme simple commande d’affichage propre à une page.
+
+## Supprimer l’intégration
+
+1. Cessez de monter le loader ou l’iframe directe dans le modèle de fiche produit.
+2. Supprimez les boutons personnalisés et les abonnements d’événements associés.
+3. Supprimez de la boutique les conteneurs et la configuration gérés par votre intégration.
+4. Vérifiez la navigation entre les produits, le panier et le paiement.
+5. Lorsqu’aucune autre installation n’a besoin des clés inutilisées, demandez à l’administrateur de les retirer.
+6. Ne supprimez les autorisations de sécurité propres à FittingMe qu’après avoir vérifié qu’aucune autre fonctionnalité du site ne les utilise.
+
+La suppression du code de la boutique ne clôt pas le compte du détaillant et ne définit pas la suppression des données déjà traitées. Adressez vos demandes concernant le compte et les données à votre contact FittingMe.

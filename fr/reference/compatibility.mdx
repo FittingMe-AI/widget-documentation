@@ -1,0 +1,43 @@
+---
+title: "Navigateurs pris en charge et limites de l’intégration"
+sidebarTitle: "Navigateurs et limites"
+description: "Comprenez les capacités des navigateurs et les limites du produit dont votre boutique doit tenir compte."
+---
+
+Validez l’intégration sur les navigateurs et les appareils pris en charge par votre boutique. Un contrôle automatisé d’un moteur de navigateur ne garantit pas la compatibilité avec tous les téléphones, toutes les vues Web intégrées, tous les paramètres de confidentialité ni tous les états d’autorisation de la caméra.
+
+## Exigences relatives aux navigateurs et aux plateformes
+
+L’intégration utilise JavaScript, des iframes, des messages inter-origines, l’historique du navigateur et un accès réseau à FittingMe. Les pages de production et les images de vêtement fournies doivent utiliser HTTPS. La politique de sécurité de la boutique doit autoriser le script et l’iframe.
+
+Testez des versions représentatives de Chromium, Firefox et Safari/WebKit, ainsi que des appareils mobiles physiques utilisés par votre audience. Le comportement de la caméra et du sélecteur de photos, les restrictions de stockage, les téléchargements et le partage peuvent varier selon les appareils. L’indisponibilité d’une fonction facultative du navigateur ne doit pas empêcher l’acheteur de fermer le panneau et de revenir à la fiche produit.
+
+Cette référence ne garantit pas une matrice minimale de versions de navigateur qui n’aurait pas été vérifiée. Si votre boutique doit prendre en charge un ancien navigateur ou une vue Web intégrée précise, confirmez-le auprès de FittingMe et incluez-le dans les tests d’acceptation avant le lancement.
+
+## Mise en page
+
+Le widget adapte sa mise en page aux écrans mobiles et de bureau. Votre page doit permettre à l’iframe de dépasser la taille de son point d’accès lorsqu’il est fermé. Les éléments parents qui créent un bloc conteneur pour le positionnement fixe peuvent empêcher l’affichage correct du panneau ; consultez le [dépannage de la mise en page](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir).
+
+Testez les écrans étroits, les fenêtres de faible hauteur, le zoom du texte, l’orientation paysage et les éléments superposés. Ne fixez pas la hauteur de l’iframe à celle du bouton lorsqu’il est fermé.
+
+## Limites de l’intégration
+
+| Fonctionnalité | Limite |
+| --- | --- |
+| Changement de produit ou d’image | Nécessite une nouvelle intégration ; aucune API de modification à chaud. Privilégiez le rechargement complet de la page ; un démontage sur place peut faire perdre des événements de complétion en attente. |
+| Bouton de retour du navigateur | L’ouverture par le déclencheur du widget est prise en charge ; `open()` du loader présente une limitation connue avec le bouton de retour. Sur une page classique, l’exemple direct gère son propre historique. |
+| Encadrement | FittingMe doit autoriser l’origine de la boutique indépendamment des domaines de la clé et de la CSP de la boutique. |
+| Suivi de complétion | Envoyé à la fermeture, et non à l’affichage du résultat ; peut se répéter après rechargement et ne permet pas de compter les générations uniques. |
+| Intégrations multiples | Conteneurs distincts ; les abonnements nécessitent une attribution ; un seul panneau peut être ouvert à la fois. |
+| État JavaScript public | Éligibilité et état du panneau ; aucun jeton privé de session, photo ou résultat. |
+| Taille sélectionnée et paiement | Gérés par la boutique ; le loader ne documente aucune méthode pour définir la taille ou modifier le panier. |
+| Apparence | L’interface gérée par la page hôte peut être personnalisée ; le style interne de l’iframe utilise les paramètres de marque détaillant pris en charge. |
+| Langue | Widget : anglais et français, avec le français comme solution de repli. La capture sur téléphone utilise la langue du navigateur du téléphone. |
+| Intégration du catalogue | Réalisée avec l’aide de FittingMe ; la préparation des produits doit être confirmée. |
+| Recommandation de taille | Hors du périmètre de ce guide sur l’essayage virtuel. |
+
+## Limites numériques de configuration
+
+Les images de vêtement doivent être au format JPEG/PNG, peser au maximum 20 Mio et ne pas dépasser trois redirections. Les URL d’image sont limitées à 1 024 caractères Unicode avant et après normalisation. Les listes de domaines d’une clé comportent de 1 à 20 entrées ; `localhost` doit y figurer seul. Consultez les [règles applicables aux images](/fr/integration/products#exigences-pour-l’url-de-l’image) et la [configuration des domaines](/fr/start/prerequisites#configurer-correctement-les-domaines).
+
+Les quotas propres au compte, les engagements de service et les conditions de conservation des données personnelles sont définis dans le contrat FittingMe du détaillant. Ne les déduisez pas du délai d’attente d’un exemple ni d’un test de développement concluant.

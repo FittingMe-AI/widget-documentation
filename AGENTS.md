@@ -131,7 +131,7 @@ Presentation follows the FittingMe design system, whose canonical source is `pub
 
 ## Content and navigation
 
-- Keep retailer integration pages in English unless the site adopts an explicit localization structure.
+- Keep English as the canonical source edition. Localized editions use Mintlify's `navigation.languages`, mirror the canonical route tree under a locale directory, and translate reader-facing prose and navigation without changing technical meaning. Keep runnable code fences byte-identical to English and validate route, link, anchor, and code-block parity for every locale.
 - Address the developer directly, whether they work in-house for the retailer or as an external integrator. Refer to "your storefront", "your team", or "the retailer" as appropriate; do not assume the retailer is the developer's client. Name specific roles, such as retailer Admin or release owner, when an action belongs to them.
 - Use active voice, second person, sentence-case headings, and concise paragraphs.
 - Keep examples copyable and use placeholders such as `YOUR_PUBLISHABLE_KEY`.

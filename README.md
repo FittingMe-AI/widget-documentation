@@ -1,8 +1,8 @@
 # FittingMe developer documentation
 
-Public virtual try-on integration documentation, rewritten around the founder-approved developer goals and six-group structure. The 22 MDX pages guide in-house developers and external integrators from prerequisites through launch and maintenance.
+Public virtual try-on integration documentation, structured around the founder-approved developer goals and six-group structure. The 22 English MDX pages guide in-house developers and external integrators from prerequisites through launch and maintenance; the French edition mirrors those routes.
 
-- Navigation and site presentation: `docs.json`.
+- Navigation, English/French language switcher, and site presentation: `docs.json`.
 - Approved goals, acceptance exercise, and page responsibilities: `drafts/documentation-design.md`.
 - Implementation evidence: `drafts/documentation-provenance.md`.
 - Local checks and remaining acceptance limitations: `drafts/local-review.md`.

@@ -1,0 +1,59 @@
+---
+title: "Tester le parcours complet de l’acheteur"
+sidebarTitle: "Tester le parcours"
+description: "Vérifiez l’intégration sur votre boutique à l’aide de résultats attendus observables."
+---
+
+Testez le véritable modèle de fiche produit avec les services FittingMe opérationnels. Utilisez un environnement de test autorisé, une image de vêtement dont vous connaissez la validité et des photos de test dont l’utilisation est autorisée.
+
+Pour chaque essai, consignez la version de la boutique, le nom d’hôte, le navigateur, l’appareil, l’identifiant produit, la source de l’image et l’heure. N’incluez dans les rapports partagés ni clés, ni données privées de photo, ni liens de capture.
+
+## Effectuer le parcours normal
+
+| Action | Résultat attendu |
+| --- | --- |
+| Ouvrir une fiche produit prise en charge | La bonne image produit s’affiche ; une seule intégration prévue est montée. |
+| Ouvrir l’essayage | Le panneau est visible et utilisable ; la page située derrière ne défile pas de façon inattendue. |
+| Lire et accepter le consentement demandé | L’étape de photo devient accessible dans le parcours normal. |
+| Fournir une photo de test | Le parcours prend la photo en compte ou affiche une erreur de validation indiquant quoi corriger. |
+| Lancer la génération | La progression est visible, puis un résultat utilisable ou un échec permettant de réessayer est affiché. |
+| Examiner le résultat | Il correspond au vêtement sélectionné sur la fiche produit. |
+| Fermer le panneau | La fiche produit est utilisable, le défilement est rétabli et le focus revient à l’endroit prévu. |
+| Rouvrir le panneau | Le parcours reprend ou redémarre conformément à l’état présenté à l’acheteur. |
+
+Recommencez avec le point d’accès fourni par le widget, puis avec chaque bouton personnalisé livré.
+
+## Vérifier le transfert de l’ordinateur au téléphone
+
+1. Ouvrez le parcours sur ordinateur et affichez le QR code de transfert.
+2. Scannez-le avec un téléphone, ou décodez-le localement puis ouvrez l’URL dans un contexte de navigateur distinct pour vérifier le transfert depuis un ordinateur.
+3. Effectuez l’étape photo liée et vérifiez que la page d’origine sur ordinateur reprend le parcours.
+4. Fermez ou annulez le transfert et vérifiez que l’acheteur peut recommencer sans mélanger l’ancienne et la nouvelle tentative.
+
+Un contexte distinct sur le même ordinateur permet de vérifier le transfert de session associé. Cela **ne** vérifie **pas** le fonctionnement de la caméra, des permissions, du navigateur ni du système d’exploitation d’un téléphone physique. Consignez ces points séparément et testez les appareils réellement utilisés par votre public.
+
+## Provoquer volontairement des échecs
+
+| Cas | Résultat attendu |
+| --- | --- |
+| Clé de test erronée ou révoquée | Repérez le statut HTTP 401 dans l’onglet Réseau ; le widget peut rester invisible sans erreur dans la console de la page hôte. Le reste de la fiche produit reste utilisable. |
+| Origine sans autorisation d’encadrement FittingMe | Le navigateur bloque l’iframe avant l’amorçage. Demandez son autorisation à FittingMe. |
+| Origine approuvée pour l’encadrement mais absente des domaines de la clé | L’ouverture de session est refusée, parfois après un amorçage éligible. Recherchez `origin_not_allowed` et corrigez la liste des domaines de la clé. |
+| Image fournie invalide ou inaccessible | Aucune autre image du catalogue ne la remplace. Des octets non pris en charge peuvent entraîner après Start une indisponibilité temporaire générique ; vérifiez le format, la taille et les redirections. |
+| Produit non activé dans le catalogue préparé | Après un résultat inéligible, votre déclencheur personnalisé reste indisponible. |
+| Script bloqué ou requête réseau en échec | La page ne reste pas indéfiniment en attente et ne bloque ni le panier ni le paiement. |
+| Annulation pendant la capture photo ou la génération | L’interface propose une étape suivante valide ; une réouverture ne relance pas une opération obsolète. |
+| Double-clic rapide | Aucun panneau en double ni gestionnaire hôte dupliqué. |
+| Changement de produit ou de couleur | Le remplacement respecte le cycle de vie documenté et utilise le nouveau vêtement. |
+
+Pour tester une révocation, utilisez des clés de test jetables. Ne révoquez pas une clé utilisée par une boutique active pour créer un scénario d’échec.
+
+## Vérifier la mise en page et l’accessibilité
+
+Testez les formats de téléphone et d’ordinateur, les changements d’orientation, la navigation au clavier, le bouton de retour du navigateur, la touche Échap, le zoom du texte à 200 % ainsi que les en-têtes fixes et les superpositions du site. Vérifiez les libellés longs traduits et l’état ouvert comme l’état fermé du panneau.
+
+Vérifiez séparément chaque méthode d’ouverture : déclencheur natif du widget, méthode `open()` du loader et protocole direct ; chacune gère différemment l’historique. L’ouverture par commande du loader présente un échec connu avec le bouton de retour ; ne la considérez pas comme validée.
+
+Avec React, démontez le composant d’état pendant que le panneau géré par la page est ouvert, puis fermez-le et vérifiez le défilement. Confirmez que les liens produit provoquent un rechargement complet du document. Pour une intégration SPA personnalisée, ajoutez des essais avec chargement différé du script, changements rapides de route et remontages de composants. Si la page comporte plusieurs intégrations, ouvrez-les l’une après l’autre et vérifiez l’attribution et le nettoyage.
+
+**Étape suivante :** suivez la [liste de vérification avant lancement en production](/fr/testing/launch). Mentionnez tout appareil ou scénario non testé dans votre décision de mise en production.

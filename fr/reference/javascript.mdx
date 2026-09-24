@@ -1,0 +1,86 @@
+---
+title: "API JavaScript"
+sidebarTitle: "API JavaScript"
+description: "Ciblez une intégration, contrôlez son panneau, lisez son état et supprimez-la en toute sécurité."
+---
+
+Le loader crée `window.FittingMe`. Attendez le chargement du script avant d’y accéder. Le chargement du script et l’éligibilité de l’intégration sont deux choses distinctes : pour l’ouvrir, le [résultat d’amorçage](/fr/reference/events#résultat-de-l’amorçage) doit être éligible.
+
+## Cibler une intégration
+
+Transmettez l’élément DOM réel du conteneur ou de l’iframe. Dans le code de l’application, il est généralement plus simple de gérer une référence au conteneur.
+
+```javascript
+const container = document.getElementById('fittingme-widget-container');
+const fm = window.FittingMe;
+const state = fm.resolve(container);
+```
+
+Ne transmettez pas de chaîne sélecteur aux méthodes de commande. N’utilisez pas les identifiants d’iframe générés comme identifiants dans votre application.
+
+## Méthodes
+
+| Méthode | Valeur renvoyée | Comportement |
+| --- | --- | --- |
+| `resolve(element)` | Instantané d’état ou `undefined` | Lit une intégration active. Une référence inconnue ou détruite renvoie `undefined` sans erreur. |
+| `open(element)` | Chaîne de verdict | Demande l’ouverture. L’amorçage doit être terminé et éligible. Si le panneau est déjà ouvert, la demande est acceptée sans le rouvrir. |
+| `close(element)` | Chaîne de verdict | Demande la fermeture et annule toute ouverture en attente. Fermer une intégration déjà fermée est accepté. |
+| `destroy(element)` | Chaîne de verdict | Supprime l’intégration fermée et les ressources gérées par le loader. La suppression est refusée si son panneau est ouvert. |
+| `on(handler)` | Fonction de désabonnement | S’abonne à toutes les intégrations de la page. Filtrez chaque événement par `encart`. |
+
+**Limitation actuelle du bouton de retour :** les ouvertures demandées par `open(element)` ne se ferment pas toujours lorsque l’utilisateur utilise le bouton de retour du navigateur, y compris si l’appel provient d’un bouton personnalisé ou d’un gestionnaire React. Privilégiez le point d’accès fourni par le widget, ou gérez l’historique avec le [protocole direct](/fr/integration/direct-embed) et testez-le.
+
+Si le panneau est ouvert, appeler `close(element)` puis immédiatement `destroy(element)` est dangereux : la destruction renvoie `tiroir_ouvert`. Supprimer tout de même le conteneur peut laisser la page bloquée. `fermeture` confirme la fermeture, mais ne garantit pas que l’événement `complétion` qui suit a été transmis. Consultez les [limites du remplacement](/fr/integration/product-changes#fermer-avant-de-remplacer).
+
+Les commandes renvoient leur résultat de façon synchrone. `accepté` signifie que la commande a été acceptée ; observez les événements pour connaître l’état obtenu. Une demande d’ouverture faite avant la fin de l’amorçage est refusée, et non mise en attente.
+
+## Instantané d’état
+
+```javascript
+// Shape returned by resolve(container); values shown are illustrative.
+({
+  encart: container,
+  parcours: 'tryon',
+  issue: 'éligible',
+  tiroir_ouvert: false
+});
+```
+
+`issue` vaut `undefined` tant que l’amorçage n’a pas produit de résultat. Il vaut ensuite `éligible`, `inéligible` ou `indéterminé`. `tiroir_ouvert` est un booléen. Chaque appel renvoie un instantané distinct ; le conserver ne donne pas accès à un objet d’état dynamique.
+
+## Verdicts des commandes
+
+| Valeur exacte | Signification | Étape suivante |
+| --- | --- | --- |
+| `accepté` | Acceptée, éventuellement sans changement si l’état demandé est déjà actif. | Observez l’événement ou relisez l’état. |
+| `encart_inconnu` | L’élément ne correspond à aucune intégration connue. | Vérifiez l’élément et l’ordre de montage. |
+| `encart_détruit` | L’intégration référencée a été détruite. | Cessez d’utiliser l’ancienne référence ou montez une nouvelle intégration. |
+| `amorçage_incomplet` | L’amorçage est en cours ou indéterminé. | Attendez un nouveau résultat ou diagnostiquez l’échec de l’amorçage. |
+| `encart_inéligible` | L’intégration ne peut pas être ouverte. | Vérifiez les données produit et sa disponibilité pour le détaillant. |
+| `plein_écran_impossible` | Un élément parent empêche l’affichage correct en plein écran. | Corrigez le problème de bloc conteneur signalé dans la console. |
+| `tiroir_ouvert` | La destruction a été demandée alors que le panneau était ouvert. | Fermez-le, attendez la confirmation de fermeture, puis détruisez l’intégration. |
+
+Lors de la comparaison de chaînes, conservez ces valeurs exactement comme elles sont écrites, accents compris. Les commandes refusées signalent une erreur dans la console et n’effectuent pas l’action demandée.
+
+## S’abonner et nettoyer
+
+```javascript
+const unsubscribe = fm.on(event => {
+  if (event.encart !== container) return;
+  if (event.jalon === 'amorçage') {
+    const canOpen = event.issue === 'éligible';
+    // Update your button state using canOpen.
+  }
+});
+
+// When this subscriber's owner is disposed:
+unsubscribe();
+```
+
+Pour chaque intégration active, le dernier résultat d’amorçage connu est transmis de façon synchrone lors de l’abonnement. Les événements d’ouverture, de fermeture et de complétion ne sont pas rejoués. Initialisez les valeurs utilisées par le gestionnaire avant d’appeler `on()` ; depuis le gestionnaire d’amorçage rejoué, n’appelez pas une variable de désabonnement qui n’a pas encore reçu de valeur.
+
+Vous pouvez vous désabonner plusieurs fois sans risque. La destruction d’une intégration ne désabonne pas votre gestionnaire global. Pour connaître la séquence complète, consultez [Remplacement et nettoyage](/fr/integration/product-changes).
+
+## Anciennes formes d’appel
+
+Les méthodes de compatibilité telles que `open()` sans argument, `get()` et les méthodes de handle ne ciblent pas les intégrations de la même manière et ne suivent pas le contrat explicite de verdict décrit ci-dessus. Pour toute nouvelle intégration, utilisez les commandes ciblant un élément, surtout si la page comporte plusieurs intégrations.

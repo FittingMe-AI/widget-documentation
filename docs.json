@@ -37,63 +37,139 @@
     ]
   },
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "Documentation",
-        "groups": [
+        "language": "en",
+        "default": true,
+        "tabs": [
           {
-            "group": "Get started",
-            "pages": [
-              "introduction",
-              "start/prerequisites",
-              "start/quickstart"
-            ]
-          },
-          {
-            "group": "Integration guides",
-            "pages": [
-              "integration/products",
-              "integration/product-changes",
-              "integration/react",
-              "integration/appearance",
-              "integration/analytics",
-              "integration/direct-embed"
-            ]
-          },
-          {
-            "group": "Test and launch",
-            "pages": [
-              "testing/journey",
-              "testing/security",
-              "testing/launch"
-            ]
-          },
-          {
-            "group": "Troubleshooting",
-            "pages": [
-              "troubleshooting/symptoms",
-              "troubleshooting/support"
-            ]
-          },
-          {
-            "group": "Technical reference",
-            "pages": [
-              "reference/configuration",
-              "reference/javascript",
-              "reference/events",
-              "reference/errors",
-              "reference/compatibility",
-              "reference/protocol"
-            ]
-          },
-          {
-            "group": "Maintenance",
-            "pages": [
-              "maintenance/releases",
-              "maintenance/updates"
+            "tab": "Documentation",
+            "groups": [
+              {
+                "group": "Get started",
+                "pages": [
+                  "introduction",
+                  "start/prerequisites",
+                  "start/quickstart"
+                ]
+              },
+              {
+                "group": "Integration guides",
+                "pages": [
+                  "integration/products",
+                  "integration/product-changes",
+                  "integration/react",
+                  "integration/appearance",
+                  "integration/analytics",
+                  "integration/direct-embed"
+                ]
+              },
+              {
+                "group": "Test and launch",
+                "pages": [
+                  "testing/journey",
+                  "testing/security",
+                  "testing/launch"
+                ]
+              },
+              {
+                "group": "Troubleshooting",
+                "pages": [
+                  "troubleshooting/symptoms",
+                  "troubleshooting/support"
+                ]
+              },
+              {
+                "group": "Technical reference",
+                "pages": [
+                  "reference/configuration",
+                  "reference/javascript",
+                  "reference/events",
+                  "reference/errors",
+                  "reference/compatibility",
+                  "reference/protocol"
+                ]
+              },
+              {
+                "group": "Maintenance",
+                "pages": [
+                  "maintenance/releases",
+                  "maintenance/updates"
+                ]
+              }
             ]
           }
         ]
+      },
+      {
+        "language": "fr",
+        "tabs": [
+          {
+            "tab": "Documentation",
+            "groups": [
+              {
+                "group": "Bien démarrer",
+                "pages": [
+                  "fr/introduction",
+                  "fr/start/prerequisites",
+                  "fr/start/quickstart"
+                ]
+              },
+              {
+                "group": "Guides d’intégration",
+                "pages": [
+                  "fr/integration/products",
+                  "fr/integration/product-changes",
+                  "fr/integration/react",
+                  "fr/integration/appearance",
+                  "fr/integration/analytics",
+                  "fr/integration/direct-embed"
+                ]
+              },
+              {
+                "group": "Tester et lancer",
+                "pages": [
+                  "fr/testing/journey",
+                  "fr/testing/security",
+                  "fr/testing/launch"
+                ]
+              },
+              {
+                "group": "Dépannage",
+                "pages": [
+                  "fr/troubleshooting/symptoms",
+                  "fr/troubleshooting/support"
+                ]
+              },
+              {
+                "group": "Référence technique",
+                "pages": [
+                  "fr/reference/configuration",
+                  "fr/reference/javascript",
+                  "fr/reference/events",
+                  "fr/reference/errors",
+                  "fr/reference/compatibility",
+                  "fr/reference/protocol"
+                ]
+              },
+              {
+                "group": "Maintenance",
+                "pages": [
+                  "fr/maintenance/releases",
+                  "fr/maintenance/updates"
+                ]
+              }
+            ]
+          }
+        ],
+        "navbar": {
+          "links": [
+            {
+              "label": "Assistance",
+              "href": "/fr/troubleshooting/support"
+            }
+          ]
+        }
       }
     ]
   },
