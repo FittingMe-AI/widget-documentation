@@ -1,0 +1,96 @@
+---
+title: "Démarrage rapide : ajouter l’essayage à une fiche produit"
+sidebarTitle: "Démarrage rapide"
+description: "Installez le loader, fournissez une image de vêtement et réalisez votre premier essayage virtuel."
+---
+
+Cet exemple ajoute le bouton d’essayage FittingMe sous une image produit. Il utilise l’URL d’une image de vêtement : vous pouvez donc commencer sans catalogue FittingMe préparé.
+
+## 1. Préparer trois valeurs
+
+Suivez [Prérequis et accès](/fr/start/prerequisites), puis remplacez les valeurs suivantes :
+
+| Valeur de remplacement | Remplacez par |
+| --- | --- |
+| `YOUR_PUBLISHABLE_KEY` | La clé détaillant autorisée pour le nom d’hôte de cette page. |
+| `YOUR_PRODUCT_ID` | L’identifiant stable de ce produit dans votre système. |
+| `https://images.example.com/YOUR_GARMENT.jpg` | Une image JPEG ou PNG accessible publiquement en HTTPS, de 20 Mio maximum. Utilisez la même image aux deux endroits ci-dessous. |
+
+Vérifiez que FittingMe a approuvé l’origine de votre boutique pour l’encadrement, indépendamment des domaines associés à la clé. L’exemple utilise la production ; pour un autre environnement, remplacez les adresses du widget et de l’API. Les valeurs de remplacement ne permettent pas de faire fonctionner le widget.
+
+Utilisez l’URL directe de l’image, et non celle de la fiche produit ou un lien privé de médiathèque. Respectez les [exigences de format, de taille et de redirection](/fr/integration/products#exigences-pour-l’url-de-l’image). Si l’URL de l’image contient des séparateurs de paramètres, écrivez-les sous la forme `&amp;` dans les attributs HTML.
+
+## 2. Ajouter l’exemple complet
+
+Enregistrez ce fichier sous `try-on.html` ou adaptez sa section produit au modèle de votre boutique. Le conteneur vide est réservé à FittingMe ; le loader en remplace le contenu.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Try on this garment</title>
+  <style>
+    body { margin: 0; padding: 24px; font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 480px; margin: auto; }
+    .product-image { display: block; width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Example garment</h1>
+    <img class="product-image"
+      src="https://images.example.com/YOUR_GARMENT.jpg"
+      alt="The garment available to try on">
+    <div id="fittingme-widget-container"></div>
+  </main>
+  <script src="https://widget.fittingme.ai/v2/fittingme-loader.js"
+    data-api-base="https://api.fittingme.ai"
+    data-retailer-key="YOUR_PUBLISHABLE_KEY"
+    data-product-id="YOUR_PRODUCT_ID"
+    data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
+    data-journey="tryon"
+    data-locale="en"
+    data-trigger-mode="encart"
+    data-container="#fittingme-widget-container"></script>
+</body>
+</html>
+```
+
+Placez le conteneur avant le script. Chargez la page depuis votre boutique ou depuis un serveur HTTP local utilisant un nom d’hôte autorisé. Si Python 3 est disponible et que vous utilisez une clé `localhost` dédiée, exécutez cette commande depuis le répertoire du fichier :
+
+```bash
+python3 -m http.server 8080 --bind 127.0.0.1
+```
+
+Ouvrez ensuite `http://localhost:8080/try-on.html`. Laissez le terminal ouvert pendant les tests.
+
+## 3. Vérifier un essayage complet
+
+1. Chargez la page. L’image produit et le point d’accès FittingMe doivent apparaître.
+2. Ouvrez l’essayage. Le panneau doit couvrir la zone prévue sans être tronqué par la boutique.
+3. Suivez les étapes de consentement et de photo. Si vous utilisez le transfert ordinateur-téléphone, terminez le parcours de capture associé et revenez à la fiche produit.
+4. Lancez la génération et attendez l’affichage du résultat.
+5. Fermez le panneau. La fiche produit doit rester utilisable et défiler normalement.
+
+Votre première intégration fonctionne lorsque **le bon vêtement apparaît dans un résultat terminé** et que l’acheteur peut revenir à la page. La seule présence d’un bouton ne valide ni les services ni les données produit.
+
+## En cas de problème
+
+| Observation | Premier point à vérifier |
+| --- | --- |
+| Aucun bouton | Vérifiez que le script s’est chargé et que le conteneur existait avant son exécution. Dans la console, recherchez des attributs refusés ou un blocage `frame-ancestors` ; ce dernier nécessite une autorisation d’encadrement de FittingMe. |
+| L’image s’affiche, mais l’essayage échoue | Vérifiez les octets JPEG/PNG, la taille, les redirections et l’accès sans cookies ni connexion. Un bouton éligible ne valide pas ces points. |
+| Échec d’authentification ou d’accès | Vérifiez la clé, son environnement, son nom d’hôte autorisé et les droits d’essayage du détaillant. |
+| Panneau tronqué ou ouverture refusée | Vérifiez les transformations et les règles de containment des éléments parents avec le [dépannage de la mise en page](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir). |
+
+Si ces vérifications ne résolvent pas le problème, consultez le [dépannage par symptôme](/fr/troubleshooting/symptoms).
+
+## Poursuivre l’intégration
+
+- [Connecter les produits de votre boutique](/fr/integration/products).
+- [Gérer les changements de produit et de variante](/fr/integration/product-changes), y compris les intégrations multiples.
+- [Utiliser React ou une autre boutique dynamique](/fr/integration/react).
+- [Personnaliser le bouton et la langue](/fr/integration/appearance).
+- [Effectuer les vérifications avant lancement](/fr/testing/launch).

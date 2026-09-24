@@ -1,0 +1,106 @@
+---
+title: "Intégrer React et les boutiques dynamiques"
+sidebarTitle: "React et pages dynamiques"
+description: "Conservez l’intégration lors des remontages React et choisissez une stratégie explicite pour naviguer entre les produits."
+---
+
+Pour une première intégration avec React, placez le Journey Embed dans un modèle de page stable, **en dehors de la racine React**, et rechargez la page lorsque le produit ou l’image du vêtement change. React peut observer son état sans gérer ni supprimer l’iframe. Le bouton fourni par le widget reste disponible même si un composant React est démonté.
+
+Ce modèle nécessite de pouvoir contrôler la structure de la page. Il ne permet pas de changer de produit dans une SPA sans rechargement. Si votre framework contrôle tout le document, utilisez une mise en page stable avec un cycle de vie testé explicitement ou demandez à FittingMe d’examiner l’intégration avant de l’adopter.
+
+## 1. Placer l’intégration hors de la gestion React
+
+Partez du [fichier HTML complet du démarrage rapide](/fr/start/quickstart). Conservez dans le modèle de page l’image produit, le conteneur du widget et le script du loader configuré. À côté du conteneur, ajoutez un point de montage React distinct :
+
+```html
+<!-- Render these siblings in the page template, outside React. -->
+<div id="try-on-react-root"></div>
+<div id="fittingme-widget-container"></div>
+<!-- Put the configured loader script from the quickstart after the container. -->
+```
+
+Montez votre application React existante ou le composant d’état dans `try-on-react-root`. Le loader utilise `data-container="#fittingme-widget-container"` et `data-trigger-mode="encart"`. N’affichez pas le conteneur du widget dans cette racine React, n’effacez pas son élément parent et n’utilisez pas de transition de route qui le supprime.
+
+Le modèle de produit gère le conteneur et le script jusqu’au déchargement du document. Un effet React ne gère que son abonnement et ses minuteries. Le nettoyage de cet effet ne doit appeler ni `close()` ni `destroy()`.
+
+## 2. Observer l’état depuis React
+
+Ce composant fonctionne que React soit monté avant ou après le loader. Son délai de 15 secondes relève de l’application et ne constitue pas une garantie de service. Si l’abonnement est enregistré après l’amorçage, la répétition de l’événement d’amorçage fournit son résultat.
+
+```jsx
+'use client';
+import { useEffect, useState } from 'react';
+
+export function TryOnStatus() {
+  const [message, setMessage] = useState('Loading try-on…');
+
+  useEffect(() => {
+    let unsubscribe = () => {};
+    let poll;
+    let connected = false;
+    let expired = false;
+    setMessage('Loading try-on…');
+    const deadline = setTimeout(() => {
+      expired = true;
+      clearTimeout(poll);
+      setMessage('Try-on is taking longer than expected. Reload to retry.');
+    }, 15000);
+
+    const connect = () => {
+      if (expired || connected) return;
+      const container = document.getElementById('fittingme-widget-container');
+      const fm = window.FittingMe;
+      if (!container || !fm?.resolve(container)) {
+        poll = setTimeout(connect, 100);
+        return;
+      }
+      connected = true;
+      unsubscribe = fm.on(event => {
+        if (event.encart !== container || event.jalon !== 'amorçage') return;
+        clearTimeout(deadline);
+        setMessage(event.issue === 'éligible' ? '' :
+          event.issue === 'inéligible' ? 'Try-on is unavailable for this product.' :
+          'Try-on is temporarily unavailable.');
+      });
+    };
+    connect();
+
+    return () => {
+      expired = true;
+      clearTimeout(poll);
+      clearTimeout(deadline);
+      unsubscribe();
+      // The page owns the embed. Leave its connected DOM and loader intact.
+    };
+  }, []);
+
+  return <p role="status">{message}</p>;
+}
+```
+
+Utilisez le point d’entrée `createRoot` existant de votre application pour afficher `<TryOnStatus />`. Le composant indique la disponibilité ; il n’installe pas le widget et ne suit pas la fin du parcours. Laissez le suivi [analytique](/fr/integration/analytics) abonné pendant toute la durée de vie de l’intégration gérée par la page.
+
+En développement, React peut exécuter une fois de plus la configuration et le nettoyage. Cet exemple ne supprime que son propre abonnement et ses minuteries ; un remontage ne peut donc pas retirer un widget ouvert. Consultez la [référence React sur le cycle de vie des effets](https://react.dev/reference/react/useEffect).
+
+## 3. Changer de produit en rechargeant la page
+
+Pour les changements de produit ou de couleur nécessitant une autre image, utilisez la navigation classique du document, par exemple `<a href="https://store.example.com/products/next-product">`. Désactivez l’interception du routeur pour ces liens. Le nouveau modèle de page doit intégrer les données du nouveau produit. Les mises à jour React sans rapport peuvent conserver l’intégration en place.
+
+Le déchargement complet d’une page ne garantit pas la transmission des événements analytiques. En particulier, quitter la page alors qu’un résultat est ouvert peut empêcher l’observation de la fin du parcours. Lisez les [limites de complétion](/fr/reference/events#la-complétion-n’est-pas-une-conversion) avant de décider quoi comptabiliser.
+
+## Limites de l’intégration dans une SPA
+
+React n’attend pas la fin du nettoyage asynchrone d’un effet avant de supprimer son DOM. Si une intégration est ouverte, appeler `close()` puis immédiatement `destroy()` renvoie `tiroir_ouvert` ; supprimer tout de même le conteneur peut empêcher la page suivante de défiler. Attendre de façon asynchrone dans la fonction de nettoyage ne maintient pas connecté un conteneur géré par React.
+
+Une intégration conservée sur place nécessite un responsable qui garde le conteneur connecté, empêche toute nouvelle ouverture et confirme la fermeture **avant** d’autoriser sa suppression ou le remplacement de la route. Il doit aussi tenir compte des événements de fin transmis après la fermeture ; le loader public ne signale pas que « tous les messages de fermeture ont été transmis ». Consultez [le remplacement du produit](/fr/integration/product-changes#fermer-avant-de-remplacer). Cette page ne fournit pas d’adaptateur général garantissant un démontage sûr dans une SPA.
+
+Appeler `open()` depuis React présente également la [limitation du loader avec le bouton de retour](/fr/integration/appearance#exemple-complet-avec-un-bouton-personnalisé). Le modèle de page ci-dessus utilise le bouton du widget.
+
+## Vérifier le comportement de l’application
+
+- Retardez le chargement du loader ; montez, démontez puis remontez le composant d’état avant son arrivée.
+- En mode Strict de développement et dans la version de production, vérifiez qu’un seul widget prévu est toujours présent.
+- Ouvrez le panneau, démontez le composant d’état React, puis fermez le panneau. Le widget doit rester connecté et rétablir normalement le défilement de la page.
+- Remontez le composant d’état et vérifiez qu’il reçoit le résultat d’amorçage actuel.
+- Suivez un lien produit et vérifiez que la page est entièrement rechargée avec le bon produit et la bonne image.
+- Bloquez la requête du loader et vérifiez qu’à l’expiration du délai, le composant d’état cesse d’attendre et que la boutique reste utilisable.

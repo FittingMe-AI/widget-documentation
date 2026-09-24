@@ -1,0 +1,54 @@
+---
+title: "Liste de vérification avant le lancement en production"
+sidebarTitle: "Liste de lancement"
+description: "Décidez de la mise en production à partir d’une configuration vérifiée, de parcours complets et d’un plan de rétablissement."
+---
+
+Suivez cette liste sur le véritable modèle de fiche produit. Avant d’activer l’intégration pour les acheteurs, attribuez chaque point restant à une personne responsable.
+
+## Configuration
+
+- [ ] L’accès de production du détaillant comprend l’essayage virtuel.
+- [ ] La clé correspond au bon détaillant et au bon environnement.
+- [ ] Tous les noms d’hôte de production sont autorisés sur la clé, notamment les domaines racines et les hôtes `www` nécessaires.
+- [ ] FittingMe a confirmé séparément l’autorisation d’encadrement pour chaque origine de production de la boutique et tous ses ancêtres de frame.
+- [ ] Le widget, l’API et la clé utilisent le même environnement prévu ; l’iframe se charge et la session s’ouvre correctement.
+- [ ] La version de la boutique ne contient plus de clé `localhost`, de valeur de remplacement, d’URL de prévisualisation ni d’identifiant d’administration.
+- [ ] Les identifiants produit et les images des vêtements correspondent aux articles affichés ; les réponses contenant les vêtements sont réellement en JPEG/PNG, pèsent 20 Mio maximum et ne dépassent pas trois redirections.
+- [ ] La préparation des produits issus du catalogue a été confirmée.
+- [ ] La politique de sécurité de production autorise le loader et l’iframe.
+
+## Parcours de l’acheteur
+
+- [ ] Un essayage complet a abouti pour des produits représentatifs du modèle de production.
+- [ ] Le transfert de l’ordinateur au téléphone a été vérifié ; les tests de caméra et de navigateur sur appareils réels sont consignés séparément.
+- [ ] Les navigateurs mobiles et de bureau requis ont été testés.
+- [ ] La fermeture et la réouverture fonctionnent ; le défilement et le focus sont rétablis correctement.
+- [ ] Le bouton de retour a été vérifié pour la méthode d’ouverture réellement utilisée. Ne marquez pas comme réussie la limitation connue de `open()` dans le loader ; si le bouton de retour est nécessaire, utilisez le déclencheur natif ou l’intégration directe sur page classique qui a été testée.
+- [ ] Les changements de produit ou de couleur, les intégrations multiples et la navigation SPA ont été testés lorsqu’ils sont utilisés.
+- [ ] Après un échec de chargement du script, une image inaccessible, une annulation ou une nouvelle tentative, la boutique reste utilisable.
+- [ ] La langue du widget et celle choisie par le navigateur de la page de capture sur téléphone ont été vérifiées, ainsi que les textes longs, l’utilisation au clavier et le zoom.
+
+## Données et mesures
+
+- [ ] La configuration de confidentialité et de consentement a été examinée avec le responsable de la confidentialité du détaillant.
+- [ ] Le suivi analytique respecte le choix de consentement de la boutique.
+- [ ] Les événements sont attribués au bon produit sans abonnement en double.
+- [ ] La complétion est considérée comme l’observation d’un résultat à la fermeture ; la répétition après rechargement et la perte pendant le démontage sont comprises. Elle ne sert pas à compter les générations uniques ou les achats.
+- [ ] Les journaux et exports d’assistance excluent les clés, les données photo et les jetons privés.
+
+## Mise en production et rétablissement
+
+- [ ] L’intégration fonctionnelle a été examinée et approuvée selon le processus de mise en production de votre boutique.
+- [ ] Vous pouvez désactiver le point d’accès ou supprimer l’intégration au moyen d’une modification connue de la version ou de la configuration de la boutique.
+- [ ] Il est possible de rétablir la version ou la configuration précédente de la boutique.
+- [ ] Une personne responsable vérifiera le trafic réel dès l’activation.
+- [ ] L’équipe connaît la [procédure d’assistance](/fr/troubleshooting/support) et les informations de diagnostic à fournir.
+
+## Vérifier après activation
+
+Ouvrez une véritable fiche produit publique dans une nouvelle session de navigateur. Recommencez le parcours complet et vérifiez la navigation habituelle de la boutique. Dans vos outils de surveillance existants, recherchez les erreurs de CSP, les refus d’accès inattendus, les échecs de récupération d’image ou une hausse inhabituelle des échecs.
+
+Si l’intégration perturbe les achats, désactivez son point d’accès ou supprimez-la, puis vérifiez que la navigation produit fonctionne normalement. Ne révoquez une clé que si cette action est prévue pour toutes les intégrations qui l’utilisent ; consultez [Mettre à jour, désactiver ou supprimer FittingMe](/fr/maintenance/updates).
+
+Conservez les preuves de validation avec l’enregistrement de mise en production de votre boutique. La réussite d’un test local ne prouve pas que le nom d’hôte, la clé, la politique de sécurité et les dépendances de production sont correctement configurés.

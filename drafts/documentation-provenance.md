@@ -1,5 +1,17 @@
 # Documentation source evidence — 2026-09-23
 
+## French edition — 2026-09-24
+
+The French pages under `fr/` translate the canonical 22-page English edition at
+documentation commit `9b885b409aeb7947329796b977ed9f01b8663a45`. They add no
+integration, API, protocol, lifecycle, service-availability, or browser-support
+claims. Every fenced code example remains byte-for-byte identical to its English
+counterpart; locale-specific navigation and links point to the translated route
+and translated heading anchor. Validate the language tree and code parity with
+`scripts/validate-docs.mjs`. Mintlify's current language navigation format was
+checked against its official guide:
+https://www.mintlify.com/docs/organize/navigation.
+
 ## Selected local revisions
 
 - Documentation isolated checkout: `codex/docs-developer-redesign-20260923`, based on `376bae6`. Starting state: **clean (0 paths)**. Original dirty checkout and other worktrees preserved.

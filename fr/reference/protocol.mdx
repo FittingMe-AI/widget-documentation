@@ -1,0 +1,79 @@
+---
+title: "Avancé : protocole d’intégration directe"
+sidebarTitle: "Protocole direct"
+description: "Paramètres d’URL, enveloppe des messages et responsabilités du navigateur dans une intégration sans loader."
+---
+
+Utilisez cette référence uniquement si vous gérez vous-même l’intégration de l’iframe. Pour le parcours d’intégration standard, le [loader](/fr/start/quickstart) prend en charge ces responsabilités.
+
+L’exemple d’intégration directe de ce guide fournit une image de vêtement et utilise donc **`fittingme/3`**. Pour intégrer un catalogue préparé, utilisez le loader.
+
+## URL de l’iframe
+
+Commencez avec `https://widget.fittingme.ai/tryon/` et utilisez `URL.searchParams` pour encoder les entrées.
+
+| Paramètre | Exigence |
+| --- | --- |
+| `api_base` | URL de base de l’API, obligatoire pour l’environnement. |
+| `retailer_key` | Clé détaillant publiable obligatoire. |
+| `product_id` | Identifiant produit obligatoire. |
+| `journey` | `tryon`. |
+| `garment_image_url` | Obligatoire dans cet exemple utilisant la version majeure 3 ; respecte les [règles relatives aux URL d’image](/fr/integration/products#exigences-pour-l’url-de-l’image). |
+| `host_origin` | Valeur exacte de `window.location.origin`, port compris le cas échéant, sans chemin. |
+| `loader_major` | `3`. |
+| `trigger_mode` | `hôte` pour un bouton géré par la page hôte. |
+| `locale` | Facultatif : `en` ou `fr`. |
+
+Définissez le bac à sable et les permissions **avant** d’attribuer l’URL à l’iframe :
+
+```html
+<iframe title="Virtual try-on"
+  sandbox="allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-storage-access-by-user-activation"
+  allow="web-share"></iframe>
+```
+
+L’URL réelle du document contient une clé détaillant. Excluez-la des données analytiques, des journaux d’assistance et des captures d’écran des outils de développement.
+
+## Enveloppe de message
+
+```javascript
+({ protocole: 'fittingme/3', message: 'ouvrir', champs: {} });
+```
+
+L’enveloppe contient exactement ces trois clés. `champs` est un objet. Conservez les noms de message français avec leurs accents.
+
+Avant de traiter un message reçu, vérifiez **à la fois** `event.source === iframe.contentWindow` et `event.origin === widgetOrigin`. Une iframe tierce ne doit pas pouvoir modifier votre état ni provoquer l’arrêt pour incompatibilité de protocole. Envoyez les messages à l’origine cible exacte, jamais à `*`.
+
+## Messages
+
+| Sens | `message` | `champs` | Action requise de la page hôte |
+| --- | --- | --- | --- |
+| Widget → hôte | `amorçage` | `issue` ; `code_transport` et `geometrie_tiroir: true` facultatifs | N’autorisez l’ouverture que pour `éligible` ; distinguez l’inéligibilité d’un résultat indéterminé. |
+| Widget → hôte | `hauteur` | `hauteur_px` : nombre | Enregistrez la hauteur en mode fermé et appliquez-la hors plein écran. La valeur zéro est valide. |
+| Widget → hôte | `ouverture` | Compteur `ouverture` facultatif | Agrandissez l’iframe, verrouillez le défilement de la page et gérez l’historique des commandes hôte. |
+| Widget → hôte | `fermeture` | Objet vide | Rétablissez la hauteur dans le flux, le défilement, le focus et l’état d’historique approprié. |
+| Widget → hôte | `complétion` | Objet vide | Observez à la fermeture un résultat terminé, après `fermeture` ; il ne s’agit pas d’un décompte de générations uniques. |
+| Hôte → widget | `ouvrir` | Objet vide dans cet exemple | Demandez l’ouverture après confirmation de l’éligibilité ; ne renvoyez pas la commande tant que le panneau est ouvert. |
+| Hôte → widget | `fermer` | Objet vide | Demandez la fermeture. Attendez l’annonce de fermeture. |
+| Hôte → widget | `disposition` | `capacite: 'geometrie_tiroir'` ; `ouverture`, `largeur_px` et `hauteur_px` facultatifs | Négociez la géométrie si cette option est proposée et confirmez l’ouverture correspondante une fois la mise en page calculée. |
+
+Les événements publics du loader et les messages réseau sont deux interfaces différentes. Les enveloppes réseau ne contiennent pas `encart` ; la page parente connaît déjà son iframe. Lorsqu’il publie ses propres événements, le loader ajoute l’identité du conteneur et l’origine de l’ouverture.
+
+## Négociation de la géométrie
+
+Lorsque l’amorçage annonce `geometrie_tiroir: true`, la page hôte peut confirmer cette capacité avec `disposition`. Si le widget fournit ensuite un compteur `ouverture`, agrandissez l’iframe, laissez la mise en page se stabiliser, puis renvoyez ce même compteur avec la largeur et la hauteur réelles de la fenêtre d’affichage en pixels. Ne réutilisez pas les mesures d’une ouverture précédente.
+
+## Responsabilités de la page hôte
+
+- Validez l’origine, la source, le protocole, la structure et les noms reconnus des messages.
+- Cessez la communication avec un pair déjà établi qui annonce une version majeure incompatible ; ne revenez pas silencieusement à une version antérieure.
+- Montez l’iframe avec une hauteur nulle jusqu’à ce que le widget indique sa hauteur en mode fermé.
+- Placez l’iframe plein écran en dehors des éléments parents qui la tronqueraient ou modifieraient son positionnement fixe.
+- Coordonnez les intégrations sœurs si votre application autorise plusieurs intégrations directes.
+- Associez les événements d’ouverture et de fermeture, préservez les styles de défilement de la page, rétablissez le focus et gérez le bouton de retour.
+- Prévoyez des délais d’attente d’interface limités en cas d’absence d’amorçage ou de confirmation d’ouverture.
+- Fermez l’intégration avant de remplacer le produit ou l’image ; libérez vos écouteurs et l’iframe lors du démontage.
+
+Les [délais de complétion et limites de déduplication](/fr/reference/events#la-complétion-n’est-pas-une-conversion) s’appliquent également aux événements du protocole direct. `locale` configure le widget, et non la page de capture distincte sur téléphone.
+
+Consultez l’[exemple complet d’intégration directe](/fr/integration/direct-embed). Ne l’étendez qu’après avoir testé ces responsabilités dans votre application réelle.

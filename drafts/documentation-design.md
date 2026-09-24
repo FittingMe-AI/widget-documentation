@@ -23,6 +23,13 @@ Scope: developers integrating virtual try-on for a retailer, whether they work i
 
 The checkboxes record approval of the goals, not a claim that final acceptance has passed.
 
+## French edition
+
+The founder requested a French edition on 2026-09-24. It mirrors the 22 approved
+English routes under `fr/`; English remains the canonical source and default
+language. Translate reader-facing content and navigation while preserving
+technical identifiers, route responsibilities, and every runnable code fence.
+
 ## Approved acceptance exercise
 
 A developer unfamiliar with FittingMe uses only the documentation and normally provisioned access to integrate a representative storefront, verify the relevant shopper journeys, diagnose a deliberate configuration error, and complete the production-readiness checks. Any undocumented explanation needed is a documentation gap.
@@ -82,4 +89,4 @@ Guides own procedures and expected results. Reference pages own exact inputs, ou
 
 ## Publication boundary
 
-Local content and preview are authorised. Publication, deployment-triggering pushes, and merge remain pending explicit founder approval after review of these changes.
+Local content and preview are authorised. Publication, deployment-triggering pushes, and merge require explicit founder approval after review of the changes being published.

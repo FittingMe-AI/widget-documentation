@@ -1,0 +1,51 @@
+---
+title: "Associer les produits et leurs images"
+sidebarTitle: "Produits et images"
+description: "Choisissez une source d’image et associez chaque intégration au vêtement réellement affiché."
+---
+
+Chaque intégration nécessite `data-product-id`. Elle peut utiliser une image que vous fournissez ou un produit déjà préparé dans le catalogue FittingMe. Commencez par l’image fournie, sauf si FittingMe a confirmé que votre catalogue est prêt.
+
+| Approche | À fournir | À utiliser lorsque… |
+| --- | --- | --- |
+| Image fournie | Identifiant produit et `data-garment-image-url` | Vous pouvez fournir depuis la boutique la bonne image du vêtement. |
+| Catalogue préparé | Identifiant produit ; omettez `data-garment-image-url` | FittingMe a intégré le produit et confirmé qu’il est disponible pour l’essayage. |
+
+## Fournir une image
+
+1. Choisissez un identifiant produit stable dans votre boutique. Utilisez le même pour le produit affiché, l’intégration et votre propre suivi analytique.
+2. Sélectionnez l’image du vêtement pour ce produit ou cette couleur. Vérifiez qu’elle correspond à l’article affiché à l’acheteur.
+3. Vérifiez que l’URL respecte les exigences ci-dessous et que les services FittingMe peuvent récupérer l’image.
+4. Définissez `data-product-id` et `data-garment-image-url` avant de charger le script. Consultez le [démarrage rapide](/fr/start/quickstart) pour un exemple complet.
+5. Générez un résultat et vérifiez visuellement le vêtement. Le chargement de l’image source dans votre navigateur ne prouve pas qu’elle est accessible côté serveur.
+
+### Exigences pour l’URL de l’image
+
+- L’image téléchargée doit être décodable au format **JPEG ou PNG** et peser au maximum **20 Mio (20 971 520 octets)**. Les formats WebP, AVIF, GIF et SVG ne sont pas acceptés pour les vêtements. Renommer le fichier ne change pas son format.
+- La largeur et la hauteur ne doivent pas dépasser **8 192 pixels** chacune. Les images mal formées ou dépassant les limites de décodage sont rejetées, même si leur téléchargement fait moins de 20 Mio.
+- FittingMe suit au maximum **trois redirections**. Préférez une réponse contenant directement l’image ; chaque redirection et destination doit rester accessible publiquement et respecter les contrôles d’URL du service.
+- URL HTTPS absolue avec un nom d’hôte.
+- 1 024 caractères Unicode maximum, avant comme après la normalisation de l’URL.
+- Aucun nom d’utilisateur ni mot de passe intégré, fragment (`#...`), espace ou caractère de contrôle.
+- Accessible sans cookies ni connexion de l’acheteur et sans accès à un réseau privé.
+
+Utilisez une URL média stable. Si elle expire pendant le parcours de l’acheteur, la génération peut être interrompue. N’incluez dans les paramètres de l’URL ni identifiants d’accès à l’image ni données client privées.
+
+Ces exigences concernent l’image du vêtement, et non les formats de photo de l’acheteur acceptés par l’écran d’importation. Configurez votre CDN d’images pour qu’il renvoie systématiquement du JPEG ou du PNG ; la négociation automatique WebP/AVIF peut rendre inutilisable pour la génération une image qui s’affiche dans le navigateur.
+
+Un amorçage éligible ne télécharge ni ne valide le vêtement. Une image non prise en charge peut échouer seulement après **Start** ; le message actuel indique alors une indisponibilité temporaire générique, sans événement d’erreur public dédié du loader. Avant de réessayer, vérifiez les octets réellement renvoyés, la taille et les redirections : l’éligibilité ne garantit pas la réussite de la génération.
+
+Une image fournie explicitement mais invalide ou inaccessible constitue une erreur. FittingMe ne la remplace pas silencieusement par une image du catalogue. Pour utiliser la recherche dans le catalogue, **omettez complètement l’attribut d’image** ; un attribut vide n’est pas valide.
+
+## Utiliser un catalogue préparé
+
+1. Organisez l’intégration du catalogue avec votre contact FittingMe. Convenez des identifiants produit et des images sources à partir des données de votre boutique.
+2. Faites confirmer que les produits concernés sont prêts pour l’essayage dans l’environnement que vous utiliserez.
+3. Indiquez l’identifiant convenu exact dans `data-product-id` et omettez `data-garment-image-url`.
+4. Testez un produit dont l’éligibilité a été confirmée ainsi qu’un produit qui ne doit pas proposer l’essayage.
+
+Vous n’avez pas à implémenter de points de terminaison d’administration du catalogue dans le navigateur. Consultez le [résultat d’amorçage](/fr/reference/events#résultat-de-l’amorçage) de l’intégration pour savoir si elle peut s’ouvrir. Une défaillance temporaire ne signifie pas que le produit est inéligible.
+
+## Gérer les changements de produit
+
+Les données du produit et de son image restent associées à une intégration pendant toute sa durée de vie. Modifier les attributs d’un script déjà exécuté ne le reconfigure pas. Consultez [Changements de produit et de variante](/fr/integration/product-changes) lorsque la navigation ou le choix d’une couleur change le vêtement.

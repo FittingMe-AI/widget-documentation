@@ -1,0 +1,91 @@
+---
+title: "Résoudre un problème à partir de son symptôme"
+sidebarTitle: "Dépannage"
+description: "Repérez la défaillance, identifiez la couche concernée et choisissez la prochaine action utile."
+---
+
+Laissez la fiche produit ouverte avec les outils de développement du navigateur. Inspectez la requête du loader, l’iframe du widget et les requêtes réseau en échec. Ne collez dans vos messages à l’assistance ni URL de requête complète, ni clé, ni photo, ni lien de capture.
+
+## Rien ne s’affiche
+
+1. Dans l’onglet Réseau, recherchez `fittingme-loader.js`. S’il ne s’est pas chargé, vérifiez l’URL, la CSP, le gestionnaire de consentement et les extensions qui bloquent les scripts.
+2. Vérifiez que le conteneur configuré existe avant l’exécution du script et qu’il ne se trouve pas dans un composant masqué ou démonté.
+3. Dans la console, recherchez une entrée obligatoire manquante, un attribut `data-*` inconnu ou une URL d’image invalide. Corrigez le script avant de recharger la page. Certains diagnostics du loader sont actuellement en français. L’absence de conteneur peut échouer sans message ; vérifiez donc le sélecteur même si la console est vide.
+4. Si le loader a monté une iframe, mais que l’amorçage n’arrive jamais, recherchez dans la console un refus lié à `frame-ancestors`. Demandez à FittingMe d’autoriser l’origine de la boutique dans l’environnement du widget ; ni votre CSP ni la liste des domaines de la clé dans le portail ne peuvent modifier la politique d’encadrement du widget.
+5. Après le chargement du script, inspectez l’état sans exposer d’identifiants :
+
+```javascript
+const container = document.getElementById('fittingme-widget-container');
+const fm = window.FittingMe;
+const state = fm?.resolve(container);
+console.table({
+  loaderAvailable: Boolean(fm),
+  embedMounted: Boolean(state),
+  bootstrapOutcome: state?.issue ?? 'not reported',
+  drawerOpen: state?.tiroir_ouvert ?? false
+});
+```
+
+Un état `undefined` indique qu’aucune intégration active ne correspond à cet élément. Le résultat `inéligible` signifie que le parcours ne peut pas être proposé. `indéterminé` signifie que la disponibilité n’a pas pu être établie ; examinez la requête en échec au lieu de conclure que le produit n’est pas pris en charge.
+
+En mode déclencheur `hôte`, vous devez afficher votre propre bouton. Dans ce mode, il est normal que l’iframe fermée ait une hauteur nulle.
+
+## Échec de l’authentification ou de l’accès au domaine
+
+1. Vérifiez que la clé correspond au détaillant et à l’environnement d’API prévus.
+2. Vérifiez qu’elle est active ou encore valide pendant une rotation et qu’elle n’a pas été révoquée.
+3. Comparez le nom d’hôte du navigateur avec les domaines autorisés de la clé, y compris `www` et les sous-domaines de prévisualisation.
+4. Pour les tests locaux, utilisez une clé `localhost` dédiée et ouvrez une URL HTTP sur `localhost`, et non une URL de fichier ou `127.0.0.1`.
+5. Si la requête est interdite alors que la clé et le domaine sont valides, faites confirmer par FittingMe les droits d’essayage du détaillant.
+
+Un amorçage éligible ne prouve pas que le domaine est autorisé pour la clé : ce contrôle a lieu à l’ouverture de la session. `origin_not_allowed` signifie que le nom d’hôte n’est pas autorisé ; `origin_underivable` signifie que le service n’a pas pu déterminer l’origine de l’intégration. Consultez les [codes d’erreur](/fr/reference/errors).
+
+Consultez la page [Configuration des accès](/fr/start/prerequisites). N’ajoutez pas d’identifiants d’administration au navigateur et ne modifiez pas le widget pour utiliser un autre mode d’authentification.
+
+## L’image s’affiche, mais la génération échoue
+
+Votre navigateur peut disposer de cookies ou d’un accès que les serveurs FittingMe n’ont pas. Vérifiez que l’URL renvoie bien une image sans connexion, qu’elle n’a pas expiré et que le CDN de votre boutique autorise sa récupération côté serveur. Le simple affichage de l’image dans la page ne suffit pas à le prouver.
+
+Vérifiez les octets réellement téléchargés : le vêtement doit être au format JPEG ou PNG, peser au plus 20 Mio et ne pas dépasser trois redirections. Une image WebP peut sembler éligible, puis échouer après Start avec une indisponibilité temporaire générique et sans événement public dédié pour la page hôte. Réessayer avec les mêmes octets non pris en charge ne résoudra pas le problème.
+
+Si vous avez fourni `data-garment-image-url`, vérifiez ses [règles de validation](/fr/integration/products#exigences-pour-l’url-de-l’image). En cas d’échec, l’image fournie explicitement ne sera pas remplacée par une image du catalogue.
+
+## Le mauvais vêtement apparaît
+
+Comparez le produit affiché avec l’identifiant et l’image utilisés à la création de l’intégration. Modifier les attributs du script après son exécution ne met pas à jour l’iframe. En cas de changement de produit ou de couleur, fermez et [remplacez l’intégration](/fr/integration/product-changes).
+
+Pour une recherche dans le catalogue, demandez à FittingMe de vérifier la correspondance convenue entre le produit et son image. Ne masquez pas un décalage en affichant un autre titre de produit autour de l’ancienne intégration.
+
+## Le panneau est tronqué ou refuse de s’ouvrir
+
+Inspectez les éléments parents du conteneur. `transform`, `filter`, certaines valeurs de `will-change` et la propriété `contain` peuvent modifier la mise en page d’une iframe à position fixe. Le loader peut refuser l’ouverture avec `plein_écran_impossible` ; le message de la console indique l’élément parent et la propriété en cause.
+
+Déplacez le conteneur vers un emplacement approprié dans la mise en page ou supprimez la propriété superflue qui crée le bloc conteneur. Augmenter seulement le `z-index` de l’iframe ne corrige pas le bloc conteneur. Après la modification, revérifiez les en-têtes fixes, le défilement, les largeurs mobiles et la fermeture.
+
+## Le bouton personnalisé ne fait rien
+
+- Avant d’activer le bouton, attendez `amorçage` avec `issue === 'éligible'`.
+- Transmettez l’élément conteneur à `open()`, pas son identifiant ni une chaîne sélecteur.
+- Examinez le [verdict de commande](/fr/reference/javascript#verdicts-des-commandes) renvoyé.
+- Observez `ouverture` pour confirmer l’ouverture. La valeur `accepté` seule ne prouve pas que le panneau s’est affiché.
+- Vérifiez que le loader, le widget et l’API appartiennent à des environnements compatibles, surtout pour une intégration avec image fournie.
+
+## La navigation produit crée des doublons ou bloque le défilement
+
+Ne supprimez pas un conteneur si `destroy()` renvoie `tiroir_ouvert`. Une commande `close()` acceptée n’a pas nécessairement fini de s’exécuter ; React supprime son DOM avant la fin du nettoyage asynchrone. Si la page est déjà bloquée, un rechargement complet rétablit un document sain. Utilisez le [modèle React où la page gère l’intégration](/fr/integration/react) et respectez les [contraintes de remplacement](/fr/integration/product-changes#fermer-avant-de-remplacer).
+
+## Le bouton de retour laisse le panneau ouvert
+
+Si l’ouverture provient de `FittingMe.open(container)`, notamment d’un bouton personnalisé, il s’agit d’une limitation connue du loader. Un nouvel appui sur le bouton de retour peut quitter la fiche produit. Pour l’intégration par défaut, conservez le point d’accès du widget ; l’[exemple direct sur page classique](/fr/integration/direct-embed) gère explicitement son historique. Ne considérez pas le bouton de retour comme validé avec un bouton personnalisé simplement parce qu’il fonctionne avec le déclencheur natif du widget.
+
+Consultez la page [Gestion des boutiques dynamiques](/fr/integration/react) et reproduisez le problème avec un chargement réseau lent et une navigation rapide.
+
+## Le transfert de photo ou la génération n’aboutit pas
+
+Laissez ouverte la fiche produit d’origine et vérifiez que le lien de capture correspond à la tentative active. Recommencez avec les commandes disponibles dans le widget au lieu de réutiliser l’URL d’un ancien QR code enregistré.
+
+Inspectez le statut de la réponse en échec et son code d’erreur expurgé des données sensibles. Le consentement, la validation de la capture, une défaillance temporaire du service et une limitation du débit nécessitent des mesures différentes, décrites dans [Erreurs et rétablissement](/fr/reference/errors). Si le problème persiste après une nouvelle tentative, rassemblez les [informations pour l’assistance](/fr/troubleshooting/support).
+
+## Les événements analytiques manquent ou sont dupliqués
+
+Abonnez-vous avant toute interaction, filtrez par `event.encart` et supprimez les anciens abonnements lors de la navigation. L’amorçage est rejoué aux abonnés tardifs, contrairement à la complétion. Celle-ci n’est envoyée qu’après la fermeture d’un résultat terminé, et après `fermeture`. Un démontage immédiat peut la faire perdre ; une nouvelle intégration peut l’émettre à nouveau pour un résultat repris après rechargement. Ces observations ne permettent pas de compter les générations uniques. Vérifiez séparément le consentement analytique et la configuration de destination. Consultez le [guide de suivi](/fr/integration/analytics).

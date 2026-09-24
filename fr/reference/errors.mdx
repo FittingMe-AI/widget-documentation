@@ -1,0 +1,65 @@
+---
+title: "Erreurs et rétablissement"
+sidebarTitle: "Erreurs et rétablissement"
+description: "Distinguez la validation du loader, le refus d’une commande et les réponses du service avant de choisir une solution."
+---
+
+Des erreurs peuvent survenir avant la création d’une iframe, lors de l’envoi d’une commande ou pendant le parcours de l’acheteur. Commencez par identifier la couche concernée.
+
+| Couche | Où chercher | Référence |
+| --- | --- | --- |
+| Configuration du loader | Console du navigateur ; aucune intégration montée | [Configuration](/fr/reference/configuration) |
+| Commande du loader | Valeur renvoyée de façon synchrone et console | [Verdicts des commandes](/fr/reference/javascript#verdicts-des-commandes) |
+| Disponibilité à l’amorçage | Événement `amorçage` ou appel à `resolve()` | [Résultats d’amorçage](/fr/reference/events#résultat-de-l’amorçage) |
+| Requête au service | Réponse réseau et état d’erreur du widget | Problem Details ci-dessous |
+
+## Réponses Problem Details
+
+Les erreurs des services FittingMe utilisent `application/problem+json`. Une réponse peut contenir les champs suivants :
+
+| Champ | Signification |
+| --- | --- |
+| `type` | Identifiant d’erreur stable sous `https://fittingme.ai/problems/`. Ce n’est pas une page d’aide à consulter. |
+| `title` | Brève description de la catégorie d’erreur. |
+| `status` | Statut HTTP. |
+| `detail` | Explication de l’occurrence. Ne traitez pas ce texte lisible comme une valeur d’énumération. |
+| `code` | Dernier segment de `type`, lisible par machine. |
+| `instance` | Chemin de requête identifiant le contexte de l’occurrence ; il ne contient pas la chaîne de requête. |
+| `field` | Champ de saisie concerné, le cas échéant. |
+| `capability` | Fonctionnalité concernée, le cas échéant. |
+
+Un proxy, un blocage du navigateur ou un échec de transport peut empêcher la production d’une réponse JSON. Notez cette distinction au lieu de supposer que chaque requête en échec comporte un champ `code`.
+
+## Erreurs courantes du parcours
+
+| Code ou statut | Point à vérifier | Rétablissement |
+| --- | --- | --- |
+| HTTP 401 | Clé manquante, invalide, liée au mauvais environnement ou révoquée. | Corrigez la configuration de la clé et recommencez. |
+| HTTP 403 | Accès au domaine, consentement ou droit d’accès ; consultez le code précis. | Corrigez la cause identifiée. Répéter la même requête ne rétablira pas l’accès. |
+| `origin_not_allowed` / HTTP 403 | L’origine à l’ouverture de la session ne figure pas parmi les domaines autorisés par la clé. | Ajoutez le nom d’hôte réel de la boutique à la liste des domaines de la clé, puis rouvrez le parcours. |
+| `origin_underivable` / HTTP 403 | Le service n’a pas pu déterminer l’origine de l’intégration. | Utilisez une page de boutique HTTP(S) et le loader ou protocole pris en charge. Vérifiez auprès de FittingMe les proxys ou politiques d’intégration ; ne falsifiez pas les en-têtes d’origine. |
+| `validation_error` | Entrée indiquée par `field`, le cas échéant. | Corrigez-la ; ne réessayez pas sans modification. |
+| `consent_required` | Le consentement à la génération n’a pas été enregistré pour la session active. | Reprenez le parcours via l’étape de consentement du widget. |
+| `capability_not_entitled` | Droit du détaillant à utiliser l’essayage virtuel. | Demandez à FittingMe de confirmer les droits du compte. |
+| `not_found` | Ressource ou contexte du parcours actif indisponible. | Commencez un nouveau parcours ; si l’erreur se répète, vérifiez la configuration du produit et du contexte. |
+| `conflict` | Une autre génération est déjà en cours. | Reprenez la tentative existante au lieu d’en soumettre une nouvelle. |
+| `payload_too_large` | La photo importée dépasse la taille autorisée. | Suivez les recommandations de saisie de photo et utilisez une photo plus petite dans un format pris en charge. |
+| `unsupported_media_type` | Type de photo non pris en charge. | Choisissez un format de photo accepté dans le widget. |
+| `rate_limited` / HTTP 429 | Trop de requêtes. | Respectez `Retry-After` s’il est fourni et évitez les nouvelles tentatives parallèles. |
+| `service_unavailable` | Un service requis ne peut pas traiter la requête. | Effectuez une nouvelle tentative limitée via le widget ; signalez les échecs persistants. |
+| `maintenance_shutoff` | Le service a désactivé le parcours. | Laissez les fonctions d’achat disponibles et demandez l’état du service à votre contact FittingMe. |
+| `internal_error` / HTTP 500 | Défaillance inattendue du service. | Effectuez une nouvelle tentative contrôlée et signalez toute récidive. |
+
+Ce tableau couvre les défaillances pertinentes pour l’intégration. Signalez tout code inconnu avec son contexte de diagnostic, après suppression des données sensibles ; ne concluez pas par supposition que le produit est éligible ou inéligible.
+
+## Échecs sans événement d’erreur public
+
+Un refus du navigateur lié à `frame-ancestors` bloque l’iframe avant l’amorçage et ne produit aucun corps d’erreur d’API. Demandez [l’autorisation d’encadrement à FittingMe](/fr/start/prerequisites#faire-approuver-l’encadrement-de-la-boutique). Le refus du domaine associé à la clé survient plus tard, à l’ouverture de la session, même si l’amorçage était éligible.
+
+Des octets de vêtement non valides, notamment ceux d’une image WebP, peuvent actuellement entraîner après Start une indisponibilité temporaire générique, sans événement d’erreur public dédié du loader. Avant de réessayer, vérifiez les [exigences relatives aux vêtements](/fr/integration/products#exigences-pour-l’url-de-l’image). Inspectez la requête en échec dans les outils de développement du navigateur ; ne supposez pas que l’abonnement hôte reçoit toutes les erreurs du service.
+
+## Éviter les boucles de nouvelles tentatives
+
+Le widget gère le parcours de l’acheteur et ses requêtes. Votre page hôte ne doit ni inspecter sa session privée, ni interroger les points de terminaison de génération, ni rejouer des requêtes capturées pour forcer la progression. Si l’amorçage reste indéterminé, affichez clairement l’indisponibilité et préservez les autres fonctions de la boutique.
+
+Consultez le [dépannage](/fr/troubleshooting/symptoms) pour les vérifications par symptôme et la page [Assistance](/fr/troubleshooting/support) pour faire remonter le problème.

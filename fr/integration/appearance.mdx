@@ -1,0 +1,108 @@
+---
+title: "Personnaliser l’apparence et la langue"
+sidebarTitle: "Apparence et langue"
+description: "Choisissez le point d’accès, personnalisez votre bouton et sélectionnez la langue du widget."
+---
+
+Pour votre première installation, conservez le point d’accès fourni par le widget. Utilisez un bouton géré par votre boutique si vous avez besoin de personnaliser le texte, le style, l’emplacement ou le comportement.
+
+## Choisir le déclencheur
+
+| Mode | Configuration | Votre responsabilité |
+| --- | --- | --- |
+| Point d’accès FittingMe | `data-trigger-mode="encart"` | Placez le conteneur dans la page. FittingMe affiche le déclencheur. |
+| Votre bouton | `data-trigger-mode="hôte"` | Affichez un bouton accessible, attendez l’éligibilité, puis appelez `open(container)`. |
+
+La valeur `hôte` comporte un accent. Le conteneur reste obligatoire dans ce mode, même si sa hauteur est nulle lorsqu’il est fermé. Ne masquez pas et ne supprimez pas le conteneur de l’iframe pour masquer votre bouton.
+
+## Exemple complet avec un bouton personnalisé
+
+**Limitation actuelle :** un panneau ouvert avec `FittingMe.open(container)` ne se ferme pas toujours lorsque l’acheteur utilise le bouton de retour du navigateur. Le premier retour peut laisser le panneau ouvert et le défilement verrouillé ; un retour supplémentaire peut quitter la fiche produit. Cette limite concerne l’exemple avec bouton personnalisé. Pour l’intégration par défaut, utilisez le point d’accès du widget. Si le bouton de retour doit fonctionner avec votre propre bouton, l’[exemple d’intégration directe](/fr/integration/direct-embed) gère l’historique sur une page classique ; ce n’est pas un adaptateur de routeur SPA.
+
+Remplacez les trois mêmes valeurs que dans le [démarrage rapide](/fr/start/quickstart). Dans cet exemple, le bouton reste désactivé jusqu’à ce que l’intégration soit éligible ; si l’amorçage échoue, l’acheteur voit clairement que le service est indisponible.
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Try on this garment</title>
+  <style>
+    body { margin: 0; padding: 24px; font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 480px; margin: auto; }
+    img { display: block; width: 100%; height: auto; }
+    button { padding: 12px 24px; font: inherit; cursor: pointer; }
+    button:disabled { cursor: wait; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Example garment</h1>
+    <img src="https://images.example.com/YOUR_GARMENT.jpg" alt="Garment">
+    <button id="try-on" type="button" disabled aria-describedby="try-on-status">
+      Try it on
+    </button>
+    <p id="try-on-status" role="status">Checking try-on availability…</p>
+    <div id="fittingme-widget-container"></div>
+  </main>
+  <script src="https://widget.fittingme.ai/v2/fittingme-loader.js"
+    data-api-base="https://api.fittingme.ai"
+    data-retailer-key="YOUR_PUBLISHABLE_KEY"
+    data-product-id="YOUR_PRODUCT_ID"
+    data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
+    data-journey="tryon"
+    data-locale="en"
+    data-trigger-mode="hôte"
+    data-container="#fittingme-widget-container"></script>
+  <script>
+    const container = document.getElementById('fittingme-widget-container');
+    const button = document.getElementById('try-on');
+    const status = document.getElementById('try-on-status');
+    const fm = window.FittingMe;
+    if (!fm) {
+      status.textContent = 'Try-on could not load. Please reload the page.';
+    } else {
+      const deadline = setTimeout(() => {
+        status.textContent = 'Try-on is taking longer than expected. Please reload to retry.';
+      }, 15000);
+      const unsubscribe = fm.on(event => {
+        if (event.encart !== container) return;
+        if (event.jalon === 'amorçage') {
+          clearTimeout(deadline);
+          button.disabled = event.issue !== 'éligible';
+          status.textContent = event.issue === 'éligible' ? '' :
+            event.issue === 'inéligible' ? 'Try-on is unavailable for this product.' :
+            'Try-on is temporarily unavailable. Please reload to retry.';
+        }
+        if (event.jalon === 'fermeture') button.focus();
+      });
+      button.addEventListener('click', () => {
+        const verdict = fm.open(container);
+        if (verdict !== 'accepté') {
+          status.textContent = 'Try-on could not open. Please try again.';
+        }
+      });
+      // A full page navigation releases this document and its subscription.
+      // A SPA must call unsubscribe() as part of its component cleanup.
+    }
+  </script>
+</body>
+</html>
+```
+
+Le délai de 15 secondes est un choix d’interface donné à titre d’exemple ; ce n’est pas un engagement de niveau de service. Si l’essayage ne se charge pas, la navigation et l’achat habituels doivent rester disponibles.
+
+## Définir la langue
+
+Utilisez `data-locale="en"` ou `data-locale="fr"`. La négociation de langue ne tient pas compte des majuscules ; une variante régionale telle que `en-GB` peut revenir à `en`. Une valeur absente ou non prise en charge revient au français. Indiquez la langue au lieu de vous fier au choix du navigateur de l’acheteur. Ce réglage concerne le widget intégré. La page de capture distincte affichée sur téléphone utilise actuellement la langue du navigateur et n’hérite pas de `data-locale` ; testez-la séparément.
+
+Pour changer la langue, créez une nouvelle intégration avec la configuration souhaitée. Traduisez séparément le texte de votre bouton et vos messages d’état.
+
+## Comprendre les limites de personnalisation
+
+Votre CSS peut personnaliser la fiche produit, la section qui l’entoure et votre bouton. Le widget réside dans sa propre iframe ; le CSS de la boutique ne modifie pas ses écrans internes. FittingMe applique l’image de marque définie pour le détaillant. Convenez des paramètres de marque pris en charge avec votre contact FittingMe ou via le processus autorisé du portail ; n’inventez pas d’attribut de thème pour le script du loader.
+
+Placez le conteneur en dehors des éléments parents transformés ou contenus qui empêcheraient l’affichage du panneau en plein écran. Consultez le [dépannage de la mise en page](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir).
+
+**Vérifiez :** l’activation au clavier, le focus après fermeture, l’échec de l’amorçage, les deux langues prises en charge et la mise en page mobile. Le bouton personnalisé ne doit jamais appeler `open()` avant la confirmation de l’éligibilité.

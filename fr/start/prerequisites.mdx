@@ -1,0 +1,72 @@
+---
+title: "Prérequis et accès"
+sidebarTitle: "Prérequis et accès"
+description: "Rassemblez les accès, domaines et données produit nécessaires avant d’écrire le code d’intégration."
+---
+
+Vous pouvez suivre le démarrage rapide lorsque vous disposez d’un accès détaillant, d’une clé publiable, de l’autorisation d’intégrer le widget à votre boutique, d’adresses correspondant au même environnement, d’un identifiant produit et d’une URL d’image de vêtement utilisable. L’accès se fait sur invitation ; ce guide ne permet pas de créer une clé sans compte.
+
+## Rassemblez ces éléments
+
+| Élément | Où l’obtenir | Prêt lorsque… |
+| --- | --- | --- |
+| Autorisation de modifier la boutique | Propriétaire ou administrateur de la boutique | Vous pouvez ajouter un conteneur et un script externe à une fiche produit. |
+| Accès détaillant FittingMe avec l’essayage activé | Votre contact FittingMe | Le détaillant est provisionné et l’accès à l’essayage est confirmé. |
+| Clé détaillant publiable | Un administrateur détaillant dans le [portail détaillant](https://app.fittingme.ai) | Vous avez copié la clé complète selon la méthode approuvée par votre équipe. |
+| Noms d’hôte autorisés | L’administrateur qui configure la clé | Le nom d’hôte exact utilisé pour les tests est autorisé. |
+| Autorisation d’afficher le widget dans une iframe | Votre contact FittingMe | FittingMe a confirmé que la politique d’encadrement du widget autorise l’origine exacte de votre boutique dans cet environnement. |
+| Adresses de l’environnement | Votre contact FittingMe | L’origine du loader/widget, l’URL de base de l’API et la clé détaillant appartiennent tous à l’environnement prévu. |
+| Identifiant produit | Données produit de votre boutique | Vous pouvez fournir un identifiant stable pour le produit affiché. |
+| Image du vêtement | Médias produit de votre boutique | Vous disposez d’une image JPEG ou PNG accessible publiquement, de 20 Mio maximum, correspondant au vêtement. |
+
+Si vous comptez utiliser un catalogue FittingMe existant au lieu de fournir l’image, demandez confirmation que votre produit est prêt et que son identifiant correspond à celui du catalogue. FittingMe vous accompagne dans l’intégration du catalogue ; celle-ci n’est pas nécessaire pour suivre le démarrage rapide avec une image. Consultez [les données produit](/fr/integration/products).
+
+## Obtenir l’accès au portail
+
+1. Demandez à un administrateur détaillant ou à votre contact FittingMe de vous donner accès au bon détaillant. Acceptez l’invitation et connectez-vous.
+2. Configurez l’authentificateur si le portail vous le demande. Ne partagez ni le mot de passe d’un administrateur ni ses codes d’authentification.
+3. Sélectionnez le compte du détaillant à intégrer. Si vous ne pouvez pas créer ni gérer les clés, demandez à un administrateur d’effectuer les étapes suivantes : la gestion des clés nécessite le rôle Administrateur.
+
+## Créer une clé pour l’environnement de test
+
+Le portail utilise actuellement des libellés en français. Ceux indiqués ci-dessous correspondent aux commandes à sélectionner.
+
+1. Ouvrez **Clés d'environnement**, puis choisissez **Créer une clé**.
+2. Donnez à la clé un nom qui indique son usage, par exemple celui de votre boutique de test.
+3. Saisissez les noms d’hôte autorisés sans `https://`, port ni chemin, par exemple `preview.example.com`.
+4. Créez la clé et copiez immédiatement sa valeur complète. Elle n’est affichée qu’une fois ; les écrans suivants en montrent le préfixe, sans permettre de la récupérer.
+5. Enregistrez-la selon le processus de configuration approuvé par votre équipe. Utilisez cette valeur pour `data-retailer-key`.
+
+Cette clé est destinée à l’intégration dans le navigateur et y sera visible. Ce n’est ni un identifiant de connexion au portail, ni un secret de service interne, ni une clé d’administration. Sa configuration comprend des restrictions de domaine.
+
+## Configurer correctement les domaines
+
+- Indiquez les noms d’hôte exacts de la boutique, y compris `www` si vous l’utilisez.
+- Les caractères génériques s’écrivent `*.example.com`. Ajoutez séparément le domaine racine `example.com` si votre boutique l’utilise.
+- Une clé doit avoir au moins un domaine et peut en contenir 20 au maximum.
+- `localhost` doit être le seul domaine d’une clé dédiée au développement local. Ne l’associez pas à des domaines de production.
+- Pour une page HTTP locale, utilisez `http://localhost:PORT`. Ouvrir directement un fichier HTML produit une origine inadaptée ; `127.0.0.1` est un nom d’hôte différent de `localhost`.
+
+La suppression d’un nom d’hôte peut interrompre les installations qui l’utilisent encore. Vérifiez les boutiques concernées avant d’enregistrer la modification.
+
+## Faire approuver l’encadrement de la boutique
+
+Communiquez à FittingMe chaque origine depuis laquelle vous intégrerez le widget, schéma et port compris, par exemple `https://preview.example.com` ou `http://localhost:8080`. Indiquez les origines de préproduction, de production et de tout cadre parent supplémentaire si votre plateforme imbrique la boutique dans une autre iframe. Avant les tests, obtenez la confirmation pour l’environnement du widget que vous utiliserez.
+
+FittingMe gère la directive `frame-ancestors` de la réponse du widget indépendamment de la liste des domaines de la clé dans le portail. L’ajout d’un domaine à la clé **ne modifie pas** cette directive. FittingMe peut devoir modifier sa configuration et la déployer avant que le navigateur autorise le chargement du widget sur une nouvelle boutique. Aucun contournement JavaScript côté boutique ne peut remplacer cette autorisation.
+
+Le navigateur vérifie l’autorisation d’encadrement avant l’amorçage. L’API vérifie l’autorisation du domaine de la clé à l’ouverture de la session ; un amorçage éligible ne suffit donc pas à prouver que le domaine est autorisé. Testez le chargement de l’iframe et le démarrage du parcours.
+
+## Utiliser l’extrait d’installation du portail
+
+Utilisez l’extrait du portail comme configuration de départ pour la clé et l’environnement sélectionnés. Le démarrage rapide avec image ajoute `data-garment-image-url` ; sans cet attribut, l’extrait effectue une recherche dans le catalogue et nécessite un produit préparé. Définissez `data-journey="tryon"` et choisissez `data-trigger-mode="encart"` pour utiliser le bouton du widget. Avec `hôte`, vous devez fournir votre bouton et tenir compte de la [limitation actuelle de la commande Back](/fr/integration/appearance#exemple-complet-avec-un-bouton-personnalisé).
+
+Utilisez une seule installation par conteneur. Remplacez l’extrait du portail par votre exemple adapté ; n’exécutez pas les deux en parallèle.
+
+## Vérifier les restrictions de la boutique
+
+Demandez au responsable de la boutique si celle-ci bloque les scripts ou les iframes externes, retarde les scripts jusqu’au consentement ou restreint les intégrations tierces en prévisualisation. Les exigences de base figurent dans [Sécurité et confidentialité](/fr/testing/security). Faites lever toute restriction de la plateforme avant de chercher à la contourner dans le code.
+
+Le démarrage rapide utilise les adresses de production. Pour un autre environnement, remplacez l’origine du widget dans l’URL du script, `data-api-base` et la clé. Si vous ne modifiez que l’adresse de l’API et la clé, le widget de production reste utilisé. Dans l’exemple d’intégration directe, remplacez ensemble l’URL du widget et `config.api_base`.
+
+**Étape suivante :** [Ajouter l’essayage à une fiche produit](/fr/start/quickstart).
