@@ -8,7 +8,7 @@
 - French documentation: http://localhost:3214/fr/reference/javascript
 - Full migration mapping: `reference/compatibility.mdx`, “Temporary French compatibility”; single normative widget canon: `widget/docs/contracts/loader-widget-protocol-v2.md`, P31. P30 remains the earlier trigger opt-in decision.
 
-All seven repositories use isolated `english-contract-*` worktrees under the main workspace's `.worktrees/`; each began **clean (0 paths)**. Dirty main checkouts and other reviews were preserved. No pushes, merges, deployments or external tracker writes were made.
+All seven repositories use isolated `english-contract-*` worktrees under the main workspace's `.worktrees/`; each began **clean (0 paths)**. Dirty main checkouts and other reviews were preserved. At the initial review snapshot, no pushes, merges or deployments had been made; the subsequent dev rollout is recorded below. No external tracker writes were made.
 
 ### Implemented behavior
 
@@ -16,7 +16,20 @@ The new `/v4/fittingme-loader.js` returns English verdicts, fresh frozen English
 
 `widget`/`host` are canonical trigger modes. Omission, empty and unknown values retain host mode; French spellings remain deprecated aliases. API language is independent of shopper locale. One entry-point version per page is supported: the updated loaders reject an incompatible second tag before registry mutation in either order. Historical cached v2 bytes cannot acquire the new rejection logic; mixing them after v4 remains unsupported and must be eliminated from the page together.
 
-First-party host triggers, the public demo's event/analytics consumer and consent-overlay listener now subscribe to English facts. Portal and Shopify generator changes remain release-dependent on the producer. Shopify `.invalid` deployment placeholders remain placeholders.
+First-party host triggers, the public demo's event/analytics consumer and consent-overlay listener now subscribe to English facts. The Portal and Shopify consumer changes are recorded in the dev rollout below. Shopify `.invalid` deployment placeholders remain placeholders.
+
+### Development rollout — 2026-09-28
+
+| Repository | `dev` revision / verification |
+| --- | --- |
+| widget | PR [#235](https://github.com/FittingMe-AI/widget/pull/235), merge `3c1b901`; deploy run [36435309991](https://github.com/FittingMe-AI/widget/actions/runs/36435309991) succeeded. `/v4/fittingme-loader.js` and `/v2/fittingme-loader.js` each returned HTTP 200, JavaScript content type and `no-cache`; both served 20,917-byte files matched their local build hashes. |
+| public site | PR [#55](https://github.com/FittingMe-AI/public-site/pull/55), merge `fe08a2a`; deploy run [36436091042](https://github.com/FittingMe-AI/public-site/actions/runs/36436091042) succeeded, including the real-demo smoke. The English product page is [live on dev](https://fittingme-public-site-2mmu4zhn7a-ew.a.run.app/en/demo/); both embedded journeys select `loader_major=4`. The real sizing form opened; no body measurements were submitted. |
+| b2b | PR [#350](https://github.com/FittingMe-AI/b2b/pull/350), merge `1ecf897`; CI run [36435711938](https://github.com/FittingMe-AI/b2b/actions/runs/36435711938) passed. The English v4 golden fixture was added and checked against the widget-owned bytes. |
+| Shopify | PR [#19](https://github.com/FittingMe-AI/shopify-app/pull/19), merge `929007d`; CI run [36435833626](https://github.com/FittingMe-AI/shopify-app/actions/runs/36435833626) passed 239 tests. `.invalid` placeholder hosts are unchanged; no app distribution was triggered. |
+| Retailer Portal | PR [#147](https://github.com/FittingMe-AI/retailer-portal/pull/147), merge `1a3bf44`; CI run [36436797194](https://github.com/FittingMe-AI/retailer-portal/actions/runs/36436797194) passed all eight checks, including Rust/database, SPA and infrastructure gates. Its dev deploy run [36438210031](https://github.com/FittingMe-AI/retailer-portal/actions/runs/36438210031) was still in progress when this record was updated; verify the run and served snippet before treating that deployment as complete. |
+| Workspace | PR [#20](https://github.com/FittingMe-AI/workspace/pull/20), squash merge `0de58c8`; no CI checks were configured. The local architecture validation passed and the merged tree matches the reviewed note. |
+
+The production site and documentation have not been promoted. Existing `/v2` integrations retain `fittingme/2` and `fittingme/3`; the canonical `fittingme/4` loader is available at `/v4` in the verified dev environment. This rollout does not prove Try-On result completion: the development VTON endpoint returned HTTP 404 in the earlier local review, no photo was uploaded, and storage read access was not verified end to end.
 
 ### Measured verification
 
@@ -36,21 +49,22 @@ Browser harness failures were replayed unchanged before classification. The new 
 
 ### Actual services and remaining verification
 
-The actual product page serves changed local public-site and widget artifacts. The separate local API at port 8382 reuses the existing cloud-backed review API build/configuration, with effective `STORAGE_BACKEND=gcs`; configuration is held in memory and credentials are not copied into review artifacts. Desktop (1440 px) and mobile (390 px) runs of both English and French entry points verified real API eligibility, session opening, consent screen, snapshots, open/close verdicts and one opening/closing fact in the selected language.
+The local review product page serves changed public-site and widget artifacts. The separate local API at port 8382 reuses the existing cloud-backed review API build/configuration, with effective `STORAGE_BACKEND=gcs`; configuration is held in memory and credentials are not copied into review artifacts. Desktop (1440 px) and mobile (390 px) runs of both English and French entry points verified real API eligibility, session opening, consent screen, snapshots, open/close verdicts and one opening/closing fact in the selected language.
+
+The dev product page listed in the rollout table above is a separate live-service check. It showed the English product page and v4 sizing/try-on embeds; only the sizing profile screen was opened. No profile data, photo, or generation request was submitted.
 
 **Real-result completion and analytics after a real generation remain unverified.** The development VTON Cloud Run endpoint returns HTTP 404 through both the authenticated loopback proxy and direct authenticated requests. An independent local VTON attempt with GCS storage fails because that build requires Cloud Run instance metadata for usage metrics. A newer core build also refused an older unrelated review database's retention state; no data was deleted and no startup guard was removed. The existing GCS review API build remains usable for the entry checks above, but its generation dependency is unavailable. No photo upload or real generation was initiated by this review. Remote photo read access and cloud result storage therefore have not been proved end to end.
 
 No physical phone, mobile camera or QR handoff was exercised. The mobile checks are viewport emulation. The review depends on the existing development database/configuration, GCS, browser access to catalogue assets, and a restored real VTON dependency. Mintlify preview assets/fonts need network access; local search needs CLI login.
 
-### Release order and outstanding work
+### Remaining release work
 
-1. Restore the real VTON dependency and repeat a complete cloud-backed Try-On journey, including result completion and exact analytics counts, before calling this a fully working review.
-2. Review the separate repository changes. Deliver the dual-dialect widget and both loader paths first; verify actual served bytes and real journeys in the target environment.
-3. Only then release migrated public-site consumers, Portal/Shopify generators and documentation examples. Rollback restores the v2 tags and French callbacks together.
-4. Development pushes/merges require the repository CI gate and merge proof per SHA. Staging/main promotion requires explicit instruction for the reviewed version. Documentation's main-only publication needs its own approval. None has occurred here.
-5. Legacy removal needs a separate decision, remaining-caller inventory, migration evidence and proof rollback no longer needs French. No expiry date is invented.
+1. Verify the retailer-portal dev deploy run and its generated-snippet endpoint after the deployment completes.
+2. Restore the real VTON dependency and repeat a complete cloud-backed Try-On journey, including result completion and exact analytics counts. The current dev demo is not a completed Try-On review.
+3. Review the docs branch. Publication to the main-only docs.fittingme.ai site needs explicit approval for that reviewed content; this dev rollout does not provide it.
+4. Staging/main promotion and legacy removal remain separate decisions. Rollback retains the `/v2` tags and French callbacks; no removal date is set.
 
-Raw non-secret check logs and screenshots are in `/private/tmp/english-contract-evidence/`. These are local evidence, not proof of deployment. The older review entries below remain historical.
+Raw non-secret check logs and screenshots are in `/private/tmp/english-contract-evidence/`. They support local checks; deployed state is evidenced by the linked workflow runs and live-page inspection above. The older review entries below remain historical.
 
 ---
 
