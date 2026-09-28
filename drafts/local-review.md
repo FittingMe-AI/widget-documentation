@@ -1,11 +1,12 @@
 ## English retailer contract review — 2026-09-28
 
-**Local implementation prepared; not published. Live generation is blocked by the VTON dependency.**
+**Docs PR #10 is merged and its Mintlify staging deployment succeeded. The staged URL requires an access code, so rendered pages were not verified there. Real Try-On generation remains blocked by the VTON dependency.**
 
 - English product review: http://localhost:8380/demo/
 - French compatibility product review: http://localhost:8380/legacy/demo/
 - English documentation: http://localhost:3214/reference/javascript#command-verdicts
 - French documentation: http://localhost:3214/fr/reference/javascript
+- Staged documentation: [docs.fittingme.ai](https://docs.fittingme.ai), deployment [6714173180](https://github.com/FittingMe-AI/widget-documentation/deployments/6714173180), merged commit `dac93c4`; GitHub reports success. Playwright reached an “Access Restricted” screen and could not inspect rendered content; no access code was used.
 - Full migration mapping: `reference/compatibility.mdx`, “Temporary French compatibility”; single normative widget canon: `widget/docs/contracts/loader-widget-protocol-v2.md`, P31. P30 remains the earlier trigger opt-in decision.
 
 All seven repositories use isolated `english-contract-*` worktrees under the main workspace's `.worktrees/`; each began **clean (0 paths)**. Dirty main checkouts and other reviews were preserved. At the initial review snapshot, no pushes, merges or deployments had been made; the subsequent dev rollout is recorded below. No external tracker writes were made.
@@ -29,7 +30,7 @@ First-party host triggers, the public demo's event/analytics consumer and consen
 | Retailer Portal | PR [#147](https://github.com/FittingMe-AI/retailer-portal/pull/147), merge `1a3bf44`; CI run [36436797194](https://github.com/FittingMe-AI/retailer-portal/actions/runs/36436797194) passed all eight checks, including Rust/database, SPA and infrastructure gates. Dev deploy run [36438210031](https://github.com/FittingMe-AI/retailer-portal/actions/runs/36438210031) succeeded: the portal-service image deployed and the workflow health smoke passed. The live tenant-authenticated installation snippet was not checked; its dev route requires a retailer session. |
 | Workspace | PR [#20](https://github.com/FittingMe-AI/workspace/pull/20), squash merge `0de58c8`; no CI checks were configured. The local architecture validation passed and the merged tree matches the reviewed note. |
 
-The production site and documentation have not been promoted. Existing `/v2` integrations retain `fittingme/2` and `fittingme/3`; the canonical `fittingme/4` loader is available at `/v4` in the verified dev environment. This rollout does not prove Try-On result completion: the development VTON endpoint returned HTTP 404 in the earlier local review, no photo was uploaded, and storage read access was not verified end to end.
+The marketing site and product services have not been promoted beyond dev. Documentation PR #10 is merged to `main` and the Mintlify staging deployment succeeded, but the access-controlled URL prevented browser inspection of the rendered pages. Existing `/v2` integrations retain `fittingme/2` and `fittingme/3`; the canonical `fittingme/4` loader is available at `/v4` in the verified dev environment. This rollout does not prove Try-On result completion: the development VTON endpoint returned HTTP 404 in the earlier local review, no photo was uploaded, and storage read access was not verified end to end.
 
 ### Measured verification
 
@@ -61,7 +62,7 @@ No physical phone, mobile camera or QR handoff was exercised. The mobile checks 
 
 1. Verify the generated-snippet endpoint with an authenticated dev retailer session; the deployment run confirms only service health.
 2. Restore the real VTON dependency and repeat a complete cloud-backed Try-On journey, including result completion and exact analytics counts. The current dev demo is not a completed Try-On review.
-3. Review the docs branch. Publication to the main-only docs.fittingme.ai site needs explicit approval for that reviewed content; this dev rollout does not provide it.
+3. Verify the staged documentation with an authorized access code; the deployment reports success, but the browser showed an “Access Restricted” screen and did not expose rendered content.
 4. Staging/main promotion and legacy removal remain separate decisions. Rollback retains the `/v2` tags and French callbacks; no removal date is set.
 
 Raw non-secret check logs and screenshots are in `/private/tmp/english-contract-evidence/`. They support local checks; deployed state is evidenced by the linked workflow runs and live-page inspection above. The older review entries below remain historical.
