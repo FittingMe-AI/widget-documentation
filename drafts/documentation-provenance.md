@@ -28,6 +28,27 @@ Current source fingerprints (post-migration, independent of Git commit metadata)
 | `retailer-portal/portal-service/src/snippets.rs` | `e5bf2ec529a9d669a37a45841e47813dd127ffb00ce6077360ac74b666644e8e` |
 | `shopify-app/extensions/fittingme-tryon/blocks/tryon.liquid` | `8aff6da80ca236040369329ca69876ce7172bbc44528bf5f98e7187d3f2a72a3` |
 
+## Public demo snippet alignment — 2026-09-28
+
+The public demo's copyable snippet now uses the shopper locale of its page and
+English journey comments. Source: public-site PR [#56](https://github.com/FittingMe-AI/public-site/pull/56),
+tested commit `a22a37efe39f056a5627330226f415fbe4b23e51`, squash merge
+`3ad29da59aedf9028fb146e6834ee71d24770091`. The merged tree matched the tested
+commit tree; dev deploy [36442457345](https://github.com/FittingMe-AI/public-site/actions/runs/36442457345)
+completed its build, Terraform apply, and real-demo Chromium smoke.
+
+Claim anchors: `public-site/site/scripts/public-demo-contract.js:438-465`
+builds the two v4 journey tags with the page locale and English comments;
+`public-site/site/scripts/public-demo-contract.js:840` passes the renderer locale
+into the snippet builder. Generator and generated-page guards are in
+`public-site/site/scripts/public-demo-contract.test.js:283` and
+`public-site/site/scripts/integration-snippet.test.js:226`.
+
+Post-deploy Playwright observations on 2026-09-28: `/demo/` carries `fr`,
+`/en/demo/` carries `en`, and `/es/demo/` carries `es`; both embedded frames on
+each page carry `loader_major=4`. The sample content changed, but the
+documentation's normative API examples and compatibility mapping did not.
+
 ---
 
 # Documentation source evidence — 2026-09-23
