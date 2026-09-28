@@ -49,6 +49,16 @@ Post-deploy Playwright observations on 2026-09-28: `/demo/` carries `fr`,
 each page carry `loader_major=4`. The sample content changed, but the
 documentation's normative API examples and compatibility mapping did not.
 
+## Documentation staging deployment — 2026-09-28
+
+Documentation PR [#10](https://github.com/FittingMe-AI/widget-documentation/pull/10)
+was squash-merged to `main` as `dac93c4205e4df086a7ae2f74e51c7cfeaf1e43c`.
+GitHub deployment [6714173180](https://github.com/FittingMe-AI/widget-documentation/deployments/6714173180)
+reports success in environment `staging`, targeting `https://docs.fittingme.ai`.
+The staged route redirected to an “Access Restricted” page in Playwright; the
+deployment status is confirmed, but rendered page content could not be
+independently inspected without an access code.
+
 ---
 
 # Documentation source evidence — 2026-09-23
