@@ -22,14 +22,14 @@ The public loader API does not expose a product-update or selected-size setter. 
 
 For an in-place integration, the owner must prevent new opens and retain the original container in the document until cleanup succeeds:
 
-1. Subscribe to that embed's `fermeture` before requesting closure if it is open.
+1. Subscribe to that embed's `closed` before requesting closure if it is open.
 2. Call `FittingMe.close(container)` and check its verdict. This is an asynchronous close request, even though the verdict is synchronous.
 3. Wait for confirmed closure before calling `destroy(container)`. Use a bounded wait; if it expires, keep the embed connected and stop the replacement. Offer a full page navigation or reload as recovery.
-4. Require `destroy(container)` to return `accepté` before removing its script/container and mounting a new embed with a fresh container identity.
+4. Require `destroy(container)` to return `accepted` before removing its script/container and mounting a new embed with a fresh container identity.
 
-Calling `close()` then `destroy()` immediately while open can return `tiroir_ouvert`. Removing the DOM after that refusal can strand the page's scroll lock. Framework cleanup must not remove the container before these steps finish.
+Calling `close()` then `destroy()` immediately while open can return `drawer_open`. Removing the DOM after that refusal can strand the page's scroll lock. Framework cleanup must not remove the container before these steps finish.
 
-**Completion limit:** `fermeture` is followed by `complétion` when a completed result is being announced. Destroying or unsubscribing inside the close handler, including immediately after awaiting a promise resolved by that handler, can discard completion. The public API has no signal that all close-related messages have been delivered. A timeout cannot guarantee delivery, and waiting for completion alone would hang for unfinished journeys.
+**Completion limit:** `closed` is followed by `completed` when a completed result is being announced. Destroying or unsubscribing inside the close handler, including immediately after awaiting a promise resolved by that handler, can discard completion. The public API has no signal that all close-related messages have been delivered. A timeout cannot guarantee delivery, and waiting for completion alone would hang for unfinished journeys.
 
 For this reason, this guide does not provide a lossless close-and-destroy helper. Keep page-owned embeds and tracking alive after normal closure, and use full document navigation for the default product-change path. If in-place replacement is mandatory, agree its event-loss limits and test its route ownership with FittingMe. Public events cannot supply unique-generation counts even without teardown; see [completion semantics](/reference/events#completion-is-not-conversion).
 
@@ -40,7 +40,7 @@ Give each embed a distinct container and script. Use each widget-provided entry 
 ```javascript
 const jacket = document.getElementById('jacket-tryon');
 const unsubscribe = window.FittingMe.on(event => {
-  if (event.encart !== jacket) return;
+  if (event.embed !== jacket) return;
   // Handle this embed's milestone using your own product context.
 });
 ```

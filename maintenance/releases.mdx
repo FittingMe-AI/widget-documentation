@@ -10,19 +10,19 @@ Your installation depends on the loader, widget, and API working together. Recor
 
 | Surface | Current contract covered by this guide |
 | --- | --- |
-| Loader asset | `https://widget.fittingme.ai/v2/fittingme-loader.js` |
+| Loader asset | `https://widget.fittingme.ai/v4/fittingme-loader.js` |
 | Try-on widget | `https://widget.fittingme.ai/tryon/` |
 | Public API base | `https://api.fittingme.ai` |
-| Supplied-image messages | `fittingme/3`, with `loader_major=3` |
-| Catalogue-only messages | `fittingme/2`, selected by the loader when no image is supplied |
+| Supplied-image messages | `fittingme/4`, with `loader_major=3` |
+| Catalogue-only messages | `fittingme/4`, selected by the loader when no image is supplied |
 
-The asset's `/v2/` path and the message protocol major describe different things. Do not edit that path to `/v3/` to enable supplied images. The loader selects the appropriate protocol from the configuration.
+The canonical `/v4/` asset selects `fittingme/4` for both image and catalogue embeds. Upgrade all page tags and consumer callbacks together; an asset path and a wire major remain separate contracts. Deploy and verify the dual-dialect widget and both loader paths before releasing migrated consumers or publishing these examples.
 
 The hosted loader URL is stable and does not contain a content hash. It is not a pin to an immutable release. Avoid an additional permanent cache or vendored copy that can outlive compatible widget/API changes.
 
 ## Supplied-image compatibility
 
-Supplied-image integration adds `data-garment-image-url`. It requires major-3 messaging in both directions. An older loader can reject the attribute, and an incompatible widget can refuse the protocol. There is no silent downgrade from an image-bearing embed to catalogue lookup.
+Supplied-image integration adds `data-garment-image-url`. It requires major-4 messaging in both directions. An older loader can reject the attribute, and an incompatible widget can refuse the protocol. There is no silent downgrade from an image-bearing embed to catalogue lookup.
 
 When enabling this input on an existing installation, verify the assigned environment supports it and rerun the [complete journey checks](/testing/journey).
 

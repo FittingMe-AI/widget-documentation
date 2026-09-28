@@ -49,8 +49,8 @@ Complete [prerequisites](/start/prerequisites). Replace the retailer key, produc
       retailer_key: 'YOUR_PUBLISHABLE_KEY',
       product_id: 'YOUR_PRODUCT_ID',
       garment_image_url: 'https://images.example.com/YOUR_GARMENT.jpg',
-      journey: 'tryon', locale: 'en', trigger_mode: 'hôte',
-      host_origin: window.location.origin, loader_major: '3'
+      journey: 'tryon', locale: 'en', trigger_mode: 'host',
+      host_origin: window.location.origin, loader_major: '4'
     };
     for (const [name, value] of Object.entries(config)) url.searchParams.set(name, value);
     const widgetOrigin = url.origin;
@@ -67,9 +67,9 @@ Complete [prerequisites](/start/prerequisites). Replace the retailer key, produc
       status.textContent = 'Try-on could not become ready. Reload to retry.';
     }, 15000);
 
-    function send(message, champs = {}) {
+    function send(message, payload = {}) {
       if (!closedThread) frame.contentWindow?.postMessage(
-        { protocole: 'fittingme/3', message, champs }, widgetOrigin);
+        { protocol: 'fittingme/4', message, payload }, widgetOrigin);
     }
 
     function lockScroll() {
@@ -100,9 +100,9 @@ Complete [prerequisites](/start/prerequisites). Replace the retailer key, produc
     window.addEventListener('message', event => {
       if (event.source !== frame.contentWindow || event.origin !== widgetOrigin || closedThread) return;
       const data = event.data;
-      if (!data || typeof data !== 'object' || typeof data.protocole !== 'string') return;
-      if (!data.protocole.startsWith('fittingme/')) return;
-      if (data.protocole !== 'fittingme/3') {
+      if (!data || typeof data !== 'object' || typeof data.protocol !== 'string') return;
+      if (!data.protocol.startsWith('fittingme/')) return;
+      if (data.protocol !== 'fittingme/4') {
         closedThread = true;
         clearTimeout(bootstrapTimer);
         clearTimeout(openingTimer);
@@ -111,26 +111,26 @@ Complete [prerequisites](/start/prerequisites). Replace the retailer key, produc
         return;
       }
       if (Object.keys(data).length !== 3 || !Object.hasOwn(data, 'message') ||
-          !Object.hasOwn(data, 'champs') || !data.champs ||
-          typeof data.champs !== 'object' || Array.isArray(data.champs)) return;
-      const fields = data.champs;
+          !Object.hasOwn(data, 'payload') || !data.payload ||
+          typeof data.payload !== 'object' || Array.isArray(data.payload)) return;
+      const fields = data.payload;
       switch (data.message) {
-        case 'amorçage':
-          if (!['éligible', 'inéligible', 'indéterminé'].includes(fields.issue)) return;
+        case 'bootstrap':
+          if (!['eligible', 'ineligible', 'indeterminate'].includes(fields.outcome)) return;
           clearTimeout(bootstrapTimer);
-          eligible = fields.issue === 'éligible';
+          eligible = fields.outcome === 'eligible';
           button.disabled = !eligible || opened || opening;
-          status.textContent = eligible ? '' : fields.issue === 'inéligible' ?
+          status.textContent = eligible ? '' : fields.outcome === 'ineligible' ?
             'Try-on is unavailable for this product.' : 'Try-on is temporarily unavailable.';
-          geometry = fields.geometrie_tiroir === true;
-          if (geometry) send('disposition', { capacite: 'geometrie_tiroir' });
+          geometry = fields.drawer_geometry === true;
+          if (geometry) send('layout', { capability: 'drawer_geometry' });
           break;
-        case 'hauteur':
-          if (!Number.isFinite(fields.hauteur_px) || fields.hauteur_px < 0) return;
-          closedHeight = fields.hauteur_px;
+        case 'height':
+          if (!Number.isFinite(fields.height_px) || fields.height_px < 0) return;
+          closedHeight = fields.height_px;
           if (!opened) frame.style.height = `${closedHeight}px`;
           break;
-        case 'ouverture':
+        case 'opened':
           if (opened) return;
           clearTimeout(openingTimer);
           opened = true; opening = false;
@@ -138,23 +138,23 @@ Complete [prerequisites](/start/prerequisites). Replace the retailer key, produc
           frame.setAttribute('data-open', '');
           history.pushState({ ...history.state, fmDirect: historyToken }, '', location.href);
           frame.focus();
-          if (geometry && Number.isInteger(fields.ouverture)) {
+          if (geometry && Number.isInteger(fields.opening_id)) {
             requestAnimationFrame(() => requestAnimationFrame(() => {
-              if (opened) send('disposition', {
-                capacite: 'geometrie_tiroir', ouverture: fields.ouverture,
-                largeur_px: frame.clientWidth, hauteur_px: frame.clientHeight
+              if (opened) send('layout', {
+                capability: 'drawer_geometry', opening_id: fields.opening_id,
+                width_px: frame.clientWidth, height_px: frame.clientHeight
               });
             }));
           }
           break;
-        case 'fermeture':
+        case 'closed':
           clearTimeout(openingTimer);
           opening = false;
           if (!opened) return;
           restorePage();
           if (history.state?.fmDirect === historyToken) history.back();
           break;
-        case 'complétion':
+        case 'completed':
           status.textContent = 'Your try-on is ready.';
           break;
       }
@@ -163,18 +163,18 @@ Complete [prerequisites](/start/prerequisites). Replace the retailer key, produc
     button.addEventListener('click', () => {
       if (!eligible || opened || opening || closedThread) return;
       opening = true; button.disabled = true;
-      send('ouvrir');
+      send('open');
       openingTimer = setTimeout(() => {
-        send('fermer');
+        send('close');
         opening = false;
         status.textContent = 'Try-on did not confirm opening. Reload to retry.';
       }, 2000);
     });
     window.addEventListener('popstate', () => {
-      if (opened && history.state?.fmDirect !== historyToken) send('fermer');
+      if (opened && history.state?.fmDirect !== historyToken) send('close');
     });
     window.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && opened) send('fermer');
+      if (event.key === 'Escape' && opened) send('close');
     });
     frame.src = url.href;
     document.body.appendChild(frame);

@@ -41,3 +41,77 @@ Testez les écrans étroits, les fenêtres de faible hauteur, le zoom du texte, 
 Les images de vêtement doivent être au format JPEG/PNG, peser au maximum 20 Mio et ne pas dépasser trois redirections. Les URL d’image sont limitées à 1 024 caractères Unicode avant et après normalisation. Les listes de domaines d’une clé comportent de 1 à 20 entrées ; `localhost` doit y figurer seul. Consultez les [règles applicables aux images](/fr/integration/products#exigences-pour-l’url-de-l’image) et la [configuration des domaines](/fr/start/prerequisites#configurer-correctement-les-domaines).
 
 Les quotas propres au compte, les engagements de service et les conditions de conservation des données personnelles sont définis dans le contrat FittingMe du détaillant. Ne les déduisez pas du délai d’attente d’un exemple ni d’un test de développement concluant.
+
+
+## Compatibilité française temporaire
+
+Les nouvelles intégrations utilisent `/v4/fittingme-loader.js` : verdicts,
+événements, états et messages `fittingme/4` en anglais, avec catalogue ou image
+fournie. La langue de l’acheteur ne choisit jamais le contrat JavaScript.
+
+Les intégrations existantes `/v2/fittingme-loader.js` conservent les valeurs et
+formes françaises, le rejeu synchrone de l’amorçage et les états. Leur protocole
+reste `fittingme/2` avec catalogue ou `fittingme/3` avec image fournie. Les appels
+sans référence, `get`, `instances` et les méthodes des poignées conservent leurs
+sémantiques existantes.
+
+Utilisez une seule version de loader par page. Remplacez toutes les balises et
+leurs consommateurs ensemble. Les loaders mis à jour refusent une seconde version
+incompatible avant de monter une iframe. Les références et abonnements existants
+ne changent jamais de langue. Un ancien widget ne provoque ni nouvelle tentative
+en français ni rétrogradation des images. Après chargement de l’iframe, la prise
+en charge doit être confirmée dans la borne existante de 600 ms, distincte de
+l’amorçage asynchrone de l’API.
+
+1. Déployez le widget compatible avec les trois protocoles et les deux loaders.
+2. Vérifiez les deux chemins, l’identité de l’image et le parcours réel dans l’environnement cible.
+3. Migrez ensemble les balises, comparaisons de verdicts, états et abonnements.
+4. Pour une intégration directe, utilisez `loader_major=4` et l’enveloppe anglaise exacte.
+5. Conservez l’ancienne intégration complète pour revenir en arrière ; changer uniquement l’URL ne suffit pas.
+
+Ne mélangez pas les champs français et anglais. Chaque fait produit une seule
+livraison par abonnement. Les modes `encart` et `hôte` restent des alias obsolètes
+de `widget` et `host`. Une valeur omise conserve le mode hôte. Aucune date de
+suppression n’est fixée : elle exige une décision explicite, un inventaire des
+appels restants, des preuves de migration et un retour arrière indépendant du
+contrat français.
+
+| Surface | Français obsolète | Anglais canonique |
+|---|---|---|
+| Verdict | `accepté` | `accepted` |
+| Verdict | `encart_inconnu` | `unknown_embed` |
+| Verdict | `encart_détruit` | `embed_destroyed` |
+| Verdict | `amorçage_incomplet` | `bootstrap_incomplete` |
+| Verdict | `encart_inéligible` | `embed_ineligible` |
+| Verdict | `plein_écran_impossible` | `fullscreen_unavailable` |
+| Verdict | `tiroir_ouvert` | `drawer_open` |
+| Event discriminator | `jalon` | `type` |
+| Event/state container | `encart` | `embed` |
+| State journey | `parcours` | `journey` |
+| State drawer | `tiroir_ouvert` | `drawer_open` |
+| Outcome field | `issue` | `outcome` |
+| Outcome | `éligible` | `eligible` |
+| Outcome | `inéligible` | `ineligible` |
+| Outcome | `indéterminé` | `indeterminate` |
+| Fact/message | `amorçage` | `bootstrap` |
+| Fact/message | `ouverture` | `opened` |
+| Fact/message | `fermeture` | `closed` |
+| Fact/message | `complétion` | `completed` |
+| Opening origin | `origine: commande` | `origin: command` |
+| Transport field | `code_transport` | `transport_code` |
+| Transport value | `réseau` | `network` |
+| Transport value | `délai` | `timeout` |
+| Envelope key | `protocole` | `protocol` |
+| Envelope key | `champs` | `payload` |
+| Command | `ouvrir` | `open` |
+| Command | `fermer` | `close` |
+| Layout message | `disposition` | `layout` |
+| Height message | `hauteur` | `height` |
+| Layout field | `capacite` | `capability` |
+| Capability/field | `geometrie_tiroir` | `drawer_geometry` |
+| Layout correlation | `ouverture` | `opening_id` |
+| Dimension | `largeur_px` | `width_px` |
+| Dimension | `hauteur_px` | `height_px` |
+| Sizing command field | `variante_sélectionnée` | `selected_variant` |
+| Trigger mode | `encart` | `widget` |
+| Trigger mode | `hôte` | `host` |

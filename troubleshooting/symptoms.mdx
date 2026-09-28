@@ -21,14 +21,14 @@ const state = fm?.resolve(container);
 console.table({
   loaderAvailable: Boolean(fm),
   embedMounted: Boolean(state),
-  bootstrapOutcome: state?.issue ?? 'not reported',
-  drawerOpen: state?.tiroir_ouvert ?? false
+  bootstrapOutcome: state?.outcome ?? 'not reported',
+  drawerOpen: state?.drawer_open ?? false
 });
 ```
 
-`undefined` state means there is no live embed for that element. An `inéligible` outcome means it cannot offer the journey. `indéterminé` means availability could not be established; inspect the failed request instead of labelling the product unsupported.
+`undefined` state means there is no live embed for that element. An `ineligible` outcome means it cannot offer the journey. `indeterminate` means availability could not be established; inspect the failed request instead of labelling the product unsupported.
 
-In `hôte` trigger mode, you must render your own button. A zero-height closed iframe is expected in that mode.
+In `host` trigger mode, you must render your own button. A zero-height closed iframe is expected in that mode.
 
 ## Authentication or domain access fails
 
@@ -58,21 +58,21 @@ For catalogue lookup, ask FittingMe to verify the agreed product-to-image mappin
 
 ## The drawer is clipped or refuses to open
 
-Inspect the ancestors of the container. `transform`, `filter`, certain `will-change` values, and containment can change how a fixed-position iframe is laid out. The loader can refuse opening with `plein_écran_impossible`; its console message identifies the offending ancestor and property.
+Inspect the ancestors of the container. `transform`, `filter`, certain `will-change` values, and containment can change how a fixed-position iframe is laid out. The loader can refuse opening with `fullscreen_unavailable`; its console message identifies the offending ancestor and property.
 
 Move the container into an appropriate layout location or remove the unnecessary containing-block property. Increasing only the iframe's `z-index` does not repair a containing block. Recheck sticky headers, page scrolling, mobile widths, and closing after the change.
 
 ## A custom button does nothing
 
-- Wait for `amorçage` with `issue === 'éligible'` before enabling it.
+- Wait for `bootstrap` with `outcome === 'eligible'` before enabling it.
 - Pass the container element to `open()`, not its ID or selector string.
 - Inspect the returned [command verdict](/reference/javascript#command-verdicts).
-- Observe `ouverture` to confirm opening. `accepté` alone does not prove the drawer appeared.
+- Observe `opened` to confirm opening. `accepted` alone does not prove the drawer appeared.
 - Confirm loader, widget, and API belong to a compatible environment, especially for supplied-image embeds.
 
 ## Product navigation leaves duplicates or broken scrolling
 
-Do not remove a container after `destroy()` returns `tiroir_ouvert`. An accepted `close()` has not necessarily finished; React removes its DOM before asynchronous cleanup can complete. If the page is already stranded, a full page reload restores a clean document. Use the [page-owned React pattern](/integration/react) and [replacement constraints](/integration/product-changes#close-before-replacing).
+Do not remove a container after `destroy()` returns `drawer_open`. An accepted `close()` has not necessarily finished; React removes its DOM before asynchronous cleanup can complete. If the page is already stranded, a full page reload restores a clean document. Use the [page-owned React pattern](/integration/react) and [replacement constraints](/integration/product-changes#close-before-replacing).
 
 ## Browser Back leaves the drawer open
 
@@ -88,4 +88,4 @@ Inspect the failing response's status and safe error code. Consent, capture vali
 
 ## Analytics events are missing or duplicated
 
-Subscribe before interaction, filter by `event.encart`, and remove old subscriptions on navigation. Bootstrap is replayed to a late subscriber; completion is not. Completion arrives only after closing a completed result, after `fermeture`. Immediate teardown can drop it, and a new embed can emit it again for a resumed result after reload. These observations cannot count unique generations. Verify analytics consent and the destination configuration separately from the loader event. Use the [tracking guide](/integration/analytics).
+Subscribe before interaction, filter by `event.embed`, and remove old subscriptions on navigation. Bootstrap is replayed to a late subscriber; completion is not. Completion arrives only after closing a completed result, after `closed`. Immediate teardown can drop it, and a new embed can emit it again for a resumed result after reload. These observations cannot count unique generations. Verify analytics consent and the destination configuration separately from the loader event. Use the [tracking guide](/integration/analytics).

@@ -4,7 +4,7 @@ sidebarTitle: "Loader configuration"
 description: "Required inputs, optional attributes, defaults, and validation rules for the script embed."
 ---
 
-Load `https://widget.fittingme.ai/v2/fittingme-loader.js` once **per embed**, with its configuration on that script element. Each script mounts one iframe into an existing container.
+Load `https://widget.fittingme.ai/v4/fittingme-loader.js` once **per embed**, with its configuration on that script element. Each script mounts one iframe into an existing container.
 
 ## Required attributes
 
@@ -23,7 +23,7 @@ Missing or blank required inputs prevent mounting. There is no implicit journey 
 | --- | --- | --- |
 | `data-garment-image-url` | Catalogue lookup | Absolute HTTPS image URL. If present, it must be valid and non-empty. |
 | `data-container` | `#fittingme-widget-container` | CSS selector resolving to the existing container. Its contents belong to FittingMe. |
-| `data-trigger-mode` | Widget-provided entry point | `encart` for the FittingMe entry point; `hôte` for a button controlled by your page. |
+| `data-trigger-mode` | Host-owned trigger | `widget` for the FittingMe entry point; `host` for a button controlled by your page. |
 | `data-locale` | French fallback | Widget language: `en` or `fr`; supported regional forms fall back to their base language. The separate phone capture page uses its browser’s language. |
 | `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Explicit widget document override for an assigned environment. Keep loader, widget, and API compatible. |
 
@@ -38,7 +38,7 @@ Missing or blank required inputs prevent mounting. There is no implicit journey 
 - `data-container` and `data-widget-url` configure the loader; they are not forwarded as widget query parameters.
 - The loader derives `host_origin` from the page and chooses the message protocol major. Do not add `data-host-origin` or `data-loader-major`.
 
-An image-bearing embed uses message protocol major 3. An embed using catalogue lookup uses major 2. The `/v2/` loader URL is an asset path; it does not mean that an image-bearing embed sends major-2 messages.
+The canonical `/v4/` loader selects `fittingme/4` for both catalogue lookup and supplied images. Artifact paths and wire majors are separate contracts. Set `data-trigger-mode="widget"` explicitly to show the widget trigger. Omission, empty and unknown values retain host mode. Deprecated French trigger aliases are described in [migration guidance](/reference/compatibility#temporary-french-compatibility).
 
 ## Lifetime
 

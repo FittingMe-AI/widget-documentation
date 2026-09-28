@@ -10,19 +10,19 @@ Votre installation dépend du bon fonctionnement conjoint du loader, du widget e
 
 | Composant | Contrat actuel décrit dans ce guide |
 | --- | --- |
-| Fichier du loader | `https://widget.fittingme.ai/v2/fittingme-loader.js` |
+| Fichier du loader | `https://widget.fittingme.ai/v4/fittingme-loader.js` |
 | Widget d’essayage | `https://widget.fittingme.ai/tryon/` |
 | URL de base de l’API publique | `https://api.fittingme.ai` |
-| Messages avec image fournie | `fittingme/3`, avec `loader_major=3` |
-| Messages avec recherche dans le catalogue | `fittingme/2`, sélectionné par le loader lorsqu’aucune image n’est fournie |
+| Messages avec image fournie | `fittingme/4`, avec `loader_major=3` |
+| Messages avec recherche dans le catalogue | `fittingme/4`, sélectionné par le loader lorsqu’aucune image n’est fournie |
 
-Le chemin `/v2/` du fichier et la version majeure du protocole de messages désignent deux choses différentes. Ne modifiez pas ce chemin en `/v3/` pour activer les images fournies. Le loader choisit le protocole approprié selon la configuration.
+Le fichier canonique `/v4/` utilise `fittingme/4` pour les images fournies et le catalogue. Migrez ensemble toutes les balises et leurs gestionnaires. Déployez et vérifiez d’abord le widget compatible et les deux loaders, puis les consommateurs et les exemples publiés.
 
 L’URL du loader hébergé est stable et ne contient pas d’empreinte du contenu. Elle ne pointe pas vers une version immuable. Évitez d’ajouter un cache permanent ou une copie embarquée qui pourrait subsister après des changements incompatibles du widget ou de l’API.
 
 ## Compatibilité des images fournies
 
-L’intégration avec une image fournie utilise `data-garment-image-url`. Elle nécessite des messages de version majeure 3 dans les deux sens. Un ancien loader peut refuser l’attribut et un widget incompatible peut refuser le protocole. Une intégration avec image ne bascule pas silencieusement vers la recherche dans le catalogue.
+L’intégration avec une image fournie utilise `data-garment-image-url`. Elle nécessite des messages de version majeure 4 dans les deux sens. Un ancien loader peut refuser l’attribut et un widget incompatible peut refuser le protocole. Une intégration avec image ne bascule pas silencieusement vers la recherche dans le catalogue.
 
 Lorsque vous activez cette entrée dans une installation existante, vérifiez que l’environnement attribué la prend en charge et recommencez les [tests du parcours complet](/fr/testing/journey).
 

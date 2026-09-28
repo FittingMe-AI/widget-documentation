@@ -10,10 +10,10 @@ Keep the widget-provided entry point for the first installation. Switch to a hos
 
 | Mode | Configuration | Your responsibility |
 | --- | --- | --- |
-| FittingMe entry point | `data-trigger-mode="encart"` | Place the container in the page. FittingMe renders the trigger. |
-| Your button | `data-trigger-mode="hôte"` | Render an accessible button, wait for eligibility, and call `open(container)`. |
+| FittingMe entry point | `data-trigger-mode="embed"` | Place the container in the page. FittingMe renders the trigger. |
+| Your button | `data-trigger-mode="host"` | Render an accessible button, wait for eligibility, and call `open(container)`. |
 
-The value `hôte` contains an accent. The container is still required in host-button mode, even when its closed height is zero. Do not hide or remove the iframe container to hide your button.
+The value `host` contains an accent. The container is still required in host-button mode, even when its closed height is zero. Do not hide or remove the iframe container to hide your button.
 
 ## Complete custom-button example
 
@@ -46,14 +46,14 @@ Replace the same three placeholders as in the [quickstart](/start/quickstart). T
     <p id="try-on-status" role="status">Checking try-on availability…</p>
     <div id="fittingme-widget-container"></div>
   </main>
-  <script src="https://widget.fittingme.ai/v2/fittingme-loader.js"
+  <script src="https://widget.fittingme.ai/v4/fittingme-loader.js"
     data-api-base="https://api.fittingme.ai"
     data-retailer-key="YOUR_PUBLISHABLE_KEY"
     data-product-id="YOUR_PRODUCT_ID"
     data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
     data-journey="tryon"
     data-locale="en"
-    data-trigger-mode="hôte"
+    data-trigger-mode="host"
     data-container="#fittingme-widget-container"></script>
   <script>
     const container = document.getElementById('fittingme-widget-container');
@@ -67,19 +67,19 @@ Replace the same three placeholders as in the [quickstart](/start/quickstart). T
         status.textContent = 'Try-on is taking longer than expected. Please reload to retry.';
       }, 15000);
       const unsubscribe = fm.on(event => {
-        if (event.encart !== container) return;
-        if (event.jalon === 'amorçage') {
+        if (event.embed !== container) return;
+        if (event.type === 'bootstrap') {
           clearTimeout(deadline);
-          button.disabled = event.issue !== 'éligible';
-          status.textContent = event.issue === 'éligible' ? '' :
-            event.issue === 'inéligible' ? 'Try-on is unavailable for this product.' :
+          button.disabled = event.outcome !== 'eligible';
+          status.textContent = event.outcome === 'eligible' ? '' :
+            event.outcome === 'ineligible' ? 'Try-on is unavailable for this product.' :
             'Try-on is temporarily unavailable. Please reload to retry.';
         }
-        if (event.jalon === 'fermeture') button.focus();
+        if (event.type === 'closed') button.focus();
       });
       button.addEventListener('click', () => {
         const verdict = fm.open(container);
-        if (verdict !== 'accepté') {
+        if (verdict !== 'accepted') {
           status.textContent = 'Try-on could not open. Please try again.';
         }
       });

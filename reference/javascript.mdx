@@ -4,6 +4,8 @@ sidebarTitle: "JavaScript API"
 description: "Address an embed, control its drawer, read its state, and release it safely."
 ---
 
+<Note>These examples target the English v4 contract. Confirm v4 availability in your assigned environment before rollout. See [migration and temporary French compatibility](/reference/compatibility#temporary-french-compatibility).</Note>
+
 The loader creates `window.FittingMe`. Wait for the script to load before accessing it. Script loading and embed eligibility are separate: opening requires an eligible [bootstrap outcome](/reference/events#bootstrap-outcome).
 
 ## Address an embed
@@ -26,49 +28,49 @@ Do not pass a selector string to the command methods. Do not use generated ifram
 | `open(element)` | Verdict string | Requests opening. Requires completed, eligible bootstrap. An already-open drawer is accepted without reopening. |
 | `close(element)` | Verdict string | Requests closure and withdraws pending opening. Closing an already-closed embed is accepted. |
 | `destroy(element)` | Verdict string | Removes the closed embed and its loader-owned resources. Refuses while its drawer is open. |
-| `on(handler)` | Unsubscribe function | Subscribes to all embeds on the page. Filter each event by `encart`. |
+| `on(handler)` | Unsubscribe function | Subscribes to all embeds on the page. Filter each event by `embed`. |
 
 **Current Back limitation:** openings requested with `open(element)` do not reliably close on browser Back, including when called from a custom button or a React handler. Prefer the widget-provided entry point, or implement and test history ownership through the [direct protocol](/integration/direct-embed).
 
-Calling `close(element)` followed immediately by `destroy(element)` is unsafe while open: destruction returns `tiroir_ouvert`. Removing the container anyway can leave the page scroll-locked. `fermeture` confirms closure, but does not guarantee that a following `complétion` has been delivered. See [replacement limits](/integration/product-changes#close-before-replacing).
+Calling `close(element)` followed immediately by `destroy(element)` is unsafe while open: destruction returns `drawer_open`. Removing the container anyway can leave the page scroll-locked. `closed` confirms closure, but does not guarantee that a following `completed` has been delivered. See [replacement limits](/integration/product-changes#close-before-replacing).
 
-Commands return synchronously. `accepté` means the command was accepted; observe events for the resulting state. An open request made before bootstrap completes is refused, not queued for later.
+Commands return synchronously. `accepted` means the command was accepted; observe events for the resulting state. An open request made before bootstrap completes is refused, not queued for later.
 
 ## State snapshot
 
 ```javascript
 // Shape returned by resolve(container); values shown are illustrative.
 ({
-  encart: container,
-  parcours: 'tryon',
-  issue: 'éligible',
-  tiroir_ouvert: false
+  embed: container,
+  journey: 'tryon',
+  outcome: 'eligible',
+  drawer_open: false
 });
 ```
 
-`issue` is `undefined` until bootstrap has an outcome. Afterwards it is `éligible`, `inéligible`, or `indéterminé`. `tiroir_ouvert` is a boolean. Each call returns a fresh snapshot; retaining one does not give you a live state object.
+`outcome` is `undefined` until bootstrap has an outcome. Afterwards it is `eligible`, `ineligible`, or `indeterminate`. `drawer_open` is a boolean. Each call returns a fresh, read-only snapshot; retaining one does not give you a live state object.
 
 ## Command verdicts
 
 | Exact value | Meaning | Next action |
 | --- | --- | --- |
-| `accepté` | Accepted, possibly with no change because the requested state already holds. | Observe the event or reread state. |
-| `encart_inconnu` | The element identifies no known embed. | Check the element and mount sequence. |
-| `encart_détruit` | The referenced embed was destroyed. | Stop using the old reference or mount a new embed. |
-| `amorçage_incomplet` | Bootstrap is pending or indeterminate. | Wait for a new outcome or diagnose the bootstrap failure. |
-| `encart_inéligible` | The embed is not eligible to open. | Check product inputs and retailer availability. |
-| `plein_écran_impossible` | An ancestor prevents correct fullscreen layout. | Correct the containing-block problem reported in the console. |
-| `tiroir_ouvert` | Destruction was requested while the drawer was open. | Close, wait for closure, then destroy. |
+| `accepted` | Accepted, possibly with no change because the requested state already holds. | Observe the event or reread state. |
+| `unknown_embed` | The element identifies no known embed. | Check the element and mount sequence. |
+| `embed_destroyed` | The referenced embed was destroyed. | Stop using the old reference or mount a new embed. |
+| `bootstrap_incomplete` | Bootstrap is pending or indeterminate. | Wait for a new outcome or diagnose the bootstrap failure. |
+| `embed_ineligible` | The embed is not eligible to open. | Check product inputs and retailer availability. |
+| `fullscreen_unavailable` | An ancestor prevents correct fullscreen layout. | Correct the containing-block problem reported in the console. |
+| `drawer_open` | Destruction was requested while the drawer was open. | Close, wait for closure, then destroy. |
 
-Keep these values, including accents, exactly as written when comparing strings. Refused commands report an error in the console and do not carry out the requested action.
+Compare the English values exactly as written. Refused commands report an error in the console and do not carry out the requested action.
 
 ## Subscribe and clean up
 
 ```javascript
 const unsubscribe = fm.on(event => {
-  if (event.encart !== container) return;
-  if (event.jalon === 'amorçage') {
-    const canOpen = event.issue === 'éligible';
+  if (event.embed !== container) return;
+  if (event.type === 'bootstrap') {
+    const canOpen = event.outcome === 'eligible';
     // Update your button state using canOpen.
   }
 });

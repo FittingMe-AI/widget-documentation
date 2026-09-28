@@ -41,3 +41,75 @@ Test narrow screens, short viewports, text zoom, landscape orientation, and over
 Garment images must be JPEG/PNG, at most 20 MiB, with no more than three redirects. Image URLs are limited to 1,024 Unicode characters before and after URL normalisation. Key domain lists contain 1–20 entries; `localhost` is exclusive. See [image rules](/integration/products#image-url-requirements) and [domain setup](/start/prerequisites#configure-domains-correctly).
 
 Account-specific quotas, service commitments, and privacy retention terms are established through the retailer's FittingMe agreement. Do not derive them from an example timeout or a successful development run.
+
+
+## Temporary French compatibility
+
+New integrations use `/v4/fittingme-loader.js`: English verdicts, events,
+snapshots and `fittingme/4` messages for both catalogue and supplied-image embeds.
+The shopper's `locale` does not select the JavaScript contract.
+
+Existing `/v2/fittingme-loader.js` integrations retain their French return strings,
+event shapes, synchronous bootstrap replay and snapshots. Their wire dialect stays
+`fittingme/2` for catalogue or `fittingme/3` for supplied images. Bare calls, `get`,
+`instances` and handle methods remain compatible, with their existing semantics.
+
+Use one loader version per page. Replace every tag and all consumers together.
+The updated loaders reject a different second version before mounting; they never
+switch an existing API reference or subscription to another language. A v4 loader
+with an older widget fails without French retries or an image downgrade. After
+the frame loads, support must be acknowledged within the existing 600 ms message
+confirmation bound; this is separate from asynchronous API bootstrap.
+
+1. Deploy the widget that supports all three dialects and both loader artifacts.
+2. Verify both paths, image identity checks, and the real journey in the target environment.
+3. Update all loader tags, verdict comparisons, snapshots and subscriptions together.
+4. Update direct hosts to `loader_major=4` and the exact English envelope.
+5. Retain the old page integration for rollback. Reverting only the loader URL is insufficient.
+
+Do not merge French and English envelope fields or deliver both event shapes to a
+subscriber. Every fact has one delivery per subscription. Trigger modes `encart`
+and `hôte` remain deprecated input aliases for `widget` and `host`; omission still
+means host mode. No French support removal date has been set. Removal requires an
+explicit decision, an inventory of remaining callers, retailer migration evidence
+and verification that rollback no longer needs the French contract.
+
+| Surface | Deprecated French | Canonical English |
+|---|---|---|
+| Verdict | `accepté` | `accepted` |
+| Verdict | `encart_inconnu` | `unknown_embed` |
+| Verdict | `encart_détruit` | `embed_destroyed` |
+| Verdict | `amorçage_incomplet` | `bootstrap_incomplete` |
+| Verdict | `encart_inéligible` | `embed_ineligible` |
+| Verdict | `plein_écran_impossible` | `fullscreen_unavailable` |
+| Verdict | `tiroir_ouvert` | `drawer_open` |
+| Event discriminator | `jalon` | `type` |
+| Event/state container | `encart` | `embed` |
+| State journey | `parcours` | `journey` |
+| State drawer | `tiroir_ouvert` | `drawer_open` |
+| Outcome field | `issue` | `outcome` |
+| Outcome | `éligible` | `eligible` |
+| Outcome | `inéligible` | `ineligible` |
+| Outcome | `indéterminé` | `indeterminate` |
+| Fact/message | `amorçage` | `bootstrap` |
+| Fact/message | `ouverture` | `opened` |
+| Fact/message | `fermeture` | `closed` |
+| Fact/message | `complétion` | `completed` |
+| Opening origin | `origine: commande` | `origin: command` |
+| Transport field | `code_transport` | `transport_code` |
+| Transport value | `réseau` | `network` |
+| Transport value | `délai` | `timeout` |
+| Envelope key | `protocole` | `protocol` |
+| Envelope key | `champs` | `payload` |
+| Command | `ouvrir` | `open` |
+| Command | `fermer` | `close` |
+| Layout message | `disposition` | `layout` |
+| Height message | `hauteur` | `height` |
+| Layout field | `capacite` | `capability` |
+| Capability/field | `geometrie_tiroir` | `drawer_geometry` |
+| Layout correlation | `ouverture` | `opening_id` |
+| Dimension | `largeur_px` | `width_px` |
+| Dimension | `hauteur_px` | `height_px` |
+| Sizing command field | `variante_sélectionnée` | `selected_variant` |
+| Trigger mode | `encart` | `widget` |
+| Trigger mode | `hôte` | `host` |

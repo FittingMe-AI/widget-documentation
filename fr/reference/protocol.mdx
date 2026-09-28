@@ -4,9 +4,11 @@ sidebarTitle: "Protocole direct"
 description: "Paramètres d’URL, enveloppe des messages et responsabilités du navigateur dans une intégration sans loader."
 ---
 
+<Note>Ces exemples ciblent le contrat anglais v4. Confirmez sa disponibilité dans votre environnement avant le déploiement. Consultez la [migration et compatibilité française temporaire](/fr/reference/compatibility#compatibilité-française-temporaire).</Note>
+
 Utilisez cette référence uniquement si vous gérez vous-même l’intégration de l’iframe. Pour le parcours d’intégration standard, le [loader](/fr/start/quickstart) prend en charge ces responsabilités.
 
-L’exemple d’intégration directe de ce guide fournit une image de vêtement et utilise donc **`fittingme/3`**. Pour intégrer un catalogue préparé, utilisez le loader.
+L’exemple d’intégration directe de ce guide fournit une image de vêtement et utilise **`fittingme/4`**. Pour intégrer un catalogue préparé, utilisez le loader.
 
 ## URL de l’iframe
 
@@ -18,10 +20,10 @@ Commencez avec `https://widget.fittingme.ai/tryon/` et utilisez `URL.searchParam
 | `retailer_key` | Clé détaillant publiable obligatoire. |
 | `product_id` | Identifiant produit obligatoire. |
 | `journey` | `tryon`. |
-| `garment_image_url` | Obligatoire dans cet exemple utilisant la version majeure 3 ; respecte les [règles relatives aux URL d’image](/fr/integration/products#exigences-pour-l’url-de-l’image). |
+| `garment_image_url` | Obligatoire dans cet exemple utilisant la version majeure 4 ; respecte les [règles relatives aux URL d’image](/fr/integration/products#exigences-pour-l’url-de-l’image). |
 | `host_origin` | Valeur exacte de `window.location.origin`, port compris le cas échéant, sans chemin. |
-| `loader_major` | `3`. |
-| `trigger_mode` | `hôte` pour un bouton géré par la page hôte. |
+| `loader_major` | `4`. |
+| `trigger_mode` | `host` pour un bouton géré par la page hôte. |
 | `locale` | Facultatif : `en` ou `fr`. |
 
 Définissez le bac à sable et les permissions **avant** d’attribuer l’URL à l’iframe :
@@ -37,31 +39,33 @@ L’URL réelle du document contient une clé détaillant. Excluez-la des donné
 ## Enveloppe de message
 
 ```javascript
-({ protocole: 'fittingme/3', message: 'ouvrir', champs: {} });
+({ protocol: 'fittingme/4', message: 'open', payload: {} });
 ```
 
-L’enveloppe contient exactement ces trois clés. `champs` est un objet. Conservez les noms de message français avec leurs accents.
+L’enveloppe contient exactement ces trois clés. `payload` est un objet. Utilisez uniquement les noms de message et champs anglais. Les mélanges de clés françaises et anglaises sont refusés ; les champs supplémentaires inconnus sont ignorés.
 
 Avant de traiter un message reçu, vérifiez **à la fois** `event.source === iframe.contentWindow` et `event.origin === widgetOrigin`. Une iframe tierce ne doit pas pouvoir modifier votre état ni provoquer l’arrêt pour incompatibilité de protocole. Envoyez les messages à l’origine cible exacte, jamais à `*`.
 
 ## Messages
 
-| Sens | `message` | `champs` | Action requise de la page hôte |
+| Sens | `message` | `payload` | Action requise de la page hôte |
 | --- | --- | --- | --- |
-| Widget → hôte | `amorçage` | `issue` ; `code_transport` et `geometrie_tiroir: true` facultatifs | N’autorisez l’ouverture que pour `éligible` ; distinguez l’inéligibilité d’un résultat indéterminé. |
-| Widget → hôte | `hauteur` | `hauteur_px` : nombre | Enregistrez la hauteur en mode fermé et appliquez-la hors plein écran. La valeur zéro est valide. |
-| Widget → hôte | `ouverture` | Compteur `ouverture` facultatif | Agrandissez l’iframe, verrouillez le défilement de la page et gérez l’historique des commandes hôte. |
-| Widget → hôte | `fermeture` | Objet vide | Rétablissez la hauteur dans le flux, le défilement, le focus et l’état d’historique approprié. |
-| Widget → hôte | `complétion` | Objet vide | Observez à la fermeture un résultat terminé, après `fermeture` ; il ne s’agit pas d’un décompte de générations uniques. |
-| Hôte → widget | `ouvrir` | Objet vide dans cet exemple | Demandez l’ouverture après confirmation de l’éligibilité ; ne renvoyez pas la commande tant que le panneau est ouvert. |
-| Hôte → widget | `fermer` | Objet vide | Demandez la fermeture. Attendez l’annonce de fermeture. |
-| Hôte → widget | `disposition` | `capacite: 'geometrie_tiroir'` ; `ouverture`, `largeur_px` et `hauteur_px` facultatifs | Négociez la géométrie si cette option est proposée et confirmez l’ouverture correspondante une fois la mise en page calculée. |
+| Widget → hôte | `bootstrap` | `outcome` ; `transport_code` et `drawer_geometry: true` facultatifs | N’autorisez l’ouverture que pour `eligible` ; distinguez l’inéligibilité d’un résultat indéterminé. |
+| Widget → hôte | `height` | `height_px` : nombre | Enregistrez la hauteur en mode fermé et appliquez-la hors plein écran. La valeur zéro est valide. |
+| Widget → hôte | `opened` | Compteur `opening_id` facultatif | Agrandissez l’iframe, verrouillez le défilement de la page et gérez l’historique des commandes hôte. |
+| Widget → hôte | `closed` | Objet vide | Rétablissez la hauteur dans le flux, le défilement, le focus et l’état d’historique approprié. |
+| Widget → hôte | `completed` | Objet vide | Observez à la fermeture un résultat terminé, après `closed` ; il ne s’agit pas d’un décompte de générations uniques. |
+| Hôte → widget | `open` | Objet vide dans cet exemple | Demandez l’ouverture après confirmation de l’éligibilité ; ne renvoyez pas la commande tant que le panneau est ouvert. |
+| Hôte → widget | `close` | Objet vide | Demandez la fermeture. Attendez l’annonce de fermeture. |
+| Hôte → widget | `layout` | `capability: 'drawer_geometry'` ; `opening_id`, `width_px` et `height_px` facultatifs | Négociez la géométrie si cette option est proposée et confirmez l’ouverture correspondante une fois la mise en page calculée. |
 
-Les événements publics du loader et les messages réseau sont deux interfaces différentes. Les enveloppes réseau ne contiennent pas `encart` ; la page parente connaît déjà son iframe. Lorsqu’il publie ses propres événements, le loader ajoute l’identité du conteneur et l’origine de l’ouverture.
+Les événements publics du loader et les messages réseau sont deux interfaces différentes. Les enveloppes réseau ne contiennent pas `embed` ; la page parente connaît déjà son iframe. Lorsqu’il publie ses propres événements, le loader ajoute l’identité du conteneur et l’origine de l’ouverture.
 
 ## Négociation de la géométrie
 
-Lorsque l’amorçage annonce `geometrie_tiroir: true`, la page hôte peut confirmer cette capacité avec `disposition`. Si le widget fournit ensuite un compteur `ouverture`, agrandissez l’iframe, laissez la mise en page se stabiliser, puis renvoyez ce même compteur avec la largeur et la hauteur réelles de la fenêtre d’affichage en pixels. Ne réutilisez pas les mesures d’une ouverture précédente.
+Un premier message `height` avec `height_px: 0` confirme la prise en charge du protocole anglais avant l’amorçage API ; il ne confirme pas l’éligibilité.
+
+Lorsque l’amorçage annonce `drawer_geometry: true`, la page hôte peut confirmer cette capacité avec `layout`. Si le widget fournit ensuite un compteur `opening_id`, agrandissez l’iframe, laissez la mise en page se stabiliser, puis renvoyez ce même compteur avec la largeur et la hauteur réelles de la fenêtre d’affichage en pixels. Ne réutilisez pas les mesures d’une ouverture précédente.
 
 ## Responsabilités de la page hôte
 

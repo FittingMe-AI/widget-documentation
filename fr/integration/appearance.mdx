@@ -10,10 +10,10 @@ Pour votre première installation, conservez le point d’accès fourni par le w
 
 | Mode | Configuration | Votre responsabilité |
 | --- | --- | --- |
-| Point d’accès FittingMe | `data-trigger-mode="encart"` | Placez le conteneur dans la page. FittingMe affiche le déclencheur. |
-| Votre bouton | `data-trigger-mode="hôte"` | Affichez un bouton accessible, attendez l’éligibilité, puis appelez `open(container)`. |
+| Point d’accès FittingMe | `data-trigger-mode="embed"` | Placez le conteneur dans la page. FittingMe affiche le déclencheur. |
+| Votre bouton | `data-trigger-mode="host"` | Affichez un bouton accessible, attendez l’éligibilité, puis appelez `open(container)`. |
 
-La valeur `hôte` comporte un accent. Le conteneur reste obligatoire dans ce mode, même si sa hauteur est nulle lorsqu’il est fermé. Ne masquez pas et ne supprimez pas le conteneur de l’iframe pour masquer votre bouton.
+La valeur `host` comporte un accent. Le conteneur reste obligatoire dans ce mode, même si sa hauteur est nulle lorsqu’il est fermé. Ne masquez pas et ne supprimez pas le conteneur de l’iframe pour masquer votre bouton.
 
 ## Exemple complet avec un bouton personnalisé
 
@@ -46,14 +46,14 @@ Remplacez les trois mêmes valeurs que dans le [démarrage rapide](/fr/start/qui
     <p id="try-on-status" role="status">Checking try-on availability…</p>
     <div id="fittingme-widget-container"></div>
   </main>
-  <script src="https://widget.fittingme.ai/v2/fittingme-loader.js"
+  <script src="https://widget.fittingme.ai/v4/fittingme-loader.js"
     data-api-base="https://api.fittingme.ai"
     data-retailer-key="YOUR_PUBLISHABLE_KEY"
     data-product-id="YOUR_PRODUCT_ID"
     data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
     data-journey="tryon"
     data-locale="en"
-    data-trigger-mode="hôte"
+    data-trigger-mode="host"
     data-container="#fittingme-widget-container"></script>
   <script>
     const container = document.getElementById('fittingme-widget-container');
@@ -67,19 +67,19 @@ Remplacez les trois mêmes valeurs que dans le [démarrage rapide](/fr/start/qui
         status.textContent = 'Try-on is taking longer than expected. Please reload to retry.';
       }, 15000);
       const unsubscribe = fm.on(event => {
-        if (event.encart !== container) return;
-        if (event.jalon === 'amorçage') {
+        if (event.embed !== container) return;
+        if (event.type === 'bootstrap') {
           clearTimeout(deadline);
-          button.disabled = event.issue !== 'éligible';
-          status.textContent = event.issue === 'éligible' ? '' :
-            event.issue === 'inéligible' ? 'Try-on is unavailable for this product.' :
+          button.disabled = event.outcome !== 'eligible';
+          status.textContent = event.outcome === 'eligible' ? '' :
+            event.outcome === 'ineligible' ? 'Try-on is unavailable for this product.' :
             'Try-on is temporarily unavailable. Please reload to retry.';
         }
-        if (event.jalon === 'fermeture') button.focus();
+        if (event.type === 'closed') button.focus();
       });
       button.addEventListener('click', () => {
         const verdict = fm.open(container);
-        if (verdict !== 'accepté') {
+        if (verdict !== 'accepted') {
           status.textContent = 'Try-on could not open. Please try again.';
         }
       });
