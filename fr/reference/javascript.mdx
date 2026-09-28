@@ -4,6 +4,8 @@ sidebarTitle: "API JavaScript"
 description: "Ciblez une intégration, contrôlez son panneau, lisez son état et supprimez-la en toute sécurité."
 ---
 
+<Note>Ces exemples ciblent le contrat anglais v4. Confirmez sa disponibilité dans votre environnement avant le déploiement. Consultez la [migration et compatibilité française temporaire](/fr/reference/compatibility#compatibilité-française-temporaire).</Note>
+
 Le loader crée `window.FittingMe`. Attendez le chargement du script avant d’y accéder. Le chargement du script et l’éligibilité de l’intégration sont deux choses distinctes : pour l’ouvrir, le [résultat d’amorçage](/fr/reference/events#résultat-de-l’amorçage) doit être éligible.
 
 ## Cibler une intégration
@@ -26,49 +28,49 @@ Ne transmettez pas de chaîne sélecteur aux méthodes de commande. N’utilisez
 | `open(element)` | Chaîne de verdict | Demande l’ouverture. L’amorçage doit être terminé et éligible. Si le panneau est déjà ouvert, la demande est acceptée sans le rouvrir. |
 | `close(element)` | Chaîne de verdict | Demande la fermeture et annule toute ouverture en attente. Fermer une intégration déjà fermée est accepté. |
 | `destroy(element)` | Chaîne de verdict | Supprime l’intégration fermée et les ressources gérées par le loader. La suppression est refusée si son panneau est ouvert. |
-| `on(handler)` | Fonction de désabonnement | S’abonne à toutes les intégrations de la page. Filtrez chaque événement par `encart`. |
+| `on(handler)` | Fonction de désabonnement | S’abonne à toutes les intégrations de la page. Filtrez chaque événement par `embed`. |
 
 **Limitation actuelle du bouton de retour :** les ouvertures demandées par `open(element)` ne se ferment pas toujours lorsque l’utilisateur utilise le bouton de retour du navigateur, y compris si l’appel provient d’un bouton personnalisé ou d’un gestionnaire React. Privilégiez le point d’accès fourni par le widget, ou gérez l’historique avec le [protocole direct](/fr/integration/direct-embed) et testez-le.
 
-Si le panneau est ouvert, appeler `close(element)` puis immédiatement `destroy(element)` est dangereux : la destruction renvoie `tiroir_ouvert`. Supprimer tout de même le conteneur peut laisser la page bloquée. `fermeture` confirme la fermeture, mais ne garantit pas que l’événement `complétion` qui suit a été transmis. Consultez les [limites du remplacement](/fr/integration/product-changes#fermer-avant-de-remplacer).
+Si le panneau est ouvert, appeler `close(element)` puis immédiatement `destroy(element)` est dangereux : la destruction renvoie `drawer_open`. Supprimer tout de même le conteneur peut laisser la page bloquée. `closed` confirme la fermeture, mais ne garantit pas que l’événement `completed` qui suit a été transmis. Consultez les [limites du remplacement](/fr/integration/product-changes#fermer-avant-de-remplacer).
 
-Les commandes renvoient leur résultat de façon synchrone. `accepté` signifie que la commande a été acceptée ; observez les événements pour connaître l’état obtenu. Une demande d’ouverture faite avant la fin de l’amorçage est refusée, et non mise en attente.
+Les commandes renvoient leur résultat de façon synchrone. `accepted` signifie que la commande a été acceptée ; observez les événements pour connaître l’état obtenu. Une demande d’ouverture faite avant la fin de l’amorçage est refusée, et non mise en attente.
 
 ## Instantané d’état
 
 ```javascript
 // Shape returned by resolve(container); values shown are illustrative.
 ({
-  encart: container,
-  parcours: 'tryon',
-  issue: 'éligible',
-  tiroir_ouvert: false
+  embed: container,
+  journey: 'tryon',
+  outcome: 'eligible',
+  drawer_open: false
 });
 ```
 
-`issue` vaut `undefined` tant que l’amorçage n’a pas produit de résultat. Il vaut ensuite `éligible`, `inéligible` ou `indéterminé`. `tiroir_ouvert` est un booléen. Chaque appel renvoie un instantané distinct ; le conserver ne donne pas accès à un objet d’état dynamique.
+`outcome` vaut `undefined` tant que l’amorçage n’a pas produit de résultat. Il vaut ensuite `eligible`, `ineligible` ou `indeterminate`. `drawer_open` est un booléen. Chaque appel renvoie un instantané distinct ; le conserver ne donne pas accès à un objet d’état dynamique.
 
 ## Verdicts des commandes
 
 | Valeur exacte | Signification | Étape suivante |
 | --- | --- | --- |
-| `accepté` | Acceptée, éventuellement sans changement si l’état demandé est déjà actif. | Observez l’événement ou relisez l’état. |
-| `encart_inconnu` | L’élément ne correspond à aucune intégration connue. | Vérifiez l’élément et l’ordre de montage. |
-| `encart_détruit` | L’intégration référencée a été détruite. | Cessez d’utiliser l’ancienne référence ou montez une nouvelle intégration. |
-| `amorçage_incomplet` | L’amorçage est en cours ou indéterminé. | Attendez un nouveau résultat ou diagnostiquez l’échec de l’amorçage. |
-| `encart_inéligible` | L’intégration ne peut pas être ouverte. | Vérifiez les données produit et sa disponibilité pour le détaillant. |
-| `plein_écran_impossible` | Un élément parent empêche l’affichage correct en plein écran. | Corrigez le problème de bloc conteneur signalé dans la console. |
-| `tiroir_ouvert` | La destruction a été demandée alors que le panneau était ouvert. | Fermez-le, attendez la confirmation de fermeture, puis détruisez l’intégration. |
+| `accepted` | Acceptée, éventuellement sans changement si l’état demandé est déjà actif. | Observez l’événement ou relisez l’état. |
+| `unknown_embed` | L’élément ne correspond à aucune intégration connue. | Vérifiez l’élément et l’ordre de montage. |
+| `embed_destroyed` | L’intégration référencée a été détruite. | Cessez d’utiliser l’ancienne référence ou montez une nouvelle intégration. |
+| `bootstrap_incomplete` | L’amorçage est en cours ou indéterminé. | Attendez un nouveau résultat ou diagnostiquez l’échec de l’amorçage. |
+| `embed_ineligible` | L’intégration ne peut pas être ouverte. | Vérifiez les données produit et sa disponibilité pour le détaillant. |
+| `fullscreen_unavailable` | Un élément parent empêche l’affichage correct en plein écran. | Corrigez le problème de bloc conteneur signalé dans la console. |
+| `drawer_open` | La destruction a été demandée alors que le panneau était ouvert. | Fermez-le, attendez la confirmation de fermeture, puis détruisez l’intégration. |
 
-Lors de la comparaison de chaînes, conservez ces valeurs exactement comme elles sont écrites, accents compris. Les commandes refusées signalent une erreur dans la console et n’effectuent pas l’action demandée.
+Comparez exactement les valeurs anglaises indiquées. Les commandes refusées signalent une erreur dans la console et n’effectuent pas l’action demandée.
 
 ## S’abonner et nettoyer
 
 ```javascript
 const unsubscribe = fm.on(event => {
-  if (event.encart !== container) return;
-  if (event.jalon === 'amorçage') {
-    const canOpen = event.issue === 'éligible';
+  if (event.embed !== container) return;
+  if (event.type === 'bootstrap') {
+    const canOpen = event.outcome === 'eligible';
     // Update your button state using canOpen.
   }
 });

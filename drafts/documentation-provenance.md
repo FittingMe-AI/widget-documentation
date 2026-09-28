@@ -1,3 +1,35 @@
+## English contract source selection — 2026-09-28
+
+Sources were fetched before implementation. These are the selected starting revisions, not deployed revisions. Each corresponding isolated worktree started clean (0 paths).
+
+| Repository | Selected revision |
+| --- | --- |
+| widget | `9161fa3af2f7f10061bc116b0f3317da66b6f7b1` |
+| b2b | `5bc35a176a731c7855dfd49ec223f4bcc543ea19` |
+| public-site | `97188e1e752e4a01544ef91297972c9fd8f5951e` |
+| retailer-portal | `fa3c46ab5d38c1e026fb9924b6f5af369a61b686` |
+| shopify-app | `40ce051d7f984939f7ef6d9452543ec3af08fa97` |
+| widget-documentation | `82b697d9a9c4c82635ef87420074f25d879815ea` |
+| workspace | `cc43df31bf9fe6397bd9cda62258ea1e92827543` |
+
+The runtime mapping is normative in widget's existing loader/widget canon, P31; historical French sections and goldens remain unchanged. Canonical examples in both documentation languages use English identifiers. The actual checks and the unresolved real-generation dependency are recorded in [local review](local-review.md). Neither examples at production URLs nor local source success prove that v4 is already deployed.
+
+Current source fingerprints (post-migration, independent of Git commit metadata):
+
+| Source | SHA-256 |
+| --- | --- |
+| `widget/loader/fittingme-loader.js` | `3b590d1bde4782028a53ef9ad551b3dffe4fdd49a78eff4b5705b4419db0e55c` |
+| `widget/foundation/fil.ts` | `3d2b2544ee0d90375daafa13e8044e6dd536f1c0696b5bde40a2f312afeb4ea8` |
+| `widget/foundation/retailer-contract.ts` | `82ff15422460d1bacc98be4aa1cb8298cb28bd84d0672ced0497cb63dbff7d99` |
+| `widget/docs/contracts/loader-widget-protocol-v2.md` | `5f2e7bab1d8124eeb4f6bc00ba2e694650f03c3ff420d795eb1cddf348520d8a` |
+| `public-site/site/src/js/host-trigger.js` | `0a1c20d466ca572963f7bd5570065e5e7eb71973e27136f2e2e56b7dde8f9b09` |
+| `public-site/site/src/js/public-demo.js` | `ff2270a20eea897fa58d86a352beaea36a6cf48bccb6816c4e11cf09aca8d85f` |
+| `public-site/site/src/js/analytics-core.js` | `89833b04865058d55af055a032e78930705306e92917744e48d49d4bd2b03198` |
+| `retailer-portal/portal-service/src/snippets.rs` | `e5bf2ec529a9d669a37a45841e47813dd127ffb00ce6077360ac74b666644e8e` |
+| `shopify-app/extensions/fittingme-tryon/blocks/tryon.liquid` | `8aff6da80ca236040369329ca69876ce7172bbc44528bf5f98e7187d3f2a72a3` |
+
+---
+
 # Documentation source evidence — 2026-09-23
 
 ## French edition — 2026-09-24

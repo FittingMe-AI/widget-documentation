@@ -19,7 +19,7 @@ Start from the complete [quickstart HTML](/start/quickstart). Keep its product i
 <!-- Put the configured loader script from the quickstart after the container. -->
 ```
 
-Mount your existing React application or status component into `try-on-react-root`. The loader uses `data-container="#fittingme-widget-container"` and `data-trigger-mode="encart"`. Do not render the widget container inside that React root, clear its parent, or use a route transition that removes it.
+Mount your existing React application or status component into `try-on-react-root`. The loader uses `data-container="#fittingme-widget-container"` and `data-trigger-mode="embed"`. Do not render the widget container inside that React root, clear its parent, or use a route transition that removes it.
 
 The product template owns the container and script until the document unloads. A React effect owns only its subscription and timers. No `close()` or `destroy()` belongs in this effect's cleanup.
 
@@ -56,10 +56,10 @@ export function TryOnStatus() {
       }
       connected = true;
       unsubscribe = fm.on(event => {
-        if (event.encart !== container || event.jalon !== 'amorçage') return;
+        if (event.embed !== container || event.type !== 'bootstrap') return;
         clearTimeout(deadline);
-        setMessage(event.issue === 'éligible' ? '' :
-          event.issue === 'inéligible' ? 'Try-on is unavailable for this product.' :
+        setMessage(event.outcome === 'eligible' ? '' :
+          event.outcome === 'ineligible' ? 'Try-on is unavailable for this product.' :
           'Try-on is temporarily unavailable.');
       });
     };
@@ -90,7 +90,7 @@ A full page unload is not an analytics-delivery guarantee. In particular, naviga
 
 ## In-place SPA integration limits
 
-React does not await asynchronous effect cleanup before removing its DOM. Calling `close()` then immediately `destroy()` on an open embed returns `tiroir_ouvert`; removing the container anyway can leave the next page unscrollable. Waiting asynchronously inside the cleanup does not keep a React-owned container connected.
+React does not await asynchronous effect cleanup before removing its DOM. Calling `close()` then immediately `destroy()` on an open embed returns `drawer_open`; removing the container anyway can leave the next page unscrollable. Waiting asynchronously inside the cleanup does not keep a React-owned container connected.
 
 An in-place integration needs an owner that retains the connected container, prevents new opens, and confirms closure **before** permitting removal or route replacement. It must also account for completion messages arriving after closure; the public loader exposes no “all close messages delivered” signal. See [product replacement](/integration/product-changes#close-before-replacing). This page does not supply a general safe SPA teardown adapter.
 

@@ -21,14 +21,14 @@ const state = fm?.resolve(container);
 console.table({
   loaderAvailable: Boolean(fm),
   embedMounted: Boolean(state),
-  bootstrapOutcome: state?.issue ?? 'not reported',
-  drawerOpen: state?.tiroir_ouvert ?? false
+  bootstrapOutcome: state?.outcome ?? 'not reported',
+  drawerOpen: state?.drawer_open ?? false
 });
 ```
 
-Un état `undefined` indique qu’aucune intégration active ne correspond à cet élément. Le résultat `inéligible` signifie que le parcours ne peut pas être proposé. `indéterminé` signifie que la disponibilité n’a pas pu être établie ; examinez la requête en échec au lieu de conclure que le produit n’est pas pris en charge.
+Un état `undefined` indique qu’aucune intégration active ne correspond à cet élément. Le résultat `ineligible` signifie que le parcours ne peut pas être proposé. `indeterminate` signifie que la disponibilité n’a pas pu être établie ; examinez la requête en échec au lieu de conclure que le produit n’est pas pris en charge.
 
-En mode déclencheur `hôte`, vous devez afficher votre propre bouton. Dans ce mode, il est normal que l’iframe fermée ait une hauteur nulle.
+En mode déclencheur `host`, vous devez afficher votre propre bouton. Dans ce mode, il est normal que l’iframe fermée ait une hauteur nulle.
 
 ## Échec de l’authentification ou de l’accès au domaine
 
@@ -58,21 +58,21 @@ Pour une recherche dans le catalogue, demandez à FittingMe de vérifier la corr
 
 ## Le panneau est tronqué ou refuse de s’ouvrir
 
-Inspectez les éléments parents du conteneur. `transform`, `filter`, certaines valeurs de `will-change` et la propriété `contain` peuvent modifier la mise en page d’une iframe à position fixe. Le loader peut refuser l’ouverture avec `plein_écran_impossible` ; le message de la console indique l’élément parent et la propriété en cause.
+Inspectez les éléments parents du conteneur. `transform`, `filter`, certaines valeurs de `will-change` et la propriété `contain` peuvent modifier la mise en page d’une iframe à position fixe. Le loader peut refuser l’ouverture avec `fullscreen_unavailable` ; le message de la console indique l’élément parent et la propriété en cause.
 
 Déplacez le conteneur vers un emplacement approprié dans la mise en page ou supprimez la propriété superflue qui crée le bloc conteneur. Augmenter seulement le `z-index` de l’iframe ne corrige pas le bloc conteneur. Après la modification, revérifiez les en-têtes fixes, le défilement, les largeurs mobiles et la fermeture.
 
 ## Le bouton personnalisé ne fait rien
 
-- Avant d’activer le bouton, attendez `amorçage` avec `issue === 'éligible'`.
+- Avant d’activer le bouton, attendez `bootstrap` avec `outcome === 'eligible'`.
 - Transmettez l’élément conteneur à `open()`, pas son identifiant ni une chaîne sélecteur.
 - Examinez le [verdict de commande](/fr/reference/javascript#verdicts-des-commandes) renvoyé.
-- Observez `ouverture` pour confirmer l’ouverture. La valeur `accepté` seule ne prouve pas que le panneau s’est affiché.
+- Observez `opened` pour confirmer l’ouverture. La valeur `accepted` seule ne prouve pas que le panneau s’est affiché.
 - Vérifiez que le loader, le widget et l’API appartiennent à des environnements compatibles, surtout pour une intégration avec image fournie.
 
 ## La navigation produit crée des doublons ou bloque le défilement
 
-Ne supprimez pas un conteneur si `destroy()` renvoie `tiroir_ouvert`. Une commande `close()` acceptée n’a pas nécessairement fini de s’exécuter ; React supprime son DOM avant la fin du nettoyage asynchrone. Si la page est déjà bloquée, un rechargement complet rétablit un document sain. Utilisez le [modèle React où la page gère l’intégration](/fr/integration/react) et respectez les [contraintes de remplacement](/fr/integration/product-changes#fermer-avant-de-remplacer).
+Ne supprimez pas un conteneur si `destroy()` renvoie `drawer_open`. Une commande `close()` acceptée n’a pas nécessairement fini de s’exécuter ; React supprime son DOM avant la fin du nettoyage asynchrone. Si la page est déjà bloquée, un rechargement complet rétablit un document sain. Utilisez le [modèle React où la page gère l’intégration](/fr/integration/react) et respectez les [contraintes de remplacement](/fr/integration/product-changes#fermer-avant-de-remplacer).
 
 ## Le bouton de retour laisse le panneau ouvert
 
@@ -88,4 +88,4 @@ Inspectez le statut de la réponse en échec et son code d’erreur expurgé des
 
 ## Les événements analytiques manquent ou sont dupliqués
 
-Abonnez-vous avant toute interaction, filtrez par `event.encart` et supprimez les anciens abonnements lors de la navigation. L’amorçage est rejoué aux abonnés tardifs, contrairement à la complétion. Celle-ci n’est envoyée qu’après la fermeture d’un résultat terminé, et après `fermeture`. Un démontage immédiat peut la faire perdre ; une nouvelle intégration peut l’émettre à nouveau pour un résultat repris après rechargement. Ces observations ne permettent pas de compter les générations uniques. Vérifiez séparément le consentement analytique et la configuration de destination. Consultez le [guide de suivi](/fr/integration/analytics).
+Abonnez-vous avant toute interaction, filtrez par `event.embed` et supprimez les anciens abonnements lors de la navigation. L’amorçage est rejoué aux abonnés tardifs, contrairement à la complétion. Celle-ci n’est envoyée qu’après la fermeture d’un résultat terminé, et après `closed`. Un démontage immédiat peut la faire perdre ; une nouvelle intégration peut l’émettre à nouveau pour un résultat repris après rechargement. Ces observations ne permettent pas de compter les générations uniques. Vérifiez séparément le consentement analytique et la configuration de destination. Consultez le [guide de suivi](/fr/integration/analytics).

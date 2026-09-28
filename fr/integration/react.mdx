@@ -19,7 +19,7 @@ Partez du [fichier HTML complet du démarrage rapide](/fr/start/quickstart). Con
 <!-- Put the configured loader script from the quickstart after the container. -->
 ```
 
-Montez votre application React existante ou le composant d’état dans `try-on-react-root`. Le loader utilise `data-container="#fittingme-widget-container"` et `data-trigger-mode="encart"`. N’affichez pas le conteneur du widget dans cette racine React, n’effacez pas son élément parent et n’utilisez pas de transition de route qui le supprime.
+Montez votre application React existante ou le composant d’état dans `try-on-react-root`. Le loader utilise `data-container="#fittingme-widget-container"` et `data-trigger-mode="embed"`. N’affichez pas le conteneur du widget dans cette racine React, n’effacez pas son élément parent et n’utilisez pas de transition de route qui le supprime.
 
 Le modèle de produit gère le conteneur et le script jusqu’au déchargement du document. Un effet React ne gère que son abonnement et ses minuteries. Le nettoyage de cet effet ne doit appeler ni `close()` ni `destroy()`.
 
@@ -56,10 +56,10 @@ export function TryOnStatus() {
       }
       connected = true;
       unsubscribe = fm.on(event => {
-        if (event.encart !== container || event.jalon !== 'amorçage') return;
+        if (event.embed !== container || event.type !== 'bootstrap') return;
         clearTimeout(deadline);
-        setMessage(event.issue === 'éligible' ? '' :
-          event.issue === 'inéligible' ? 'Try-on is unavailable for this product.' :
+        setMessage(event.outcome === 'eligible' ? '' :
+          event.outcome === 'ineligible' ? 'Try-on is unavailable for this product.' :
           'Try-on is temporarily unavailable.');
       });
     };
@@ -90,7 +90,7 @@ Le déchargement complet d’une page ne garantit pas la transmission des évén
 
 ## Limites de l’intégration dans une SPA
 
-React n’attend pas la fin du nettoyage asynchrone d’un effet avant de supprimer son DOM. Si une intégration est ouverte, appeler `close()` puis immédiatement `destroy()` renvoie `tiroir_ouvert` ; supprimer tout de même le conteneur peut empêcher la page suivante de défiler. Attendre de façon asynchrone dans la fonction de nettoyage ne maintient pas connecté un conteneur géré par React.
+React n’attend pas la fin du nettoyage asynchrone d’un effet avant de supprimer son DOM. Si une intégration est ouverte, appeler `close()` puis immédiatement `destroy()` renvoie `drawer_open` ; supprimer tout de même le conteneur peut empêcher la page suivante de défiler. Attendre de façon asynchrone dans la fonction de nettoyage ne maintient pas connecté un conteneur géré par React.
 
 Une intégration conservée sur place nécessite un responsable qui garde le conteneur connecté, empêche toute nouvelle ouverture et confirme la fermeture **avant** d’autoriser sa suppression ou le remplacement de la route. Il doit aussi tenir compte des événements de fin transmis après la fermeture ; le loader public ne signale pas que « tous les messages de fermeture ont été transmis ». Consultez [le remplacement du produit](/fr/integration/product-changes#fermer-avant-de-remplacer). Cette page ne fournit pas d’adaptateur général garantissant un démontage sûr dans une SPA.
 

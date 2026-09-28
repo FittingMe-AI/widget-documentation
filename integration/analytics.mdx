@@ -10,10 +10,10 @@ Use the loader's subscription API. Your integration owns the product context; Fi
 
 | Question | Evidence |
 | --- | --- |
-| Can this product offer try-on? | `amorçage` with `issue: 'éligible'`. |
-| Did a shopper open try-on? | `ouverture`. |
-| Did the drawer close? | `fermeture`. |
-| Did this embed report a completed result when it closed? | `complétion`, after `fermeture`. |
+| Can this product offer try-on? | `bootstrap` with `outcome: 'eligible'`. |
+| Did a shopper open try-on? | `opened`. |
+| Did the drawer close? | `closed`. |
+| Did this embed report a completed result when it closed? | `completed`, after `closed`. |
 | How many distinct generations completed? | Not available from public loader events; no deduplication identifier is exposed. |
 | Did the shopper add to cart or purchase? | Your storefront's own cart and order events. |
 
@@ -34,23 +34,23 @@ function setTryOnAnalyticsConsent(allowed) {
 }
 
 const eventNames = {
-  ouverture: 'fittingme_opened',
-  fermeture: 'fittingme_closed',
-  complétion: 'fittingme_completed_result_closed',
+  opening_id: 'fittingme_opened',
+  closed: 'fittingme_closed',
+  completed: 'fittingme_completed_result_closed',
 };
 
 const unsubscribe = window.FittingMe.on(event => {
-  if (event.encart !== container || !analyticsAllowed) return;
-  const name = eventNames[event.jalon];
+  if (event.embed !== container || !analyticsAllowed) return;
+  const name = eventNames[event.type];
   if (!name) return;
   const record = { event: name, product_id: productId };
-  if (event.jalon === 'ouverture') record.open_origin = event.origine;
+  if (event.type === 'opened') record.open_origin = event.origin;
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push(record);
 });
 
 // Keep this subscription for the lifetime of the page-owned embed.
-// Do not unsubscribe in a fermeture handler: complétion can follow.
+// Do not unsubscribe in a closed handler: completed can follow.
 ```
 
 The three English analytics names above are your adapter's names, not additional FittingMe events. A `dataLayer` push does not install Google Tag Manager, configure a destination, or guarantee delivery. Map those custom events in your existing analytics setup and inspect its preview/debug view.
@@ -63,7 +63,7 @@ Send only the fields you need. Do not send the DOM element, retailer key, full i
 
 Use one subscription per owning integration component. If analytics reports duplicates, inspect duplicate subscriptions before adding deduplication that could hide legitimate repeated try-ons. A newly mounted embed or a page reload can report the same resumed result again. The completion event carries no unique event or session ID for deduplication. It cannot provide an accurate unique-generation, billing, or conversion count.
 
-Subscribe for the lifetime of the embed. Immediate teardown on `fermeture` can lose `complétion`; a late subscription cannot recover it. Even with correct subscription handling, page closure or navigation can prevent delivery. See [completion timing](/reference/events#completion-is-not-conversion).
+Subscribe for the lifetime of the embed. Immediate teardown on `closed` can lose `completed`; a late subscription cannot recover it. Even with correct subscription handling, page closure or navigation can prevent delivery. See [completion timing](/reference/events#completion-is-not-conversion).
 
 Do not replay events that occurred before analytics consent by constructing a queue of past shopper activity. Apply your storefront's consent rules at dispatch time.
 
@@ -71,6 +71,6 @@ Do not replay events that occurred before analytics consent by constructing a qu
 
 1. With analytics disabled, complete a journey and confirm your analytics receives no adapter events.
 2. Enable analytics through your storefront's consent flow and complete a new journey.
-3. Confirm opening uses the correct product identifier. A displayed result alone must not count as completion; close the drawer and check `fermeture` followed by `complétion`. Reopen and close the same result: no second completion is expected from that embed.
+3. Confirm opening uses the correct product identifier. A displayed result alone must not count as completion; close the drawer and check `closed` followed by `completed`. Reopen and close the same result: no second completion is expected from that embed.
 4. Reload and resume a completed result. Closing can produce another completion observation; verify that your report does not label it a distinct generation. Navigate to another product with a full page load and check attribution again.
 5. Compare a purchase with the storefront's order event independently. Completion alone must not register a conversion.

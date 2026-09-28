@@ -22,14 +22,14 @@ L’API publique du loader ne fournit ni méthode de mise à jour du produit ni 
 
 Pour remplacer l’intégration sans recharger la page, son responsable doit empêcher toute nouvelle ouverture et conserver le conteneur d’origine dans le document jusqu’à la fin du nettoyage :
 
-1. Si le panneau est ouvert, abonnez-vous à l’événement `fermeture` de cette intégration avant de demander sa fermeture.
+1. Si le panneau est ouvert, abonnez-vous à l’événement `closed` de cette intégration avant de demander sa fermeture.
 2. Appelez `FittingMe.close(container)` et vérifiez le verdict renvoyé. La demande de fermeture est asynchrone, même si le verdict est renvoyé de façon synchrone.
 3. Attendez la confirmation de fermeture avant d’appeler `destroy(container)`. Limitez l’attente ; si le délai expire, laissez l’intégration connectée et arrêtez le remplacement. Proposez de naviguer vers une nouvelle page ou de recharger la page.
-4. Attendez que `destroy(container)` renvoie `accepté` avant de supprimer le script et le conteneur, puis de monter une nouvelle intégration avec un nouvel élément conteneur.
+4. Attendez que `destroy(container)` renvoie `accepted` avant de supprimer le script et le conteneur, puis de monter une nouvelle intégration avec un nouvel élément conteneur.
 
-Si le panneau est ouvert, appeler `close()`, puis immédiatement `destroy()` peut renvoyer `tiroir_ouvert`. Supprimer les éléments du DOM après ce refus peut laisser le défilement de la page verrouillé. Le nettoyage du framework ne doit pas supprimer le conteneur avant la fin de ces étapes.
+Si le panneau est ouvert, appeler `close()`, puis immédiatement `destroy()` peut renvoyer `drawer_open`. Supprimer les éléments du DOM après ce refus peut laisser le défilement de la page verrouillé. Le nettoyage du framework ne doit pas supprimer le conteneur avant la fin de ces étapes.
 
-**Limite liée à la fin du parcours :** après `fermeture`, l’événement `complétion` est envoyé lorsqu’un résultat terminé doit être signalé. Détruire l’intégration ou se désabonner dans le gestionnaire de fermeture, y compris juste après avoir attendu une promesse résolue par ce gestionnaire, peut faire perdre l’événement de fin. L’API publique ne signale pas que tous les messages liés à la fermeture ont été transmis. Un délai d’attente ne garantit pas leur réception ; attendre uniquement l’événement de fin bloquerait les parcours inachevés.
+**Limite liée à la fin du parcours :** après `closed`, l’événement `completed` est envoyé lorsqu’un résultat terminé doit être signalé. Détruire l’intégration ou se désabonner dans le gestionnaire de fermeture, y compris juste après avoir attendu une promesse résolue par ce gestionnaire, peut faire perdre l’événement de fin. L’API publique ne signale pas que tous les messages liés à la fermeture ont été transmis. Un délai d’attente ne garantit pas leur réception ; attendre uniquement l’événement de fin bloquerait les parcours inachevés.
 
 C’est pourquoi ce guide ne fournit pas de fonction de fermeture et de destruction qui garantisse la réception de tous les événements. Après une fermeture normale, gardez actives les intégrations gérées par la page et le suivi associé ; pour changer de produit, privilégiez la navigation complète par défaut. Si le remplacement sur place est indispensable, convenez avec FittingMe des limites de perte d’événements et testez la gestion des routes. Même sans nettoyage, les événements publics ne permettent pas de compter les générations uniques ; consultez la [sémantique de complétion](/fr/reference/events#la-complétion-n’est-pas-une-conversion).
 
@@ -40,7 +40,7 @@ Attribuez à chaque intégration un conteneur et un script distincts. Utilisez l
 ```javascript
 const jacket = document.getElementById('jacket-tryon');
 const unsubscribe = window.FittingMe.on(event => {
-  if (event.encart !== jacket) return;
+  if (event.embed !== jacket) return;
   // Handle this embed's milestone using your own product context.
 });
 ```

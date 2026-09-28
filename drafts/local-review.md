@@ -1,3 +1,59 @@
+## English retailer contract review — 2026-09-28
+
+**Local implementation prepared; not published. Live generation is blocked by the VTON dependency.**
+
+- English product review: http://localhost:8380/demo/
+- French compatibility product review: http://localhost:8380/legacy/demo/
+- English documentation: http://localhost:3214/reference/javascript#command-verdicts
+- French documentation: http://localhost:3214/fr/reference/javascript
+- Full migration mapping: `reference/compatibility.mdx`, “Temporary French compatibility”; single normative widget canon: `widget/docs/contracts/loader-widget-protocol-v2.md`, P31. P30 remains the earlier trigger opt-in decision.
+
+All seven repositories use isolated `english-contract-*` worktrees under the main workspace's `.worktrees/`; each began **clean (0 paths)**. Dirty main checkouts and other reviews were preserved. No pushes, merges, deployments or external tracker writes were made.
+
+### Implemented behavior
+
+The new `/v4/fittingme-loader.js` returns English verdicts, fresh frozen English snapshots and one English object per event. Its closed `fittingme/4` wire supports both catalogue and supplied-image contexts. `/v2/fittingme-loader.js` temporarily preserves the French public API and majors 2/3. Shared lifecycle behavior remains responsible for coordination, history, fullscreen, teardown and completion. Explicit-element commands still never queue before bootstrap; old bare/get/handle/instances calls remain available.
+
+`widget`/`host` are canonical trigger modes. Omission, empty and unknown values retain host mode; French spellings remain deprecated aliases. API language is independent of shopper locale. One entry-point version per page is supported: the updated loaders reject an incompatible second tag before registry mutation in either order. Historical cached v2 bytes cannot acquire the new rejection logic; mixing them after v4 remains unsupported and must be eliminated from the page together.
+
+First-party host triggers, the public demo's event/analytics consumer and consent-overlay listener now subscribe to English facts. Portal and Shopify generator changes remain release-dependent on the producer. Shopify `.invalid` deployment placeholders remain placeholders.
+
+### Measured verification
+
+| Scope | Result |
+| --- | --- |
+| Widget | Type checking and build pass; 1,116 browserless tests and 302 loader tests pass. Both built entry points are exercised, including all seven verdicts, replay, subscriptions, image major selection, mixed payload rejection and source/origin ordering. |
+| Widget browser | Final affected run: 51 passed, 11 declared skips on Chromium representative desktop/mobile viewports. Earlier unchanged layout-reflow coverage also passed. Both built contracts complete the real widget UI against HTTP seam fixtures, with `closed` before one `completed` and no duplicate completion on reopen. This is not a real-provider result. |
+| Mutation/adversarial | Null control passes; ten targeted mutations are caught: verdict translation, event/replay translation, duplicate delivery, legacy output, source, origin, geometry correlation, canonical protocol spelling, prototype assignment and cancellation. Initial cancellation mutation survived because the test accepted timeout; the test now requires immediate settlement. REFUTE tests reproduced and fixed `fittingme/04` acceptance and additive `__proto__` behavior at the English decoder boundary. |
+| Hosting | Actual nginx 1.29 image and changed template: both exact loader paths match disk bytes, are minified/import-free with ES2018 build target, return `no-cache` and existing security headers, support ETag 304 and reject adjacent source/map paths. Two Journey artifacts remain; loaders are excluded from discovery/budgets. |
+| b2b seam | 10 tests pass; 21 files, 225,999 bytes compared across selected widget/b2b copies, byte-identical. Legacy goldens preserved; English fixture added. |
+| Public site | Build and all 264 unit tests pass; 21 browser checks cover generated snippets, product remounts, host triggers, container filtering and event subscriptions. Local GA queue assertions verify one open and one completion event; external analytics transport is intercepted. |
+| Shopify | Full `make gate` passes: 239 tests plus formatting, types, lint, secret/contract guards and Terraform validation. Red tests first demonstrated the old loader path. |
+| Retailer Portal | Formatting, ordinary Rust tests, Clippy and infrastructure gates pass. Database tier passes 419 tests on an owned disposable PostgreSQL instance, including all eight installation HTTP scenarios. Initial database gate required a non-empty synthetic password for its redaction probe; rerun passed. Snippet unit suite: 10 passed. |
+| Documentation | Validator: 44 pages, 190 internal links, 66 anchors, 30 locale-identical code blocks, six complete HTML examples, zero errors. Mintlify desktop/mobile inspection: 28 page/viewport/locale checks, no document overflow; French mobile JavaScript page visually inspected. |
+
+Browser harness failures were replayed unchanged before classification. The new widget harness initially triggered Chromium's local-network check because its top-level HTML was intercepted; serving its actual harness file resolved it. Public-site failures came from a missing pinned browser, an outdated trigger expectation and a test-double syntax error, all corrected. No browser security setting was disabled.
+
+### Actual services and remaining verification
+
+The actual product page serves changed local public-site and widget artifacts. The separate local API at port 8382 reuses the existing cloud-backed review API build/configuration, with effective `STORAGE_BACKEND=gcs`; configuration is held in memory and credentials are not copied into review artifacts. Desktop (1440 px) and mobile (390 px) runs of both English and French entry points verified real API eligibility, session opening, consent screen, snapshots, open/close verdicts and one opening/closing fact in the selected language.
+
+**Real-result completion and analytics after a real generation remain unverified.** The development VTON Cloud Run endpoint returns HTTP 404 through both the authenticated loopback proxy and direct authenticated requests. An independent local VTON attempt with GCS storage fails because that build requires Cloud Run instance metadata for usage metrics. A newer core build also refused an older unrelated review database's retention state; no data was deleted and no startup guard was removed. The existing GCS review API build remains usable for the entry checks above, but its generation dependency is unavailable. No photo upload or real generation was initiated by this review. Remote photo read access and cloud result storage therefore have not been proved end to end.
+
+No physical phone, mobile camera or QR handoff was exercised. The mobile checks are viewport emulation. The review depends on the existing development database/configuration, GCS, browser access to catalogue assets, and a restored real VTON dependency. Mintlify preview assets/fonts need network access; local search needs CLI login.
+
+### Release order and outstanding work
+
+1. Restore the real VTON dependency and repeat a complete cloud-backed Try-On journey, including result completion and exact analytics counts, before calling this a fully working review.
+2. Review the separate repository changes. Deliver the dual-dialect widget and both loader paths first; verify actual served bytes and real journeys in the target environment.
+3. Only then release migrated public-site consumers, Portal/Shopify generators and documentation examples. Rollback restores the v2 tags and French callbacks together.
+4. Development pushes/merges require the repository CI gate and merge proof per SHA. Staging/main promotion requires explicit instruction for the reviewed version. Documentation's main-only publication needs its own approval. None has occurred here.
+5. Legacy removal needs a separate decision, remaining-caller inventory, migration evidence and proof rollback no longer needs French. No expiry date is invented.
+
+Raw non-secret check logs and screenshots are in `/private/tmp/english-contract-evidence/`. These are local evidence, not proof of deployment. The older review entries below remain historical.
+
+---
+
 # Local review — developer documentation rewrite, 2026-09-23
 
 ## French edition follow-up — 2026-09-24

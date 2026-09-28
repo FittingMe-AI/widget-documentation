@@ -4,6 +4,8 @@ sidebarTitle: "Quickstart"
 description: "Install the loader, supply one garment image, and complete your first virtual try-on."
 ---
 
+<Note>These examples target the English v4 contract. Confirm v4 availability in your assigned environment before rollout. See [migration and temporary French compatibility](/reference/compatibility#temporary-french-compatibility).</Note>
+
 This example adds FittingMe's own try-on button beneath a product image. It uses a garment image URL, so you can start without a prepared FittingMe catalogue.
 
 ## 1. Prepare three values
@@ -45,14 +47,14 @@ Save this as `try-on.html`, or adapt its product section to your storefront temp
       alt="The garment available to try on">
     <div id="fittingme-widget-container"></div>
   </main>
-  <script src="https://widget.fittingme.ai/v2/fittingme-loader.js"
+  <script src="https://widget.fittingme.ai/v4/fittingme-loader.js"
     data-api-base="https://api.fittingme.ai"
     data-retailer-key="YOUR_PUBLISHABLE_KEY"
     data-product-id="YOUR_PRODUCT_ID"
     data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
     data-journey="tryon"
     data-locale="en"
-    data-trigger-mode="encart"
+    data-trigger-mode="widget"
     data-container="#fittingme-widget-container"></script>
 </body>
 </html>

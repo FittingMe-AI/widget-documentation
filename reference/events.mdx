@@ -4,37 +4,39 @@ sidebarTitle: "Events and payloads"
 description: "The four public milestones, their exact fields, and when subscribers receive them."
 ---
 
-Subscribe with `window.FittingMe.on(handler)`. Each event identifies its embed with `encart`, the container DOM element. Event names and some values are French identifiers; keep their spelling and accents in code.
+<Note>These examples target the English v4 contract. Confirm v4 availability in your assigned environment before rollout. See [migration and temporary French compatibility](/reference/compatibility#temporary-french-compatibility).</Note>
+
+Subscribe with `window.FittingMe.on(handler)`. Each event identifies its embed with `embed`, the container DOM element. The canonical contract uses English identifiers regardless of shopper language.
 
 ## Event catalogue
 
-| `jalon` | Additional fields | Meaning | Replayed to a new subscriber? |
+| `type` | Additional fields | Meaning | Replayed to a new subscriber? |
 | --- | --- | --- | --- |
-| `amorçage` | `issue`; optional `code_transport` | Latest bootstrap outcome. | Yes, for each live embed with a known outcome. |
-| `ouverture` | `origine`: `tap` or `commande` | Drawer opening was announced and accepted by the loader. | No. |
-| `fermeture` | None | A previously announced open drawer closed. | No. |
-| `complétion` | None | A completed result was observed when the drawer closed; sent after `fermeture`. | No. |
+| `bootstrap` | `outcome`; optional `transport_code` | Latest bootstrap outcome. | Yes, for each live embed with a known outcome. |
+| `opened` | `origin`: `tap` or `command` | Drawer opening was announced and accepted by the loader. | No. |
+| `closed` | None | A previously announced open drawer closed. | No. |
+| `completed` | None | A completed result was observed when the drawer closed; sent after `closed`. | No. |
 
-Every event also has `jalon` and `encart`. There is no timestamp, product identifier, session identifier, shopper photo, result URL, or order identifier in this public payload.
+Every event also has `type` and `embed`. There is no timestamp, product identifier, session identifier, shopper photo, result URL, or order identifier in this public payload.
 
 ## Bootstrap outcome
 
-| `issue` | Interpretation |
+| `outcome` | Interpretation |
 | --- | --- |
-| `éligible` | The embed can offer its journey. You may enable a custom trigger. |
-| `inéligible` | This embed has no journey to open for the current product context. |
-| `indéterminé` | Bootstrap did not establish eligibility. Treat this as a failure to determine availability, not an ineligible product. |
+| `eligible` | The embed can offer its journey. You may enable a custom trigger. |
+| `ineligible` | This embed has no journey to open for the current product context. |
+| `indeterminate` | Bootstrap did not establish eligibility. Treat this as a failure to determine availability, not an ineligible product. |
 
 Eligibility is not a successful session or generation. Key-domain permission is checked when a session opens, and a supplied garment image is downloaded and decoded later.
 
-`code_transport` may be a string on an indeterminate event. Use it as diagnostic information; do not infer a business reason from an HTTP transport outcome.
+`transport_code` may be a string on an indeterminate event. Its values include `network`, `timeout`, and HTTP status strings. Use it as diagnostic information; do not infer a business reason from an HTTP transport outcome.
 
 ## Opening origin
 
 - `tap`: the shopper used the widget-provided entry point.
-- `commande`: the host page requested opening through the loader.
+- `command`: the host page requested opening through the loader.
 
-A custom button that calls `open(container)` produces `commande`, even though a shopper clicked that button.
+A custom button that calls `open(container)` produces `command`, even though a shopper clicked that button.
 
 ## Timing and ownership
 
@@ -46,11 +48,11 @@ A close event follows an opening that was actually announced. Calling `close()` 
 
 ## Completion is not conversion
 
-`complétion` is emitted **on drawer closure, after `fermeture`**, when the journey has a completed result that this embed has not already announced. Displaying the result alone emits no completion. Closing and reopening the same completed result in the same embed does not repeat it; a later incomplete journey can rearm the event.
+`completed` is emitted **on drawer closure, after `closed`**, when the journey has a completed result that this embed has not already announced. Displaying the result alone emits no completion. Closing and reopening the same completed result in the same embed does not repeat it; a later incomplete journey can rearm the event.
 
 A fresh embed or page reload can resume that same result and emit completion again when closed. This is a new emission, despite the event not being replayed to late subscribers. There is no public session or event ID to deduplicate it across embeds or reloads.
 
-Destroying an embed or unsubscribing inside `fermeture` can drop the following `complétion`. The public loader API has no notification that all close-related messages have been delivered. Keep the embed and tracking subscription alive after closure when observing completion. Do not use arbitrary timers as a delivery guarantee.
+Destroying an embed or unsubscribing inside `closed` can drop the following `completed`. The public loader API has no notification that all close-related messages have been delivered. Keep the embed and tracking subscription alive after closure when observing completion. Do not use arbitrary timers as a delivery guarantee.
 
 Treat this as an observation of a completed result at close, not a count of unique generations. It does not establish that the shopper bought the item, selected a size, or added anything to a cart. Do not fabricate an image-download or order payload from this event.
 

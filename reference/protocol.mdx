@@ -4,9 +4,11 @@ sidebarTitle: "Direct-embed protocol"
 description: "The URL inputs, message envelope, and browser responsibilities for an integration without the loader."
 ---
 
+<Note>These examples target the English v4 contract. Confirm v4 availability in your assigned environment before rollout. See [migration and temporary French compatibility](/reference/compatibility#temporary-french-compatibility).</Note>
+
 Use this reference only when you own the iframe integration. The [loader](/start/quickstart) implements these responsibilities for the normal integration path.
 
-The direct example in this guide supplies a garment image and therefore uses **`fittingme/3`**. Use the loader for prepared-catalogue integration.
+The direct example in this guide supplies a garment image and uses **`fittingme/4`**. Use the loader for prepared-catalogue integration.
 
 ## Iframe URL
 
@@ -18,10 +20,10 @@ Start from `https://widget.fittingme.ai/tryon/` and use `URL.searchParams` to en
 | `retailer_key` | Required publishable retailer key. |
 | `product_id` | Required product identifier. |
 | `journey` | `tryon`. |
-| `garment_image_url` | Required for this major-3 recipe; follows the [image URL rules](/integration/products#image-url-requirements). |
+| `garment_image_url` | Required for this major-4 recipe; follows the [image URL rules](/integration/products#image-url-requirements). |
 | `host_origin` | Exact `window.location.origin`, including the port when present; no path. |
-| `loader_major` | `3`. |
-| `trigger_mode` | `hôte` for a host-owned button. |
+| `loader_major` | `4`. |
+| `trigger_mode` | `host` for a host-owned button. |
 | `locale` | Optional `en` or `fr`. |
 
 Set sandbox and permissions **before** assigning the iframe URL:
@@ -37,31 +39,33 @@ The actual document URL contains a retailer key. Exclude it from analytics, supp
 ## Message envelope
 
 ```javascript
-({ protocole: 'fittingme/3', message: 'ouvrir', champs: {} });
+({ protocol: 'fittingme/4', message: 'open', payload: {} });
 ```
 
-The envelope has exactly these three keys. `champs` is an object. Preserve the French message names and their accents.
+The envelope has exactly these three keys. `payload` is an object. Use only English message names and fields. Mixed French/English envelope keys or known payload fields are rejected; unknown additive fields are ignored.
 
 Before processing a received message, verify **both** `event.source === iframe.contentWindow` and `event.origin === widgetOrigin`. A foreign frame must not be able to change your state or force a protocol-mismatch shutdown. Send messages using the exact target origin, never `*`.
 
 ## Messages
 
-| Direction | `message` | `champs` | Required host action |
+| Direction | `message` | `payload` | Required host action |
 | --- | --- | --- | --- |
-| Widget → host | `amorçage` | `issue`; optional `code_transport` and `geometrie_tiroir: true` | Enable opening only for `éligible`; distinguish ineligible from indeterminate. |
-| Widget → host | `hauteur` | `hauteur_px`: number | Save the closed height and apply it when not fullscreen. Zero is valid. |
-| Widget → host | `ouverture` | Optional `ouverture` counter | Expand the iframe, lock page scrolling, and manage host-command history. |
-| Widget → host | `fermeture` | Empty object | Restore in-flow height, scrolling, focus, and the appropriate history state. |
-| Widget → host | `complétion` | Empty object | Observe a completed result at close, after `fermeture`; not a unique generation count. |
-| Host → widget | `ouvrir` | Empty object for this recipe | Request opening after eligibility; do not resend while open. |
-| Host → widget | `fermer` | Empty object | Request closure. Observe the closing announcement. |
-| Host → widget | `disposition` | `capacite: 'geometrie_tiroir'`; optional `ouverture`, `largeur_px`, `hauteur_px` | Negotiate geometry when offered and acknowledge the corresponding opening after layout. |
+| Widget → host | `bootstrap` | `outcome`; optional `transport_code` and `drawer_geometry: true` | Enable opening only for `eligible`; distinguish ineligible from indeterminate. |
+| Widget → host | `height` | `height_px`: number | Save the closed height and apply it when not fullscreen. Zero is valid. |
+| Widget → host | `opened` | Optional `opening_id` counter | Expand the iframe, lock page scrolling, and manage host-command history. |
+| Widget → host | `closed` | Empty object | Restore in-flow height, scrolling, focus, and the appropriate history state. |
+| Widget → host | `completed` | Empty object | Observe a completed result at close, after `closed`; not a unique generation count. |
+| Host → widget | `open` | Empty object for this recipe | Request opening after eligibility; do not resend while open. |
+| Host → widget | `close` | Empty object | Request closure. Observe the closing announcement. |
+| Host → widget | `layout` | `capability: 'drawer_geometry'`; optional `opening_id`, `width_px`, `height_px` | Negotiate geometry when offered and acknowledge the corresponding opening after layout. |
 
-Public loader events and wire messages are different interfaces. Wire envelopes do not carry `encart`; the parent already knows its iframe. The loader adds the container identity and opening origin when publishing its own events.
+Public loader events and wire messages are different interfaces. Wire envelopes do not carry `embed`; the parent already knows its iframe. The loader adds the container identity and opening origin when publishing its own events.
 
 ## Geometry negotiation
 
-When bootstrap announces `geometrie_tiroir: true`, the host can acknowledge that capability with `disposition`. When the widget later supplies an `ouverture` counter, expand the iframe, allow layout to settle, then return that same counter with the actual viewport width and height in pixels. Do not reuse measurements from a previous opening.
+An initial `height` message with `height_px: 0` acknowledges English protocol support before API bootstrap; it does not establish eligibility.
+
+When bootstrap announces `drawer_geometry: true`, the host can acknowledge that capability with `layout`. When the widget later supplies an `opening_id` counter, expand the iframe, allow layout to settle, then return that same counter with the actual viewport width and height in pixels. Do not reuse measurements from a previous opening.
 
 ## Host responsibilities
 

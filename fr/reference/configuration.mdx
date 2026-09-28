@@ -4,7 +4,7 @@ sidebarTitle: "Configuration du loader"
 description: "Entrées obligatoires, attributs facultatifs, valeurs par défaut et règles de validation du script intégré."
 ---
 
-Chargez `https://widget.fittingme.ai/v2/fittingme-loader.js` une seule fois **par intégration**, avec sa configuration sur l’élément script. Chaque script monte une iframe dans un conteneur existant.
+Chargez `https://widget.fittingme.ai/v4/fittingme-loader.js` une seule fois **par intégration**, avec sa configuration sur l’élément script. Chaque script monte une iframe dans un conteneur existant.
 
 ## Attributs obligatoires
 
@@ -23,7 +23,7 @@ Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n�
 | --- | --- | --- |
 | `data-garment-image-url` | Recherche dans le catalogue | URL HTTPS absolue d’une image. Si l’attribut est présent, sa valeur doit être valide et non vide. |
 | `data-container` | `#fittingme-widget-container` | Sélecteur CSS correspondant au conteneur existant. Son contenu est géré par FittingMe. |
-| `data-trigger-mode` | Point d’accès fourni par le widget | `encart` pour le point d’accès FittingMe ; `hôte` pour un bouton contrôlé par votre page. |
+| `data-trigger-mode` | Déclencheur géré par la page hôte | `widget` pour le point d’accès FittingMe ; `host` pour un bouton contrôlé par votre page. |
 | `data-locale` | Français par défaut | Langue du widget : `en` ou `fr` ; les variantes régionales prises en charge reviennent à leur langue de base. La page de capture sur téléphone utilise la langue de son navigateur. |
 | `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Remplacement explicite du document du widget pour un environnement attribué. Assurez la compatibilité du loader, du widget et de l’API. |
 
@@ -38,7 +38,7 @@ Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n�
 - `data-container` et `data-widget-url` configurent le loader ; ils ne sont pas transmis au widget comme paramètres d’URL.
 - Le loader déduit `host_origin` de la page et choisit la version majeure du protocole de messages. N’ajoutez ni `data-host-origin` ni `data-loader-major`.
 
-Une intégration avec image utilise la version majeure 3 du protocole de messages. Une intégration qui recherche l’image dans le catalogue utilise la version majeure 2. Le chemin `/v2/` de l’URL du loader désigne un fichier ; il ne signifie pas qu’une intégration avec image envoie des messages de version 2.
+Le loader canonique `/v4/` choisit `fittingme/4` pour le catalogue et les images fournies. Le chemin du fichier et la version du protocole sont deux contrats distincts. Indiquez explicitement `data-trigger-mode="widget"` pour afficher le déclencheur du widget. Une valeur omise, vide ou inconnue conserve le mode hôte. Les alias français sont décrits dans la [migration](/fr/reference/compatibility#compatibilité-française-temporaire).
 
 ## Durée de vie
 
