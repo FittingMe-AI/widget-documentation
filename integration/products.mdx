@@ -4,19 +4,19 @@ sidebarTitle: "Products and images"
 description: "Choose an image source and make each embed refer to the garment actually displayed."
 ---
 
-Each embed needs `data-product-id`. It can use an image you supply or a product already prepared in FittingMe's catalogue. Start with the supplied-image approach unless FittingMe has confirmed your catalogue is ready.
+Each embed needs `data-product-id`. FittingMe first uses usable imagery for the authorized product and colour in its catalogue. Supply image URLs as a fallback for a product whose catalogue imagery is unavailable. All supplied views must show the same garment and colour, never several garments in one outfit.
 
 | Approach | Supply | Use when |
 | --- | --- | --- |
-| Supplied image | Product identifier and `data-garment-image-url` | You can provide the correct garment image from the storefront. |
-| Prepared catalogue | Product identifier; omit `data-garment-image-url` | FittingMe has onboarded the product and confirmed try-on availability. |
+| Supplied views | Product identifier and `data-garment-image-urls` | You can provide one URL or an ordered JSON array of views of the same garment and colour. These are used only when catalogue imagery is unavailable. |
+| Prepared catalogue | Product identifier; omit image attributes | FittingMe has onboarded the product and confirmed try-on availability. |
 
-## Supply an image
+## Supply garment views
 
 1. Choose a stable product identifier from your storefront. Keep it consistent between the displayed product, the embed, and your own analytics.
-2. Select the garment image for that product or colour. Confirm it represents the item the shopper sees.
-3. Verify that the URL meets the requirements below and is retrievable by FittingMe's services.
-4. Set `data-product-id` and `data-garment-image-url` before loading the script. Use the [quickstart](/start/quickstart) as the complete example.
+2. Select one or more views of that exact product and colour. Place a clear front view first when available.
+3. Verify that each URL meets the requirements below and is retrievable by FittingMe's services.
+4. Set `data-product-id` and `data-garment-image-urls` before loading the compatible v5 script. Use the [quickstart](/start/quickstart) as the complete example.
 5. Generate a result and visually verify the garment. Loading the source image in your browser does not establish server-side accessibility.
 
 ### Image URL requirements
@@ -26,7 +26,7 @@ Each embed needs `data-product-id`. It can use an image you supply or a product 
 - FittingMe follows at most **three redirects**. Prefer a direct image response; each redirect and destination must remain publicly accessible and pass the service's URL checks.
 - Absolute HTTPS URL, with a hostname.
 - At most 1,024 Unicode characters, both before and after URL normalisation.
-- No embedded username or password, fragment (`#...`), whitespace, or control characters.
+- No embedded username or password, fragment (`#...`), internal whitespace, or control characters. Surrounding whitespace is trimmed before validation.
 - Reachable without a shopper's cookies, login, or a private network connection.
 
 Use a stable media URL. A URL that expires during a shopper's journey can interrupt generation. Keep image credentials and private customer data out of query strings.
@@ -35,13 +35,15 @@ These are garment-image requirements, separate from the shopper-photo formats ac
 
 An eligible bootstrap does not download and validate the garment. An unsupported image can fail only after **Start**, currently with a generic temporary-unavailability message and no dedicated public loader error event. Check the actual response bytes, size, and redirects before retrying; eligibility is not proof that generation will succeed.
 
-An explicitly supplied invalid or inaccessible image is an error. FittingMe does not silently replace it with a catalogue image. To use catalogue lookup, **omit the image attribute entirely**; an empty attribute is invalid.
+The plural attribute accepts a plain URL or a JSON array of URL strings. FittingMe trims and deduplicates the URLs in order. Invalid array members are skipped, and failed downloads do not occupy the model's supported reference slots. A malformed JSON value or unsupported top-level JSON shape reports a developer error; FittingMe ignores it and uses eligible catalogue imagery. Blank, whitespace-only, and `[]` values also use catalogue lookup. If neither source provides an image, the existing unavailable state applies.
+
+The older `data-garment-image-url` one-photo attribute remains a deprecated alias. If both names are present, a developer error names the conflict and only the plural value is considered, even when empty or invalid. The migration target is **1 December 2026**, with no automatic cutoff; the alias continues until a separate removal decision.
 
 ## Use a prepared catalogue
 
 1. Arrange catalogue onboarding with your FittingMe contact. Agree the product identifiers and source images using your storefront's product data.
 2. Obtain confirmation that the intended products are ready for try-on in the environment you will use.
-3. Pass the exact agreed identifier in `data-product-id` and omit `data-garment-image-url`.
+3. Pass the exact agreed identifier in `data-product-id` and omit both garment-image attributes.
 4. Test both a confirmed eligible product and a product that should not offer try-on.
 
 You do not need to implement catalogue administration endpoints in the browser. Read the embed's [bootstrap outcome](/reference/events#bootstrap-outcome) to determine whether it can open. A temporary failure is different from a product being ineligible.

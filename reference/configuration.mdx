@@ -4,7 +4,9 @@ sidebarTitle: "Loader configuration"
 description: "Required inputs, optional attributes, defaults, and validation rules for the script embed."
 ---
 
-Load `https://widget.fittingme.ai/v4/fittingme-loader.js` once **per embed**, with its configuration on that script element. Each script mounts one iframe into an existing container.
+Load `https://widget.fittingme.ai/v5/fittingme-loader.js` once **per embed**, with its configuration on that script element. Each script mounts one iframe into an existing container.
+
+<Note>The multiple-view contract below is a draft for a compatible loader, widget, and API release. Confirm availability in your assigned environment before using it. The current published `/v4/` contract remains available for existing integrations.</Note>
 
 ## Required attributes
 
@@ -21,7 +23,8 @@ Missing or blank required inputs prevent mounting. There is no implicit journey 
 
 | Attribute | Default when omitted | Behaviour |
 | --- | --- | --- |
-| `data-garment-image-url` | Catalogue lookup | Absolute HTTPS image URL. If present, it must be valid and non-empty. |
+| `data-garment-image-urls` | Catalogue lookup | One HTTPS image URL or a JSON array of URLs showing views of the same product and colour. Catalogue imagery takes priority. |
+| `data-garment-image-url` | Catalogue lookup | Deprecated one-photo alias. Supported until removal is separately announced; do not use it for new integrations. |
 | `data-container` | `#fittingme-widget-container` | CSS selector resolving to the existing container. Its contents belong to FittingMe. |
 | `data-trigger-mode` | Host-owned trigger | `widget` for the FittingMe entry point; `host` for a button controlled by your page. |
 | `data-locale` | French fallback | Widget language: `en` or `fr`; supported regional forms fall back to their base language. The separate phone capture page uses its browser’s language. |
@@ -32,13 +35,16 @@ Missing or blank required inputs prevent mounting. There is no implicit journey 
 ## Validation and forwarding
 
 - The loader accepts a closed list of `data-*` attributes. Do not attach analytics or framework metadata to this script; put it on your own element instead.
-- Normal configuration values are trimmed. Image URLs use stricter validation: leading or trailing whitespace is invalid.
+- The plural value may be one plain URL or a JSON array of URL strings. A JSON-encoded string, object, scalar, `null`, or malformed JSON is invalid. An empty, blank, or `[]` plural value uses catalogue lookup.
+- Each candidate is trimmed before validation and ordered deduplication. Internal whitespace, credentials, fragments, non-HTTPS URLs, and URLs over 1,024 Unicode characters before or after serialization remain invalid. Invalid array members are skipped without coercion.
+- If both image attributes are present, the loader reports a developer error and uses only the plural value, even when that value is empty or invalid. It never merges or recovers the singular value.
+- Catalogue images are preferred when usable. Supplied views are a fallback, never additional views in a catalogue set. Unusable supplied configuration still permits eligible catalogue imagery; if no eligible image is available, the existing unavailable state applies.
 - Unknown `data-*` attributes and unsupported journeys are rejected in the console.
 - An unknown locale falls back; it does not create a new translation. Set `data-locale="en"` explicitly for an English storefront.
 - `data-container` and `data-widget-url` configure the loader; they are not forwarded as widget query parameters.
 - The loader derives `host_origin` from the page and chooses the message protocol major. Do not add `data-host-origin` or `data-loader-major`.
 
-The canonical `/v4/` loader selects `fittingme/4` for both catalogue lookup and supplied images. Artifact paths and wire majors are separate contracts. Set `data-trigger-mode="widget"` explicitly to show the widget trigger. Omission, empty and unknown values retain host mode. Deprecated French trigger aliases are described in [migration guidance](/reference/compatibility#temporary-french-compatibility).
+The `/v5/` loader uses `fittingme/5` English messages and requires an explicit plural capability acknowledgement from the widget and API. Older peers cannot silently accept one view. Artifact paths and wire majors are separate contracts. Set `data-trigger-mode="widget"` explicitly to show the widget trigger. Omission, empty and unknown values retain host mode. Deprecated French trigger aliases are described in [migration guidance](/reference/compatibility#temporary-french-compatibility).
 
 ## Lifetime
 

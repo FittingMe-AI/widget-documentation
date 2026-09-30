@@ -10,7 +10,7 @@ Laissez la fiche produit ouverte avec les outils de développement du navigateur
 
 1. Dans l’onglet Réseau, recherchez `fittingme-loader.js`. S’il ne s’est pas chargé, vérifiez l’URL, la CSP, le gestionnaire de consentement et les extensions qui bloquent les scripts.
 2. Vérifiez que le conteneur configuré existe avant l’exécution du script et qu’il ne se trouve pas dans un composant masqué ou démonté.
-3. Dans la console, recherchez une entrée obligatoire manquante, un attribut `data-*` inconnu ou une URL d’image invalide. Corrigez le script avant de recharger la page. Certains diagnostics du loader sont actuellement en français. L’absence de conteneur peut échouer sans message ; vérifiez donc le sélecteur même si la console est vide.
+3. Dans la console, recherchez une entrée obligatoire manquante, un attribut `data-*` inconnu, une valeur `data-garment-image-urls` mal formée ou un conflit entre les deux attributs d’image. Corrigez le script avant de recharger la page. Certains diagnostics des anciens loaders sont en français. L’absence de conteneur peut échouer sans message ; vérifiez donc le sélecteur même si la console est vide.
 4. Si le loader a monté une iframe, mais que l’amorçage n’arrive jamais, recherchez dans la console un refus lié à `frame-ancestors`. Demandez à FittingMe d’autoriser l’origine de la boutique dans l’environnement du widget ; ni votre CSP ni la liste des domaines de la clé dans le portail ne peuvent modifier la politique d’encadrement du widget.
 5. Après le chargement du script, inspectez l’état sans exposer d’identifiants :
 
@@ -48,7 +48,7 @@ Votre navigateur peut disposer de cookies ou d’un accès que les serveurs Fitt
 
 Vérifiez les octets réellement téléchargés : le vêtement doit être au format JPEG ou PNG, peser au plus 20 Mio et ne pas dépasser trois redirections. Une image WebP peut sembler éligible, puis échouer après Start avec une indisponibilité temporaire générique et sans événement public dédié pour la page hôte. Réessayer avec les mêmes octets non pris en charge ne résoudra pas le problème.
 
-Si vous avez fourni `data-garment-image-url`, vérifiez ses [règles de validation](/fr/integration/products#exigences-pour-l’url-de-l’image). En cas d’échec, l’image fournie explicitement ne sera pas remplacée par une image du catalogue.
+Si vous avez fourni `data-garment-image-urls`, vérifiez ses [règles de validation](/fr/integration/products#exigences-pour-l’url-de-l’image). Confirmez que toutes les vues montrent le même produit et la même couleur. Les éléments invalides et les téléchargements échoués sont ignorés ; si aucune vue fournie n’est utilisable, les images éligibles du catalogue peuvent encore être utilisées. Une erreur de console pour un JSON mal formé ou les deux attributs d’image signale une configuration incorrecte sans prouver à elle seule que le produit n’est pas éligible.
 
 ## Le mauvais vêtement apparaît
 

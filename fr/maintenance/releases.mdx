@@ -6,7 +6,7 @@ description: "Identifiez les composants de votre intégration et les vérificati
 
 Votre installation dépend du bon fonctionnement conjoint du loader, du widget et de l’API. Consignez la version de la boutique et la configuration utilisées lors des tests d’acceptation, puis consultez les avis d’intégration de FittingMe avant de déployer des changements associés.
 
-## Compatibilité de référence
+## Compatibilité actuellement publiée
 
 | Composant | Contrat actuel décrit dans ce guide |
 | --- | --- |
@@ -20,9 +20,15 @@ Le fichier canonique `/v4/` utilise `fittingme/4` pour les images fournies et le
 
 L’URL du loader hébergé est stable et ne contient pas d’empreinte du contenu. Elle ne pointe pas vers une version immuable. Évitez d’ajouter un cache permanent ou une copie embarquée qui pourrait subsister après des changements incompatibles du widget ou de l’API.
 
-## Compatibilité des images fournies
+## Projet de compatibilité v5 avec plusieurs vues
 
-L’intégration avec une image fournie utilise `data-garment-image-url`. Elle nécessite des messages de version majeure 4 dans les deux sens. Un ancien loader peut refuser l’attribut et un widget incompatible peut refuser le protocole. Une intégration avec image ne bascule pas silencieusement vers la recherche dans le catalogue.
+L’intégration v5 non publiée utilise `/v5/fittingme-loader.js`, les messages anglais `fittingme/5` et `data-garment-image-urls` pour une URL ou plusieurs vues ordonnées du même produit et de la même couleur. Le loader exige que le widget et l’API confirment explicitement cette capacité. Vérifiez la disponibilité des trois composants dans votre environnement avant d’utiliser le nouvel attribut. Les images utilisables du catalogue sont prioritaires ; une configuration fournie invalide peut encore utiliser les images éligibles du catalogue.
+
+`data-garment-image-url` reste un alias à une photo déconseillé. **Le 1er décembre 2026 est une cible de migration, pas une date de coupure.** Il reste pris en charge jusqu’à l’annonce d’une décision distincte de suppression. Consultez la [configuration du loader](/fr/reference/configuration) pour les règles de lecture et de priorité.
+
+## Compatibilité existante v4 avec image fournie
+
+L’intégration v4 existante avec image fournie utilise `data-garment-image-url`. Elle nécessite des messages de version majeure 4 dans les deux sens. Un ancien loader peut refuser l’attribut et un widget incompatible peut refuser le protocole. Son comportement actuel ne bascule pas silencieusement vers la recherche dans le catalogue.
 
 Lorsque vous activez cette entrée dans une installation existante, vérifiez que l’environnement attribué la prend en charge et recommencez les [tests du parcours complet](/fr/testing/journey).
 

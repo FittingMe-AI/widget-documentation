@@ -1,12 +1,12 @@
 ---
 title: "Quickstart: add try-on to a product page"
 sidebarTitle: "Quickstart"
-description: "Install the loader, supply one garment image, and complete your first virtual try-on."
+description: "Install the loader, supply garment views, and complete your first virtual try-on."
 ---
 
-<Note>These examples target the English v4 contract. Confirm v4 availability in your assigned environment before rollout. See [migration and temporary French compatibility](/reference/compatibility#temporary-french-compatibility).</Note>
+<Note>This unpublished example targets the English v5 plural-image contract. Confirm v5 availability in your assigned environment before rollout. See [migration and temporary French compatibility](/reference/compatibility#temporary-french-compatibility).</Note>
 
-This example adds FittingMe's own try-on button beneath a product image. It uses a garment image URL, so you can start without a prepared FittingMe catalogue.
+This example adds FittingMe's own try-on button beneath a product image. You can supply one image or several views of the same product and colour. FittingMe uses usable catalogue imagery first when it is available.
 
 ## 1. Prepare three values
 
@@ -47,17 +47,23 @@ Save this as `try-on.html`, or adapt its product section to your storefront temp
       alt="The garment available to try on">
     <div id="fittingme-widget-container"></div>
   </main>
-  <script src="https://widget.fittingme.ai/v4/fittingme-loader.js"
+  <script src="https://widget.fittingme.ai/v5/fittingme-loader.js"
     data-api-base="https://api.fittingme.ai"
     data-retailer-key="YOUR_PUBLISHABLE_KEY"
     data-product-id="YOUR_PRODUCT_ID"
-    data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
+    data-garment-image-urls="https://images.example.com/YOUR_GARMENT.jpg"
     data-journey="tryon"
     data-locale="en"
     data-trigger-mode="widget"
     data-container="#fittingme-widget-container"></script>
 </body>
 </html>
+```
+
+For several views of the same product and colour, replace the attribute value with a JSON array. Keep the front view first. The example below shows the attribute only; keep the other attributes from the complete page above.
+
+```html
+data-garment-image-urls='["https://images.example.com/FRONT.jpg","https://images.example.com/BACK.jpg"]'
 ```
 
 Put the container before the script. Load the page through your storefront or a local HTTP server on an authorised hostname. If Python 3 is available and you are using a dedicated `localhost` key, run this from the file's directory:

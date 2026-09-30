@@ -160,3 +160,19 @@ See `review-response.md` for disposition and `local-review.md` for current verif
 ## Audience wording correction — 2026-09-23
 
 Source: the founder's clarification in this task that the reader may be an in-house developer or an external integrator working for the retailer. The retailer is FittingMe's customer and must not be assumed to be the developer's client. Fourteen public pages, the design brief, README and writing guidance were aligned with that instruction. No technical contract or executable example changed; all 15 code fences and `docs.json` match published merge `0ff3b23057d5245cb950d94dc80fe77ca7ee95ff`. See `audience-review.md` for the current verification and content fingerprints.
+## Multiple garment pictures — local unpublished draft, 2026-09-29
+
+Selected starting revisions: widget `f1df69bddc21b5616da5d6a73ea47f88be6b1e8f`, b2b `1ecf89748deb6876f1a1c5ef582e70cc8cab466a`, widget-documentation `44ddd427e375217e42748f830bbd10ce6135ed74`. The plural implementation is being edited locally in sibling repositories; these commits alone do not prove the new contract. The approved ticket is the local “Multiple garment pictures as input” PRD and `b2b/docs/intake/multiple-garment-pictures/local-design.md`.
+
+Draft claim anchors under active implementation: widget `loader/fittingme-loader.js` (plural parse and conflict precedence), `foundation/fil.ts` (v5 message recognition), and `foundation/index.ts` (plural bootstrap transport); b2b `backend/src/routes/bootstrap.rs`, `backend/src/services/journey_session.rs`, `backend/src/services/try_on_request.rs`, and `vton-service/src/config.rs` (source and provider boundaries). Recheck final lines, selected revisions, tests and actual environment availability before any documentation commit or publication. The existing published v4 behavior remains described separately in the release and direct-protocol pages.
+
+Affected unpublished pages: English and French quickstart, prerequisites, products, configuration, appearance, browser compatibility and troubleshooting, plus release compatibility; the deprecation notice is in `drafts/garment-image-url-deprecation.md`. Node 24 validation and local review results are recorded in `drafts/local-review.md` below. No real provider, deployment or hosted Mintlify rendering proof is claimed for v5.
+
+## Pull-request source revisions — 2026-09-30
+
+Reviewed implementation: b2b `41049569d5ba8dca053a31158851188390386bbf` and widget `ab677c6a6cebfeb9d023efe8414e418ec188cd7c`.
+These branch revisions include the paired plural contracts; they are not deployed
+release claims. Live local original-input generation, Gemini preparation and
+prepared-cache generation passed using the repository model fixture and two
+verified views. Evidence is recorded in b2b's ticket-scoped local-verification.md.
+The portal upload interface is not part of this change.

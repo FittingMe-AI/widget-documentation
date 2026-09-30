@@ -10,7 +10,7 @@ Keep the product page open with browser developer tools. Inspect the loader requ
 
 1. In Network, find `fittingme-loader.js`. If it did not load, check the URL, CSP, consent manager, and script-blocking extensions.
 2. Confirm the configured container exists before the script executes and is not inside a hidden or unmounted component.
-3. Check the console for a missing required input, an unknown `data-*` attribute, or an invalid image URL. Correct the script before reloading. Some loader diagnostics are currently in French. A missing container can fail silently, so check the selector even when the console is empty.
+3. Check the console for a missing required input, an unknown `data-*` attribute, malformed `data-garment-image-urls`, or a conflict between the plural and singular image attributes. Correct the script before reloading. Some older loader diagnostics are in French. A missing container can fail silently, so check the selector even when the console is empty.
 4. If the loader mounted an iframe but bootstrap never arrives, inspect the console for a `frame-ancestors` refusal. Ask FittingMe to approve the storefront origin in the widget environment; neither your own CSP nor the portal key domain list can fix the widget’s framing policy.
 5. After script loading, inspect the state without exposing credentials:
 
@@ -48,7 +48,7 @@ Your browser may have cookies or access that FittingMe's servers do not. Check t
 
 Check the actual downloaded bytes: the garment must be JPEG or PNG, at most 20 MiB, with no more than three redirects. A WebP can appear eligible and then fail after Start with generic temporary unavailability and no dedicated public host event. Retrying the same unsupported bytes will not fix it.
 
-If you supplied `data-garment-image-url`, check its [validation rules](/integration/products#image-url-requirements). An explicit failed image will not fall back to the catalogue.
+If you supplied `data-garment-image-urls`, check its [validation rules](/integration/products#image-url-requirements). Confirm that all views show the same product and colour. Invalid array members and failed downloads are skipped; if no usable supplied view remains, eligible catalogue imagery can still be used. A console error for malformed JSON or both image attributes identifies a configuration problem without by itself proving the product ineligible.
 
 ## The wrong garment appears
 

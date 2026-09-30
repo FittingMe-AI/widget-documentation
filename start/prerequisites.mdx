@@ -4,7 +4,7 @@ sidebarTitle: "Prerequisites and access"
 description: "Gather the access, domains, and product inputs you need before writing integration code."
 ---
 
-You are ready for the quickstart when you have retailer access, a publishable key, approval to embed on your storefront, matching environment addresses, a product identifier, and a usable garment image URL. Access is invitation-based; there is no anonymous self-service key in this guide.
+You are ready for the quickstart when you have retailer access, a publishable key, approval to embed on your storefront, matching environment addresses, a product identifier, and a usable garment image URL or confirmed catalogue imagery. Access is invitation-based; there is no anonymous self-service key in this guide.
 
 ## Gather these inputs
 
@@ -59,7 +59,7 @@ The browser checks framing before bootstrap. The API checks the key's domain per
 
 ## Use the portal installation snippet
 
-Treat the portal snippet as the starting configuration for its selected key and environment. The supplied-image quickstart adds `data-garment-image-url`; a snippet without it uses catalogue lookup and requires a prepared product. Set `data-journey="tryon"` and choose `data-trigger-mode="embed"` for the widget-provided button. A snippet using `host` needs your own button and has the [current Back limitation](/integration/appearance#complete-custom-button-example).
+Treat the portal snippet as the starting configuration for its selected key and environment. Once the v5 loader, widget, and API are available together in your assigned environment, the supplied-view quickstart adds `data-garment-image-urls`; a snippet without it uses catalogue lookup and requires a prepared product. Set `data-journey="tryon"` and choose `data-trigger-mode="widget"` for the widget-provided button. A snippet using `host` needs your own button and has the [current Back limitation](/integration/appearance#complete-custom-button-example).
 
 Use one installation per container. Replace the portal snippet with your adapted example rather than running both.
 

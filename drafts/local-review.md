@@ -186,3 +186,16 @@ Local-only probes, the exact-example React bundle and browser render measurement
 | `reference/protocol` | 5017 | `94097de0d4ca98b7b33d48544975d65f5a0f6087b37ae3b269803e2a9643132c` |
 | `maintenance/releases` | 2308 | `e65f918e30baa1e786d31130b51edb30b7744e4624b56d88240b4818e913720a` |
 | `maintenance/updates` | 3365 | `be8277fc735e01386ee6e164c16baa0e5065005b051bd8c147d270085cc86a53` |
+## Multiple garment pictures — local draft review, 2026-09-29
+
+The English and French retailer pages for the planned v5 plural attribute are local unpublished edits. `data-garment-image-urls` examples in both languages use identical code fences. `/v5/` and `fittingme/5` describe the target implementation, not an available hosted release. The singular direct-embed v4 recipe remains a legacy one-photo path. The 1 December 2026 migration target is not enforced removal.
+
+Node 24.18.0 `scripts/validate-docs.mjs` passes: 44 pages, 192 internal links, 66 anchors, 32 locale-identical code blocks, six complete HTML examples, zero errors. `git diff --check` passes. Mintlify CLI is not installed in this checkout, so desktop/mobile rendered inspection remains open. The changed examples have not been exercised against functioning v5 services or a real provider. Publication and corresponding deployment are pending separate founder approval and availability checks.
+
+## Pull-request preparation — 2026-09-30
+
+Node 24 documentation validation still passes with 44 pages and 192 links.
+The real local core/VTON fixture run now verifies original inputs, prepared
+image generation, and cache reuse; it does not establish deployed availability
+or manual acceptance of every public example. The changed public pages remain
+explicitly unreleased pending coordinated loader/widget/API deployment.

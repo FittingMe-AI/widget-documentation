@@ -6,7 +6,7 @@ description: "Understand which integration surface you use and what to verify wh
 
 Your installation depends on the loader, widget, and API working together. Record the storefront release and configuration used for your acceptance test, and review integration notices from FittingMe before rolling out related changes.
 
-## Compatibility baseline
+## Current published compatibility baseline
 
 | Surface | Current contract covered by this guide |
 | --- | --- |
@@ -20,9 +20,15 @@ The canonical `/v4/` asset selects `fittingme/4` for both image and catalogue em
 
 The hosted loader URL is stable and does not contain a content hash. It is not a pin to an immutable release. Avoid an additional permanent cache or vendored copy that can outlive compatible widget/API changes.
 
-## Supplied-image compatibility
+## Draft v5 multiple-view compatibility
 
-Supplied-image integration adds `data-garment-image-url`. It requires major-4 messaging in both directions. An older loader can reject the attribute, and an incompatible widget can refuse the protocol. There is no silent downgrade from an image-bearing embed to catalogue lookup.
+The unpublished v5 integration uses `/v5/fittingme-loader.js`, `fittingme/5` English messages and `data-garment-image-urls` for one URL or several ordered views of the same product and colour. The loader requires explicit capability acknowledgement from the widget and API. Confirm that all three are available in your assigned environment before using the new attribute. Usable catalogue imagery takes priority over supplied views; invalid supplied configuration may still use eligible catalogue imagery.
+
+`data-garment-image-url` remains a deprecated one-photo alias. **1 December 2026 is a migration target, not a cutoff.** Support continues until removal is separately announced. See [loader configuration](/reference/configuration) for parsing and precedence.
+
+## Existing v4 supplied-image compatibility
+
+The existing v4 supplied-image integration adds `data-garment-image-url`. It requires major-4 messaging in both directions. An older loader can reject the attribute, and an incompatible widget can refuse the protocol. Its existing image-bearing behavior does not silently downgrade to catalogue lookup.
 
 When enabling this input on an existing installation, verify the assigned environment supports it and rerun the [complete journey checks](/testing/journey).
 
