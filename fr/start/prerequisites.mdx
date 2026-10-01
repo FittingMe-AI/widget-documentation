@@ -4,7 +4,7 @@ sidebarTitle: "Prérequis et accès"
 description: "Rassemblez les accès, domaines et données produit nécessaires avant d’écrire le code d’intégration."
 ---
 
-Vous pouvez suivre le démarrage rapide lorsque vous disposez d’un accès détaillant, d’une clé publiable, de l’autorisation d’intégrer le widget à votre boutique, d’adresses correspondant au même environnement, d’un identifiant produit et d’une URL d’image de vêtement utilisable. L’accès se fait sur invitation ; ce guide ne permet pas de créer une clé sans compte.
+Vous pouvez suivre le démarrage rapide lorsque vous disposez d’un accès détaillant, d’une clé publiable, de l’autorisation d’intégrer le widget à votre boutique, d’adresses correspondant au même environnement, d’un identifiant produit et d’une URL d’image de vêtement utilisable ou d’images de catalogue confirmées. L’accès se fait sur invitation ; ce guide ne permet pas de créer une clé sans compte.
 
 ## Rassemblez ces éléments
 
@@ -59,7 +59,7 @@ Le navigateur vérifie l’autorisation d’encadrement avant l’amorçage. L�
 
 ## Utiliser l’extrait d’installation du portail
 
-Utilisez l’extrait du portail comme configuration de départ pour la clé et l’environnement sélectionnés. Le démarrage rapide avec image ajoute `data-garment-image-url` ; sans cet attribut, l’extrait effectue une recherche dans le catalogue et nécessite un produit préparé. Définissez `data-journey="tryon"` et choisissez `data-trigger-mode="embed"` pour utiliser le bouton du widget. Avec `host`, vous devez fournir votre bouton et tenir compte de la [limitation actuelle de la commande Back](/fr/integration/appearance#exemple-complet-avec-un-bouton-personnalisé).
+Utilisez l’extrait du portail comme configuration de départ pour la clé et l’environnement sélectionnés. Lorsque le loader, le widget et l’API v5 seront disponibles ensemble dans votre environnement, le démarrage rapide avec plusieurs vues ajoutera `data-garment-image-urls` ; sans cet attribut, l’extrait recherchera les images du catalogue et nécessitera un produit préparé. Définissez `data-journey="tryon"` et choisissez `data-trigger-mode="widget"` pour utiliser le bouton du widget. Avec `host`, vous devez fournir votre bouton et tenir compte de la [limitation actuelle de la commande Back](/fr/integration/appearance#exemple-complet-avec-un-bouton-personnalisé).
 
 Utilisez une seule installation par conteneur. Remplacez l’extrait du portail par votre exemple adapté ; n’exécutez pas les deux en parallèle.
 

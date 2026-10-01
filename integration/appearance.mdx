@@ -6,14 +6,16 @@ description: "Choose the entry point, style your own button, and select the widg
 
 Keep the widget-provided entry point for the first installation. Switch to a host-controlled button when your storefront needs its own text, styling, placement, or interaction.
 
+<Note>The v5 loader used in the example below is an unpublished plural-image contract. Confirm loader, widget, and API availability together in your assigned environment before using it.</Note>
+
 ## Choose the trigger
 
 | Mode | Configuration | Your responsibility |
 | --- | --- | --- |
-| FittingMe entry point | `data-trigger-mode="embed"` | Place the container in the page. FittingMe renders the trigger. |
+| FittingMe entry point | `data-trigger-mode="widget"` | Place the container in the page. FittingMe renders the trigger. |
 | Your button | `data-trigger-mode="host"` | Render an accessible button, wait for eligibility, and call `open(container)`. |
 
-The value `host` contains an accent. The container is still required in host-button mode, even when its closed height is zero. Do not hide or remove the iframe container to hide your button.
+The container is still required in host-button mode, even when its closed height is zero. Do not hide or remove the iframe container to hide your button.
 
 ## Complete custom-button example
 
@@ -46,11 +48,11 @@ Replace the same three placeholders as in the [quickstart](/start/quickstart). T
     <p id="try-on-status" role="status">Checking try-on availability…</p>
     <div id="fittingme-widget-container"></div>
   </main>
-  <script src="https://widget.fittingme.ai/v4/fittingme-loader.js"
+  <script src="https://widget.fittingme.ai/v5/fittingme-loader.js"
     data-api-base="https://api.fittingme.ai"
     data-retailer-key="YOUR_PUBLISHABLE_KEY"
     data-product-id="YOUR_PRODUCT_ID"
-    data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
+    data-garment-image-urls="https://images.example.com/YOUR_GARMENT.jpg"
     data-journey="tryon"
     data-locale="en"
     data-trigger-mode="host"

@@ -45,9 +45,15 @@ Account-specific quotas, service commitments, and privacy retention terms are es
 
 ## Temporary French compatibility
 
-New integrations use `/v4/fittingme-loader.js`: English verdicts, events,
+Existing v4 integrations use `/v4/fittingme-loader.js`: English verdicts, events,
 snapshots and `fittingme/4` messages for both catalogue and supplied-image embeds.
 The shopper's `locale` does not select the JavaScript contract.
+
+The unpublished v5 plural-image contract uses `/v5/fittingme-loader.js` and
+`fittingme/5` with explicit peer acknowledgement. Confirm its availability in
+your assigned environment before changing an existing page. The singular
+one-photo alias remains supported until a separately announced removal; the
+1 December 2026 migration target is not an automatic cutoff.
 
 Existing `/v2/fittingme-loader.js` integrations retain their French return strings,
 event shapes, synchronous bootstrap replay and snapshots. Their wire dialect stays

@@ -1,12 +1,12 @@
 ---
 title: "Démarrage rapide : ajouter l’essayage à une fiche produit"
 sidebarTitle: "Démarrage rapide"
-description: "Installez le loader, fournissez une image de vêtement et réalisez votre premier essayage virtuel."
+description: "Installez le loader, fournissez des vues du vêtement et réalisez votre premier essayage virtuel."
 ---
 
-<Note>Ces exemples ciblent le contrat anglais v4. Confirmez sa disponibilité dans votre environnement avant le déploiement. Consultez la [migration et compatibilité française temporaire](/fr/reference/compatibility#compatibilité-française-temporaire).</Note>
+<Note>Cet exemple non publié cible le contrat anglais v5 à images plurielles. Confirmez sa disponibilité dans votre environnement avant le déploiement. Consultez la [migration et compatibilité française temporaire](/fr/reference/compatibility#compatibilité-française-temporaire).</Note>
 
-Cet exemple ajoute le bouton d’essayage FittingMe sous une image produit. Il utilise l’URL d’une image de vêtement : vous pouvez donc commencer sans catalogue FittingMe préparé.
+Cet exemple ajoute le bouton d’essayage FittingMe sous une image produit. Vous pouvez fournir une image ou plusieurs vues du même produit et de la même couleur. FittingMe utilise d’abord les images utilisables du catalogue lorsqu’elles sont disponibles.
 
 ## 1. Préparer trois valeurs
 
@@ -47,17 +47,23 @@ Enregistrez ce fichier sous `try-on.html` ou adaptez sa section produit au modè
       alt="The garment available to try on">
     <div id="fittingme-widget-container"></div>
   </main>
-  <script src="https://widget.fittingme.ai/v4/fittingme-loader.js"
+  <script src="https://widget.fittingme.ai/v5/fittingme-loader.js"
     data-api-base="https://api.fittingme.ai"
     data-retailer-key="YOUR_PUBLISHABLE_KEY"
     data-product-id="YOUR_PRODUCT_ID"
-    data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
+    data-garment-image-urls="https://images.example.com/YOUR_GARMENT.jpg"
     data-journey="tryon"
     data-locale="en"
     data-trigger-mode="widget"
     data-container="#fittingme-widget-container"></script>
 </body>
 </html>
+```
+
+Pour plusieurs vues du même produit et de la même couleur, remplacez la valeur de l’attribut par un tableau JSON. Placez la vue de face en premier. L’exemple ci-dessous montre seulement cet attribut ; conservez les autres attributs de la page complète ci-dessus.
+
+```html
+data-garment-image-urls='["https://images.example.com/FRONT.jpg","https://images.example.com/BACK.jpg"]'
 ```
 
 Placez le conteneur avant le script. Chargez la page depuis votre boutique ou depuis un serveur HTTP local utilisant un nom d’hôte autorisé. Si Python 3 est disponible et que vous utilisez une clé `localhost` dédiée, exécutez cette commande depuis le répertoire du fichier :

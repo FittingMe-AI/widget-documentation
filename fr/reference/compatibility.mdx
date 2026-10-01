@@ -45,9 +45,16 @@ Les quotas propres au compte, les engagements de service et les conditions de co
 
 ## Compatibilité française temporaire
 
-Les nouvelles intégrations utilisent `/v4/fittingme-loader.js` : verdicts,
+Les intégrations v4 existantes utilisent `/v4/fittingme-loader.js` : verdicts,
 événements, états et messages `fittingme/4` en anglais, avec catalogue ou image
 fournie. La langue de l’acheteur ne choisit jamais le contrat JavaScript.
+
+Le contrat v5 non publié à plusieurs images utilise `/v5/fittingme-loader.js` et
+`fittingme/5`, avec une confirmation explicite par les composants associés.
+Vérifiez sa disponibilité dans votre environnement avant de modifier une page
+existante. L’alias à une photo reste pris en charge jusqu’à une suppression
+annoncée séparément ; la cible de migration du 1er décembre 2026 n’est pas une
+date de coupure automatique.
 
 Les intégrations existantes `/v2/fittingme-loader.js` conservent les valeurs et
 formes françaises, le rejeu synchrone de l’amorçage et les états. Leur protocole

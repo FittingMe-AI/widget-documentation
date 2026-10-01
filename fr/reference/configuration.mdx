@@ -4,7 +4,9 @@ sidebarTitle: "Configuration du loader"
 description: "Entrées obligatoires, attributs facultatifs, valeurs par défaut et règles de validation du script intégré."
 ---
 
-Chargez `https://widget.fittingme.ai/v4/fittingme-loader.js` une seule fois **par intégration**, avec sa configuration sur l’élément script. Chaque script monte une iframe dans un conteneur existant.
+Chargez `https://widget.fittingme.ai/v5/fittingme-loader.js` une seule fois **par intégration**, avec sa configuration sur l’élément script. Chaque script monte une iframe dans un conteneur existant.
+
+<Note>Le contrat à plusieurs vues ci-dessous est un brouillon pour une version compatible du loader, du widget et de l’API. Confirmez sa disponibilité dans votre environnement avant de l’utiliser. Le contrat `/v4/` publié reste disponible pour les intégrations existantes.</Note>
 
 ## Attributs obligatoires
 
@@ -21,7 +23,8 @@ Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n�
 
 | Attribut | Valeur par défaut si omis | Comportement |
 | --- | --- | --- |
-| `data-garment-image-url` | Recherche dans le catalogue | URL HTTPS absolue d’une image. Si l’attribut est présent, sa valeur doit être valide et non vide. |
+| `data-garment-image-urls` | Recherche dans le catalogue | Une URL d’image HTTPS ou un tableau JSON d’URL montrant des vues du même produit et de la même couleur. Les images du catalogue sont prioritaires. |
+| `data-garment-image-url` | Recherche dans le catalogue | Ancien alias à une photo, désormais déconseillé. Il reste pris en charge jusqu’à une décision distincte de suppression. |
 | `data-container` | `#fittingme-widget-container` | Sélecteur CSS correspondant au conteneur existant. Son contenu est géré par FittingMe. |
 | `data-trigger-mode` | Déclencheur géré par la page hôte | `widget` pour le point d’accès FittingMe ; `host` pour un bouton contrôlé par votre page. |
 | `data-locale` | Français par défaut | Langue du widget : `en` ou `fr` ; les variantes régionales prises en charge reviennent à leur langue de base. La page de capture sur téléphone utilise la langue de son navigateur. |
@@ -32,13 +35,16 @@ Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n�
 ## Validation et transmission
 
 - Le loader n’accepte qu’une liste définie d’attributs `data-*`. N’ajoutez pas à ce script de métadonnées analytiques ou propres à votre framework ; placez-les plutôt sur un élément qui vous appartient.
-- Les valeurs de configuration ordinaires sont nettoyées de leurs espaces périphériques. Les URL d’image sont soumises à une validation plus stricte : un espace au début ou à la fin les invalide.
+- La valeur plurielle accepte une URL simple ou un tableau JSON de chaînes URL. Une chaîne encodée en JSON, un objet, un scalaire, `null` ou un JSON mal formé est invalide. Une valeur plurielle vide, composée d’espaces ou égale à `[]` utilise le catalogue.
+- Chaque URL est nettoyée de ses espaces périphériques avant validation et déduplication dans l’ordre. Les espaces internes, identifiants intégrés, fragments, URL non HTTPS et URL de plus de 1 024 caractères Unicode avant ou après sérialisation restent invalides. Les éléments invalides d’un tableau sont ignorés sans conversion.
+- Si les deux attributs d’image sont présents, le loader signale une erreur de configuration et utilise seulement la valeur plurielle, même vide ou invalide. Il ne fusionne ni ne récupère l’ancienne valeur.
+- Les images utilisables du catalogue sont prioritaires. Les vues fournies ne servent que de repli et ne complètent jamais un ensemble du catalogue. Une configuration fournie inutilisable permet toujours d’employer des images éligibles du catalogue ; sans image éligible, l’état d’indisponibilité habituel s’applique.
 - Les attributs `data-*` inconnus et les parcours non pris en charge sont signalés comme refusés dans la console.
 - Une langue inconnue entraîne un repli ; elle ne crée pas de traduction. Pour une boutique anglophone, définissez explicitement `data-locale="en"`.
 - `data-container` et `data-widget-url` configurent le loader ; ils ne sont pas transmis au widget comme paramètres d’URL.
 - Le loader déduit `host_origin` de la page et choisit la version majeure du protocole de messages. N’ajoutez ni `data-host-origin` ni `data-loader-major`.
 
-Le loader canonique `/v4/` choisit `fittingme/4` pour le catalogue et les images fournies. Le chemin du fichier et la version du protocole sont deux contrats distincts. Indiquez explicitement `data-trigger-mode="widget"` pour afficher le déclencheur du widget. Une valeur omise, vide ou inconnue conserve le mode hôte. Les alias français sont décrits dans la [migration](/fr/reference/compatibility#compatibilité-française-temporaire).
+Le loader `/v5/` utilise les messages anglais `fittingme/5` et exige que le widget et l’API confirment explicitement la capacité plurielle. Une ancienne version ne peut pas accepter silencieusement une seule vue. Le chemin du fichier et la version du protocole sont deux contrats distincts. Indiquez explicitement `data-trigger-mode="widget"` pour afficher le déclencheur du widget. Une valeur omise, vide ou inconnue conserve le mode hôte. Les alias français sont décrits dans la [migration](/fr/reference/compatibility#compatibilité-française-temporaire).
 
 ## Durée de vie
 

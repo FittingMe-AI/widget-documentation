@@ -6,14 +6,16 @@ description: "Choisissez le point d’accès, personnalisez votre bouton et sél
 
 Pour votre première installation, conservez le point d’accès fourni par le widget. Utilisez un bouton géré par votre boutique si vous avez besoin de personnaliser le texte, le style, l’emplacement ou le comportement.
 
+<Note>Le loader v5 utilisé dans l’exemple ci-dessous correspond à un contrat pluriel non publié. Confirmez ensemble la disponibilité du loader, du widget et de l’API dans votre environnement avant de l’utiliser.</Note>
+
 ## Choisir le déclencheur
 
 | Mode | Configuration | Votre responsabilité |
 | --- | --- | --- |
-| Point d’accès FittingMe | `data-trigger-mode="embed"` | Placez le conteneur dans la page. FittingMe affiche le déclencheur. |
+| Point d’accès FittingMe | `data-trigger-mode="widget"` | Placez le conteneur dans la page. FittingMe affiche le déclencheur. |
 | Votre bouton | `data-trigger-mode="host"` | Affichez un bouton accessible, attendez l’éligibilité, puis appelez `open(container)`. |
 
-La valeur `host` comporte un accent. Le conteneur reste obligatoire dans ce mode, même si sa hauteur est nulle lorsqu’il est fermé. Ne masquez pas et ne supprimez pas le conteneur de l’iframe pour masquer votre bouton.
+Le conteneur reste obligatoire dans ce mode, même si sa hauteur est nulle lorsqu’il est fermé. Ne masquez pas et ne supprimez pas le conteneur de l’iframe pour masquer votre bouton.
 
 ## Exemple complet avec un bouton personnalisé
 
@@ -46,11 +48,11 @@ Remplacez les trois mêmes valeurs que dans le [démarrage rapide](/fr/start/qui
     <p id="try-on-status" role="status">Checking try-on availability…</p>
     <div id="fittingme-widget-container"></div>
   </main>
-  <script src="https://widget.fittingme.ai/v4/fittingme-loader.js"
+  <script src="https://widget.fittingme.ai/v5/fittingme-loader.js"
     data-api-base="https://api.fittingme.ai"
     data-retailer-key="YOUR_PUBLISHABLE_KEY"
     data-product-id="YOUR_PRODUCT_ID"
-    data-garment-image-url="https://images.example.com/YOUR_GARMENT.jpg"
+    data-garment-image-urls="https://images.example.com/YOUR_GARMENT.jpg"
     data-journey="tryon"
     data-locale="en"
     data-trigger-mode="host"

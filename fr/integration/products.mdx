@@ -4,19 +4,19 @@ sidebarTitle: "Produits et images"
 description: "Choisissez une source d’image et associez chaque intégration au vêtement réellement affiché."
 ---
 
-Chaque intégration nécessite `data-product-id`. Elle peut utiliser une image que vous fournissez ou un produit déjà préparé dans le catalogue FittingMe. Commencez par l’image fournie, sauf si FittingMe a confirmé que votre catalogue est prêt.
+Chaque intégration nécessite `data-product-id`. FittingMe utilise d’abord les images utilisables du produit et de la couleur autorisés dans son catalogue. Fournissez des URL d’image en repli lorsqu’aucune image du catalogue n’est disponible. Toutes les vues fournies doivent montrer le même vêtement et la même couleur, jamais plusieurs vêtements d’une tenue.
 
 | Approche | À fournir | À utiliser lorsque… |
 | --- | --- | --- |
-| Image fournie | Identifiant produit et `data-garment-image-url` | Vous pouvez fournir depuis la boutique la bonne image du vêtement. |
-| Catalogue préparé | Identifiant produit ; omettez `data-garment-image-url` | FittingMe a intégré le produit et confirmé qu’il est disponible pour l’essayage. |
+| Vues fournies | Identifiant produit et `data-garment-image-urls` | Vous pouvez fournir une URL ou un tableau JSON ordonné de vues du même vêtement et de la même couleur. Elles ne servent que lorsque les images du catalogue sont indisponibles. |
+| Catalogue préparé | Identifiant produit ; omettez les attributs d’image | FittingMe a intégré le produit et confirmé qu’il est disponible pour l’essayage. |
 
-## Fournir une image
+## Fournir des vues du vêtement
 
 1. Choisissez un identifiant produit stable dans votre boutique. Utilisez le même pour le produit affiché, l’intégration et votre propre suivi analytique.
-2. Sélectionnez l’image du vêtement pour ce produit ou cette couleur. Vérifiez qu’elle correspond à l’article affiché à l’acheteur.
-3. Vérifiez que l’URL respecte les exigences ci-dessous et que les services FittingMe peuvent récupérer l’image.
-4. Définissez `data-product-id` et `data-garment-image-url` avant de charger le script. Consultez le [démarrage rapide](/fr/start/quickstart) pour un exemple complet.
+2. Sélectionnez une ou plusieurs vues de ce produit et de cette couleur exacts. Placez une vue de face nette en premier si elle existe.
+3. Vérifiez que chaque URL respecte les exigences ci-dessous et que les services FittingMe peuvent récupérer les images.
+4. Définissez `data-product-id` et `data-garment-image-urls` avant de charger le script v5 compatible. Consultez le [démarrage rapide](/fr/start/quickstart) pour un exemple complet.
 5. Générez un résultat et vérifiez visuellement le vêtement. Le chargement de l’image source dans votre navigateur ne prouve pas qu’elle est accessible côté serveur.
 
 ### Exigences pour l’URL de l’image
@@ -26,7 +26,7 @@ Chaque intégration nécessite `data-product-id`. Elle peut utiliser une image q
 - FittingMe suit au maximum **trois redirections**. Préférez une réponse contenant directement l’image ; chaque redirection et destination doit rester accessible publiquement et respecter les contrôles d’URL du service.
 - URL HTTPS absolue avec un nom d’hôte.
 - 1 024 caractères Unicode maximum, avant comme après la normalisation de l’URL.
-- Aucun nom d’utilisateur ni mot de passe intégré, fragment (`#...`), espace ou caractère de contrôle.
+- Aucun nom d’utilisateur ni mot de passe intégré, fragment (`#...`), espace interne ou caractère de contrôle. Les espaces périphériques sont supprimés avant validation.
 - Accessible sans cookies ni connexion de l’acheteur et sans accès à un réseau privé.
 
 Utilisez une URL média stable. Si elle expire pendant le parcours de l’acheteur, la génération peut être interrompue. N’incluez dans les paramètres de l’URL ni identifiants d’accès à l’image ni données client privées.
@@ -35,13 +35,15 @@ Ces exigences concernent l’image du vêtement, et non les formats de photo de 
 
 Un amorçage éligible ne télécharge ni ne valide le vêtement. Une image non prise en charge peut échouer seulement après **Start** ; le message actuel indique alors une indisponibilité temporaire générique, sans événement d’erreur public dédié du loader. Avant de réessayer, vérifiez les octets réellement renvoyés, la taille et les redirections : l’éligibilité ne garantit pas la réussite de la génération.
 
-Une image fournie explicitement mais invalide ou inaccessible constitue une erreur. FittingMe ne la remplace pas silencieusement par une image du catalogue. Pour utiliser la recherche dans le catalogue, **omettez complètement l’attribut d’image** ; un attribut vide n’est pas valide.
+L’attribut pluriel accepte une URL simple ou un tableau JSON de chaînes URL. FittingMe supprime les espaces périphériques et les doublons d’URL en conservant l’ordre. Les éléments invalides sont ignorés et les téléchargements échoués n’occupent pas les places prises en charge par le modèle. Une valeur JSON mal formée ou d’une forme racine non prise en charge signale une erreur de configuration ; FittingMe l’ignore et utilise les images éligibles du catalogue. Les valeurs vides, composées d’espaces ou égales à `[]` utilisent également le catalogue. Si aucune source ne fournit d’image, l’état d’indisponibilité habituel s’applique.
+
+L’ancien attribut à une photo `data-garment-image-url` reste un alias déconseillé. Si les deux noms sont présents, une erreur de configuration indique le conflit et seule la valeur plurielle est prise en compte, même vide ou invalide. Le **1er décembre 2026** est une cible de migration sans coupure automatique ; l’alias reste pris en charge jusqu’à une décision distincte de suppression.
 
 ## Utiliser un catalogue préparé
 
 1. Organisez l’intégration du catalogue avec votre contact FittingMe. Convenez des identifiants produit et des images sources à partir des données de votre boutique.
 2. Faites confirmer que les produits concernés sont prêts pour l’essayage dans l’environnement que vous utiliserez.
-3. Indiquez l’identifiant convenu exact dans `data-product-id` et omettez `data-garment-image-url`.
+3. Indiquez l’identifiant convenu exact dans `data-product-id` et omettez les deux attributs d’image du vêtement.
 4. Testez un produit dont l’éligibilité a été confirmée ainsi qu’un produit qui ne doit pas proposer l’essayage.
 
 Vous n’avez pas à implémenter de points de terminaison d’administration du catalogue dans le navigateur. Consultez le [résultat d’amorçage](/fr/reference/events#résultat-de-l’amorçage) de l’intégration pour savoir si elle peut s’ouvrir. Une défaillance temporaire ne signifie pas que le produit est inéligible.
