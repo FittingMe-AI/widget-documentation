@@ -48,6 +48,14 @@ L’ancien attribut à une photo `data-garment-image-url` reste un alias décons
 
 Vous n’avez pas à implémenter de points de terminaison d’administration du catalogue dans le navigateur. Consultez le [résultat d’amorçage](/fr/reference/events#résultat-de-l’amorçage) de l’intégration pour savoir si elle peut s’ouvrir. Une défaillance temporaire ne signifie pas que le produit est inéligible.
 
+## Quand l’essayage est indisponible
+
+L’essayage n’est jamais proposé pour les produits dont la catégorie du catalogue FittingMe correspond aux **maillots de bain (y compris les shorts de bain), à la lingerie, aux sous-vêtements, aux vêtements de nuit ou aux produits pour enfants**. Cette règle s’applique aux images du catalogue comme aux images de vêtement fournies ; fournir une image ne lève pas l’exclusion.
+
+Pendant l’intégration du catalogue, demandez à FittingMe de confirmer la catégorie de ces produits. Une catégorie absente ou non reconnue ne rend pas à elle seule un produit inéligible ; les autres conditions de disponibilité restent applicables.
+
+L’événement public `bootstrap` signale `ineligible` sans en préciser la cause. Utilisez le [résultat d’amorçage](/fr/reference/events#résultat-de-l’amorçage) pour masquer le déclencheur et contactez FittingMe si un produit censé être éligible reste indisponible.
+
 ## Gérer les changements de produit
 
 Les données du produit et de son image restent associées à une intégration pendant toute sa durée de vie. Modifier les attributs d’un script déjà exécuté ne le reconfigure pas. Consultez [Changements de produit et de variante](/fr/integration/product-changes) lorsque la navigation ou le choix d’une couleur change le vêtement.

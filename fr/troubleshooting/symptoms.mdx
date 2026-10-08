@@ -28,6 +28,8 @@ console.table({
 
 Un état `undefined` indique qu’aucune intégration active ne correspond à cet élément. Le résultat `ineligible` signifie que le parcours ne peut pas être proposé. `indeterminate` signifie que la disponibilité n’a pas pu être établie ; examinez la requête en échec au lieu de conclure que le produit n’est pas pris en charge.
 
+L’essayage n’est jamais proposé lorsque la catégorie du catalogue identifie des **maillots de bain (y compris les shorts de bain), de la lingerie, des sous-vêtements, des vêtements de nuit ou des produits pour enfants**, même avec une image de vêtement fournie. L’événement public ne précise pas la cause de l’indisponibilité. Vérifiez la catégorie du produit avec FittingMe et consultez les [conditions de disponibilité du produit](/fr/integration/products#quand-l’essayage-est-indisponible). Une catégorie absente ou non reconnue ne rend pas à elle seule le produit inéligible ; d’autres conditions de disponibilité peuvent encore empêcher l’essayage.
+
 En mode déclencheur `host`, vous devez afficher votre propre bouton. Dans ce mode, il est normal que l’iframe fermée ait une hauteur nulle.
 
 ## Échec de l’authentification ou de l’accès au domaine

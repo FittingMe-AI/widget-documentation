@@ -28,6 +28,8 @@ console.table({
 
 `undefined` state means there is no live embed for that element. An `ineligible` outcome means it cannot offer the journey. `indeterminate` means availability could not be established; inspect the failed request instead of labelling the product unsupported.
 
+Try-On is never offered when the catalogue category identifies **swimwear (including swim trunks), lingerie, underwear, nightwear or children's products**, even with a supplied garment image. The public event does not give the unavailability cause. Check the product's category with FittingMe and the [product availability guidance](/integration/products#when-try-on-is-unavailable). A missing or unrecognized category does not alone make the product ineligible; other availability conditions can still prevent Try-On.
+
 In `host` trigger mode, you must render your own button. A zero-height closed iframe is expected in that mode.
 
 ## Authentication or domain access fails
