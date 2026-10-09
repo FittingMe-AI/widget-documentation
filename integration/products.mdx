@@ -78,6 +78,16 @@ The older `data-garment-image-url` one-photo attribute remains a deprecated alia
 
 You do not need to implement catalogue administration endpoints in the browser. Read the embed's [bootstrap outcome](/reference/events#bootstrap-outcome) to determine whether it can open. A temporary failure is different from a product being ineligible.
 
+## When Try-On is unavailable
+
+The exclusions below are deployed to dev as of 9 October 2026. This campaign did not promote product services to staging or production; confirm the policy in your assigned environment before rollout.
+
+Try-On is never offered for products identified by FittingMe's catalogue category as **swimwear (including swim trunks), lingerie, underwear, nightwear or children's products**. This applies to both catalogue imagery and supplied garment images; supplying an image does not override the exclusion.
+
+Ask FittingMe to confirm the catalogue category for these products during onboarding. A missing or unrecognized category does not by itself make a product ineligible; the other availability conditions still apply.
+
+The public `bootstrap` event reports `ineligible` without identifying the cause. Use the [bootstrap outcome](/reference/events#bootstrap-outcome) to hide the trigger, and contact FittingMe if an intended eligible product is unavailable.
+
 ## Change products deliberately
 
 Product and image inputs belong to one embed for its lifetime. Editing attributes on an already-executed script does not reconfigure it. Follow [product and variant changes](/integration/product-changes) when navigation or a colour selection changes the garment.

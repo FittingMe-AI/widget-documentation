@@ -1,3 +1,33 @@
+## Photo Refusal categories — local unpublished review, 2026-10-08
+
+The English/French products and troubleshooting pages now explain the five
+excluded categories, supplied-image behavior, the unknown-category boundary,
+and public events without a cause. Only prose and source/review notes changed;
+all runnable examples and the 22-page navigation in each language are unchanged.
+The backend source and supplied dev revision read are recorded in
+[documentation provenance](documentation-provenance.md).
+
+Measured locally by `feature_frontend_developer` with Node 24:
+
+| Check | Result |
+| --- | --- |
+| `node scripts/validate-docs.mjs` | PASS, return code 0: 44 pages (22 EN + 22 FR), 196 internal links, 70 anchors, 32 locale-identical fenced code blocks, six complete HTML examples, zero errors. |
+| Link mutation control | Null control passes; changing the new English troubleshooting link to a missing page fails with return code 1 and the expected broken-link error. Original bytes restored; the same 44-page validator passes again with return code 0. |
+| Prose/source and locale checks | Four pages each contain all five categories, the unknown-category qualification and cause-free event wording. Source inspection finds no promise that every retailer label is recognized. |
+| Desktop/mobile Mintlify rendering | Master: 8/8 English/French products/symptoms checks pass at 1440×1000 and390×844; HTTP200, five categories, no overflow/page errors, both anchor links reach their targets. Fresh browser reviewer inspected eight viewport captures plus eight complete changed-section captures; PASS. |
+| Product journey | Not exercised by this documentation pass. Wording-only changes need no product rebuild. |
+| Whitespace / Git diff | Master diff check return code0; exact six intended paths. Independent reviewer confirms62/62 frozen files unchanged and no code-fence changes. |
+
+Start the installed local Mintlify CLI in this checkout, then review
+`/integration/products`, `/troubleshooting/symptoms` and their `/fr/` counterparts
+at desktop and mobile widths. Check the new headings, both cross-page links,
+category lists, unknown-category qualification and event wording. The master started Mintlify4.2.851 at http://localhost:3218. Preview only; no publication. The16 screenshots show the changed text at both widths. Browser timing12.841seconds with hostload4.56/4.30/4.52→4.90/4.40/4.55; source tests are separate from this rendering evidence.
+
+The supplied backend read matches ticket 04's merged dev source, but it does not
+prove a live category-by-category launch. Staging and production availability
+was not inspected. No documentation publication, network request, shopper data,
+paid call or generation was made in this pass. Independent browser/content review passed. This draft is ready for local founder review; publication remains a separate founder decision.
+
 ## English retailer contract review — 2026-09-28
 
 **Docs PR #10 is merged and its Mintlify staging deployment succeeded. The staged URL requires an access code, so rendered pages were not verified there. Real Try-On generation remains blocked by the VTON dependency.**
@@ -199,3 +229,37 @@ The real local core/VTON fixture run now verifies original inputs, prepared
 image generation, and cache reuse; it does not establish deployed availability
 or manual acceptance of every public example. The changed public pages remain
 explicitly unreleased pending coordinated loader/widget/API deployment.
+## Photo Refusal publication review — 2026-10-09
+
+Publication is explicitly authorized by the founder's request to update
+docs.fittingme.ai. The prior ticket-21 local-only review below is historical.
+
+Local retailer documentation: http://localhost:3218/integration/products.
+The existing Mintlify process serves the changed owning worktree. Read the
+products, symptoms, events, errors, journey and release pages in both languages.
+The accepted garment categories from newer main PR #13 remain present.
+
+Checks: 44 pages, 212 internal links, 86 anchors, 32 byte-identical localized
+code blocks, six complete HTML examples, zero validator errors. An isolated
+Playwright browser verified all 24 English/French page-and-viewport cases at
+1440×1000 and 390×844: HTTP 200, expected new sections, no page errors, no
+horizontal overflow and no unresolved same-page links. Representative desktop
+and mobile captures were inspected. Rendering took 37.518 seconds; host load
+was 4.560/4.878/4.619 before and 5.900/5.188/4.744 after.
+
+Chrome DevTools MCP and Playwright MCP were both occupied by other browser
+profiles. Their sessions were preserved; the checks used a fresh isolated
+Playwright process, closed on completion.
+
+Product examples, navigation and integration code were unchanged. Source and
+effective dependency evidence is in documentation-provenance.md; no new
+shopper photo or generation was required for these prose changes. Server
+enforce and saved-collection guards are explicitly described as disabled on
+dev; no project-mode UI check is offered as evidence that those gates are live.
+Staging/production product availability and physical-phone camera behavior
+were not newly tested.
+
+The deployed documentation domain currently requires an access code. A fresh
+anonymous browser reached its Access Restricted page; access configuration was
+preserved. Publication is verified through the owning Git/Mintlify deployment,
+while rendering evidence refers to the functioning local site.

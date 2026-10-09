@@ -48,6 +48,18 @@ Un contexte distinct sur le même ordinateur permet de vérifier le transfert de
 
 Pour tester une révocation, utilisez des clés de test jetables. Ne révoquez pas une clé utilisée par une boutique active pour créer un scénario d’échec.
 
+## Vérifier les conseils photo dans un environnement activé
+
+Au 9 octobre 2026, les conseils sont déployés sur dev en `project` ; cette livraison n’établit ni le blocage serveur ni la disponibilité en production. Confirmez d’abord l’environnement.
+
+1. Téléversez une photo de test autorisée d’un adulte habillé ; vérifiez un aperçu utilisable.
+2. Utilisez une photo autorisée d’un lieu vide ; vérifiez les indications pour changer de photo et l’absence de Lancer. Ne contournez pas l’aperçu en rejouant des requêtes.
+3. Vérifiez des photos autorisées de groupe, recadrées, floues ou sombres ; les conseils doivent proposer de continuer ou de changer de photo.
+4. Répétez le refus via le transfert : le téléphone propose une autre photo et l’ordinateur se met à jour. Les conseils restent dans le panneau.
+5. Si un refus fournisseur survient pendant un test normal, vérifiez les actions pour changer de photo et revenir au produit. Une photo enregistrée reste disponible. Ne créez pas de contenu dangereux pour provoquer un refus.
+
+Ces vérifications en project ne prouvent pas l’activation des contrôles serveur de lancement et d’enregistrement propres à enforce. Consultez les [actions après refus](/fr/troubleshooting/symptoms#une-photo-est-refusée-ou-reçoit-un-conseil).
+
 ## Vérifier la mise en page et l’accessibilité
 
 Testez les formats de téléphone et d’ordinateur, les changements d’orientation, la navigation au clavier, le bouton de retour du navigateur, la touche Échap, le zoom du texte à 200 % ainsi que les en-têtes fixes et les superpositions du site. Vérifiez les libellés longs traduits et l’état ouvert comme l’état fermé du panneau.

@@ -31,6 +31,18 @@ L’éligibilité ne signifie pas qu’une session ou une génération a réussi
 
 Dans un événement indéterminé, `transport_code` peut être une chaîne. Utilisez cette donnée à des fins de diagnostic ; ne déduisez pas une cause métier d’un résultat de transport HTTP.
 
+## Delivered Events et refus de photo
+
+`tryon_photo_refused` est un fait Delivered Events côté serveur, **pas** un nouvel événement de `window.FittingMe.on`. Les quatre jalons du loader ci-dessus restent identiques. Il couvre les refus à l’acceptation et par le fournisseur de génération sans préciser lequel s’est produit.
+
+L’ajout est déployé sur dev au 9 octobre 2026. Confirmez son annonce et son déploiement pour votre dataset avant de l’attendre en production. Si vous lisez déjà `events_v1`, acceptez le nouveau type avec ses huit colonnes existantes, dans cet ordre : `event_type`, `occurred_at`, `journey`, `product_id`, `session_key`, `correlation_id`, `event_id`, `retailer_id`.
+
+Utilisez `event_id` pour dédupliquer des lectures qui se chevauchent. `session_key` est une clé dérivée, pas une capacité d’accès à l’API ; `correlation_id` contient la valeur du détaillant ou le remplacement préfixé par `FM_`. `retailer_id` identifie le détaillant dans le dataset.
+
+Aucune cause, origine, valeur de lecture, code fournisseur, photo ni URL de résultat n’est transmise. L’événement interne `tryon_photo_read` est exclu de `events_v1`. Le fait est un résultat observé, pas un acheteur unique ni une preuve de transmission complète ; ne classez pas chaque fait manquant comme un abandon.
+
+Demandez à FittingMe l’accès s’il n’a pas été provisionné. Ajouter ce nom à un gestionnaire du loader ne l’abonne pas aux faits serveur.
+
 ## Origine de l’ouverture
 
 - `tap` : l’acheteur a utilisé le point d’accès fourni par le widget.

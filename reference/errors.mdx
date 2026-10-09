@@ -52,6 +52,14 @@ A proxy, browser block, or transport failure may not produce a JSON response. Re
 
 This table covers integration-relevant failures. An unfamiliar code should be reported with its safe diagnostic context; do not turn it into an eligible or ineligible product state by guesswork.
 
+## Photo refusal and service failure
+
+A refusal before generation asks for another photo. Advice lets the shopper continue; a late or unavailable reading keeps the normal journey available. A provider refusal uses a dedicated screen with change-photo and return-to-product actions. Provider codes and raw messages are not public diagnostics. Garment download or decoding failures use service recovery without blaming the shopper's photo.
+
+Server enforcement is implemented but disabled on dev as of 9 October 2026. When enabled, a launch selecting a refused current photo returns HTTP 422 `image_invalid` before generation admission. This code also covers other unusable-image conditions; it does not disclose a refusal cause. Do not retry the rejected launch in a loop or infer a child or nudity finding from this code.
+
+The loader has no dedicated photo-refusal event. See [photo recovery](/troubleshooting/symptoms#a-photo-is-refused-or-receives-advice) and [Delivered Events](/reference/events#delivered-events-and-photo-refusals).
+
 ## Failures without a public error event
 
 A browser `frame-ancestors` refusal blocks the iframe before bootstrap and has no API error body. Request [FittingMe framing approval](/start/prerequisites#confirm-storefront-framing-approval). Key-domain refusal happens later, when the journey session opens, even if bootstrap was eligible.

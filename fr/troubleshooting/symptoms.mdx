@@ -28,6 +28,8 @@ console.table({
 
 Un état `undefined` indique qu’aucune intégration active ne correspond à cet élément. Le résultat `ineligible` signifie que le parcours ne peut pas être proposé. `indeterminate` signifie que la disponibilité n’a pas pu être établie ; examinez la requête en échec au lieu de conclure que le produit n’est pas pris en charge.
 
+L’essayage n’est jamais proposé lorsque la catégorie du catalogue identifie des **maillots de bain (y compris les shorts de bain), de la lingerie, des sous-vêtements, des vêtements de nuit ou des produits pour enfants**, même avec une image de vêtement fournie. L’événement public ne précise pas la cause de l’indisponibilité. Vérifiez la catégorie du produit avec FittingMe et consultez les [conditions de disponibilité du produit](/fr/integration/products#quand-l’essayage-est-indisponible). Une catégorie absente ou non reconnue ne rend pas à elle seule le produit inéligible ; d’autres conditions de disponibilité peuvent encore empêcher l’essayage.
+
 En mode déclencheur `host`, vous devez afficher votre propre bouton. Dans ce mode, il est normal que l’iframe fermée ait une hauteur nulle.
 
 ## Échec de l’authentification ou de l’accès au domaine
@@ -79,6 +81,23 @@ Ne supprimez pas un conteneur si `destroy()` renvoie `drawer_open`. Une commande
 Si l’ouverture provient de `FittingMe.open(container)`, notamment d’un bouton personnalisé, il s’agit d’une limitation connue du loader. Un nouvel appui sur le bouton de retour peut quitter la fiche produit. Pour l’intégration par défaut, conservez le point d’accès du widget ; l’[exemple direct sur page classique](/fr/integration/direct-embed) gère explicitement son historique. Ne considérez pas le bouton de retour comme validé avec un bouton personnalisé simplement parce qu’il fonctionne avec le déclencheur natif du widget.
 
 Consultez la page [Gestion des boutiques dynamiques](/fr/integration/react) et reproduisez le problème avec un chargement réseau lent et une navigation rapide.
+
+## Une photo est refusée ou reçoit un conseil
+
+Les conseils photo sont disponibles sur dev. Le 9 octobre 2026, dev utilise `project` : le widget affiche les refus et les conseils, tandis que le blocage serveur reste désactivé en attendant la validation de la latence. Confirmez leur disponibilité dans votre environnement avant les tests de production.
+
+| Ce que voit l’acheteur | Signification et prochaine action |
+| --- | --- |
+| Refus avant la génération | Aucune personne, un jeune enfant clairement identifié, une nudité explicite ou une lecture bloquée par le modèle. Choisir une autre photo ; l’aperçu ne propose pas Lancer. |
+| Conseil sur plusieurs personnes, le cadrage, le flou ou l’obscurité | Essayer avec cette photo ou en choisir une autre. Le conseil ne promet pas quelle personne sera habillée. |
+| Aucun conseil après une lecture trop lente ou indisponible | Le parcours normal reste disponible ; le fournisseur garde son rôle de dernier contrôle. Cela ne certifie pas la photo. |
+| Refus après le lancement | Cet article n’a pas pu être essayé sur cette photo. Choisir une autre photo ou revenir au produit ; l’écran de refus ne propose pas Réessayer. |
+
+Lors du transfert, le refus apparaît sur le téléphone avec une action pour changer de photo, puis se retrouve dans le panneau sur ordinateur. Les conseils apparaissent dans le panneau où l’acheteur décide de lancer l’essayage.
+
+Une photo enregistrée ne réaffiche pas ses conseils. Un refus du fournisseur ne la marque ni ne la bloque définitivement ; une nouvelle tentative avec le même article reste possible. Une image de vêtement invalide suit le rétablissement du service et ne doit pas demander de changer une photo valide.
+
+Le widget gère ces contrôles. Ne recréez pas la classification dans votre boutique et ne collectez pas les causes de refus dans vos analyses de la page hôte. En project, un aperçu refusé peut encore correspondre à un stockage temporaire ; masquer Lancer ne prouve ni le blocage serveur ni l’absence de conservation. Consultez les [erreurs et le rétablissement](/fr/reference/errors#refus-de-photo-et-défaillance-du-service).
 
 ## Le transfert de photo ou la génération n’aboutit pas
 

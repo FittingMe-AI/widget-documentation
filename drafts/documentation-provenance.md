@@ -1,3 +1,47 @@
+## Photo Refusal category policy — local unpublished draft, 2026-10-08
+
+Documentation updated: `integration/products.mdx`, `troubleshooting/symptoms.mdx`
+and their French counterparts. These are the current canonical routes; the
+ticket's older prepared-catalogue and troubleshooting routes are redirects.
+Navigation, public event identifiers and executable examples are unchanged.
+
+Selected backend source: ticket 04 head
+`cee74ab1cd6a9caa4384de8aecf272c3bf78c131`, merged to dev as
+`8c4f57eac9da6939ff2aef29f101a4d55990c1c7`. The master supplied the measured
+merge proof and dev revision read in the workspace campaign's
+`evidence/04/merge-proof.json` and `evidence/04/dev-live-read.json`.
+The two trees both equal `1171315747fd396edc5b47da10e3576f9b894de2`.
+At 2026-10-08 13:39:52 UTC, the dev read recorded 100% traffic on
+`fittingme-backend-00245-x4v`, image digest
+`sha256:8fbf66c23aae56caf21844ecfd4dc954bef578eb8c8f989fac1ec9975ff97252`,
+with exactly one matching merge tag. This documents that read, not a new live
+probe or a claim about staging or production.
+
+| Changed claim | Supporting source |
+| --- | --- |
+| Swimwear, lingerie, underwear, nightwear and children's products are excluded when identified by the catalogue category | `b2b/backend/src/services/try_on_exclusion.rs:4`, `:14`, `:36` |
+| Unknown or absent category establishes no exclusion | `b2b/backend/src/services/try_on_exclusion.rs:13`, `:59`, `:125` |
+| Supplied imagery does not override the category restriction | `b2b/backend/src/services/garment_image.rs:78`; `b2b/backend/src/services/bootstrap.rs:188` |
+| Public bootstrap reports an outcome without a category cause | `reference/events.mdx:15`, `:24`; `fr/reference/events.mdx:15`, `:24`; backend bootstrap availability is a boolean at `b2b/backend/src/services/bootstrap.rs:198` |
+
+The prose qualifies identification through the catalogue category: the current
+implementation matches normalized known words, not every possible retailer
+label. A missing or unrecognized category remains subject to the other
+availability conditions. No cause field is promised in a public event.
+
+Source fingerprint check: `shasum -a 256` on the three named backend sources.
+
+| Source | SHA-256 |
+| --- | --- |
+| `backend/src/services/try_on_exclusion.rs` | `9f19afe4b6d75595eff90c3dc280fa5868b76b535929067bcc8688cb0643cb5a` |
+| `backend/src/services/garment_image.rs` | `ca6a884761e8c0f87b40745bc14c1252a18a03431ea369ece4cb038c7523a985` |
+| `backend/src/services/bootstrap.rs` | `ee349c9353f73d5573551cfd4f2eb79f41360ef5ac4dca464d6c2ee5270631a7` |
+
+This companion change is local and unpublished. Desktop/mobile documentation
+preview and final source/deployment recheck belong to the master and independent
+`feature_browser_tester` before founder review. Publication requires separate
+founder approval. See [local review](local-review.md) for measured checks and limits.
+
 ## English contract source selection — 2026-09-28
 
 Sources were fetched before implementation. These are the selected starting revisions, not deployed revisions. Each corresponding isolated worktree started clean (0 paths).
@@ -197,3 +241,44 @@ across b2b, widget, ml, retailer-portal, QA, public-site and shopify-app: 0 file
 Affected pages: `integration/products.mdx` and `fr/integration/products.mdx`,
 new section before "Supply garment views". No code fence, link or navigation
 changed.
+## Photo Refusal publication update — 2026-10-09
+
+The founder explicitly requested the Notion update and publication to
+docs.fittingme.ai on 2026-10-09. This supersedes the campaign's earlier
+local-only documentation restriction.
+
+Documentation updated: English/French products, symptoms, errors, events,
+journey checks and release notes. The 22-page navigation per language and all
+32 fenced examples are preserved. Current main's accepted garment-category
+list from PR #13 is retained.
+
+Selected b2b dev source: `0adac6cb111d4cc295c8631b192a04b1fc0b214b`.
+Fifteen relevant implementation files, 747,124 bytes, match the reviewed owning
+worktree byte-for-byte. Selected widget dev source:
+`0fd282fb767218c11fbfc3f2ad032511ca2a619e`; a fresh fetch found no change.
+The source-binding receipt is a private metadata file; no shopper images or
+provider raw messages were read for this documentation update.
+
+| Claim | Current owning source |
+| --- | --- |
+| Closed refusal/advice values, precedence and fail-open reading | `b2b/backend/src/services/photo_reading.rs:15`, `:54` |
+| Optional photo fields, no empty advice, project/enforce projection | `b2b/backend/src/models/journey_session.rs:781`; `b2b/backend/src/services/journey_session.rs:2180` |
+| Enforce-only selected-photo gate before generation and collection admission | `b2b/backend/src/services/anchor_lifecycle.rs:1744`; `b2b/backend/src/services/try_on_collection/admission.rs:216` |
+| HTTP 422 image_invalid uses the existing public Problem Details contract | `b2b/backend/src/error.rs:783` |
+| Garment-unavailable maps to service recovery | `b2b/backend/src/services/vton_api_client.rs:477` |
+| Content refusals do not trigger provider fallback | `b2b/vton-service/src/orchestrator.rs:713` |
+| Refusal type, eight columns, no additional details | `b2b/infra/modules/delivered_events/main.tf:23`, `:79`; `b2b/crates/tracking-events/src/generated.rs:150` |
+| Daily floor of 10 distinct non-null sessions with atomic day replacement | `b2b/infra/modules/tracking/photo_reading_daily.sql.tftpl:1`, `:117` |
+
+Fresh dev traffic read at 15:48 UTC: backend `00257-dt8`, VTON API
+`00061-476`, prompt worker `00061-2zn`, widget `00392-bxh`, each 100%.
+The backend uses GCS, `PHOTO_READING_MODE=project` and a 3,000 ms outer
+budget. Product enforcement remains withheld after both complete instruction-v2
+rounds failed p90 latency. No staging/production product promotion was made by
+this campaign.
+
+The campaign delivery report supplies the earlier actual dev demo checks:
+healthy, no-person, several-person and separate-context phone refusal. Those
+checks are dated evidence on the previous backend revision; the new source
+comparison preserves the affected behavior. No new paid reading, render or GPU
+call was made for prose-only publication.

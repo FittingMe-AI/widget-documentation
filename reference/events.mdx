@@ -31,6 +31,18 @@ Eligibility is not a successful session or generation. Key-domain permission is 
 
 `transport_code` may be a string on an indeterminate event. Its values include `network`, `timeout`, and HTTP status strings. Use it as diagnostic information; do not infer a business reason from an HTTP transport outcome.
 
+## Delivered Events and photo refusals
+
+`tryon_photo_refused` is a server-side Delivered Events fact, **not** a new `window.FittingMe.on` event. The four loader milestones above are unchanged. It covers refusals at photo acceptance and by the generation provider without exposing which occurred.
+
+The addition is deployed to dev as of 9 October 2026. Confirm its announcement and rollout for your assigned dataset before expecting it in production. If you already read `events_v1`, accept the new event type with its existing eight columns, in this order: `event_type`, `occurred_at`, `journey`, `product_id`, `session_key`, `correlation_id`, `event_id`, `retailer_id`.
+
+Use `event_id` to deduplicate overlapping reads. `session_key` is a derived key, not an API capability; `correlation_id` carries the retailer join value or the marked `FM_` fallback. `retailer_id` identifies the retailer within the dataset.
+
+No refusal reason, origin, reading values, provider code, photo or result URL is delivered. Internal `tryon_photo_read` is excluded from `events_v1`. A refusal fact is an observed outcome, not a unique shopper or proof of complete delivery; do not classify every missing fact as abandonment.
+
+Ask FittingMe about access if Delivered Events has not been provisioned. Adding this name to a loader handler does not subscribe it to server-side facts.
+
 ## Opening origin
 
 - `tap`: the shopper used the widget-provided entry point.
