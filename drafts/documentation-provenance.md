@@ -176,3 +176,24 @@ release claims. Live local original-input generation, Gemini preparation and
 prepared-cache generation passed using the repository model fixture and two
 verified views. Evidence is recorded in b2b's ticket-scoped local-verification.md.
 The portal upload interface is not part of this change.
+
+## Accepted garment categories — 2026-10-09
+
+Source: the founder's list of accepted garment categories, given in French in
+this task (12 clothing and 8 footwear categories). The French page reproduces it
+verbatim; the English page translates it in the site's British spelling and,
+at the founder's request, adds the US term in parentheses where it differs
+(seven categories, for example Trousers (US: pants), Trainers (US: sneakers)).
+
+Code check: b2b origin/dev `2126f5d6`, `backend/src/services/garment_profile.rs:162`
+(`classify`) maps free-text garment types to sizing measurement profiles by
+keyword; no repository holds these 20 category labels. The list is therefore
+documented as a product-scope statement, not as an enforced validation. The
+pages make no claim about how the service treats a product outside the list and
+send that case to the FittingMe contact. Measured with
+`rg -l -i 'Vestes et manteaux|Joggings et survêtements|Chaussures de ville'`
+across b2b, widget, ml, retailer-portal, QA, public-site and shopify-app: 0 files.
+
+Affected pages: `integration/products.mdx` and `fr/integration/products.mdx`,
+new section before "Supply garment views". No code fence, link or navigation
+changed.
