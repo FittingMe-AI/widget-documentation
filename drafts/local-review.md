@@ -229,3 +229,37 @@ The real local core/VTON fixture run now verifies original inputs, prepared
 image generation, and cache reuse; it does not establish deployed availability
 or manual acceptance of every public example. The changed public pages remain
 explicitly unreleased pending coordinated loader/widget/API deployment.
+## Photo Refusal publication review — 2026-10-09
+
+Publication is explicitly authorized by the founder's request to update
+docs.fittingme.ai. The prior ticket-21 local-only review below is historical.
+
+Local retailer documentation: http://localhost:3218/integration/products.
+The existing Mintlify process serves the changed owning worktree. Read the
+products, symptoms, events, errors, journey and release pages in both languages.
+The accepted garment categories from newer main PR #13 remain present.
+
+Checks: 44 pages, 212 internal links, 86 anchors, 32 byte-identical localized
+code blocks, six complete HTML examples, zero validator errors. An isolated
+Playwright browser verified all 24 English/French page-and-viewport cases at
+1440×1000 and 390×844: HTTP 200, expected new sections, no page errors, no
+horizontal overflow and no unresolved same-page links. Representative desktop
+and mobile captures were inspected. Rendering took 37.518 seconds; host load
+was 4.560/4.878/4.619 before and 5.900/5.188/4.744 after.
+
+Chrome DevTools MCP and Playwright MCP were both occupied by other browser
+profiles. Their sessions were preserved; the checks used a fresh isolated
+Playwright process, closed on completion.
+
+Product examples, navigation and integration code were unchanged. Source and
+effective dependency evidence is in documentation-provenance.md; no new
+shopper photo or generation was required for these prose changes. Server
+enforce and saved-collection guards are explicitly described as disabled on
+dev; no project-mode UI check is offered as evidence that those gates are live.
+Staging/production product availability and physical-phone camera behavior
+were not newly tested.
+
+The deployed documentation domain currently requires an access code. A fresh
+anonymous browser reached its Access Restricted page; access configuration was
+preserved. Publication is verified through the owning Git/Mintlify deployment,
+while rendering evidence refers to the functioning local site.

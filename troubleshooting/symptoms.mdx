@@ -82,6 +82,23 @@ If the opening came from `FittingMe.open(container)`, including a custom button,
 
 Check [dynamic storefront ownership](/integration/react) and reproduce with slow network loading and rapid navigation.
 
+## A photo is refused or receives advice
+
+Photo guidance is available on dev. On 9 October 2026, dev uses `project`: the widget shows refusal and advice, while server enforcement remains withheld pending its latency gate. Confirm availability in your assigned environment before a production acceptance test.
+
+| Shopper sees | Meaning and next action |
+| --- | --- |
+| Refusal before generation | No person, a clearly young child, explicit nudity, or a reading blocked by the model. Choose another photo; the preview offers no Start. |
+| Advice about several people, framing, blur or darkness | Continue with this photo or choose another. The warning does not promise which person will be dressed. |
+| No guidance after a slow or unavailable reading | The normal journey stays available; the provider remains the backstop. This does not certify the photo. |
+| Refusal after generation starts | This item could not be tried on this photo. Choose another photo or return to the product; the refusal screen offers no Retry. |
+
+During handoff, a refusal appears on the phone with a change-photo action and reconciles with the desktop drawer. Advice appears in the drawer where the shopper chooses whether to start.
+
+Selecting a saved photo does not repeat its advice. A provider refusal does not mark or permanently block it; a later attempt with the same item remains possible. Invalid garment images follow service recovery and should not ask the shopper to change a valid photo.
+
+The widget owns these controls. Do not recreate classification in your storefront or collect refusal causes in host analytics. A refused preview may still have transient photo storage in project mode; hiding Start does not prove server enforcement or zero photo retention. See [errors and recovery](/reference/errors#photo-refusal-and-service-failure).
+
 ## Photo handoff or generation does not finish
 
 Keep the original product page open and confirm that the capture link belongs to the currently active attempt. Retry through the widget's available controls rather than reusing a saved QR URL from an older attempt.

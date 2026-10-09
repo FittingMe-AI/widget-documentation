@@ -48,6 +48,18 @@ A separate context on the same computer verifies the linked-session handoff. It 
 
 Use disposable test keys for revocation tests. Do not revoke a key used by a live storefront to create a failure scenario.
 
+## Verify photo guidance in an enabled environment
+
+As of 9 October 2026, guidance is deployed to dev in `project`; this release does not establish server enforcement or production availability. Confirm the environment first.
+
+1. Upload a permitted clothed-adult test photo; confirm a usable preview.
+2. Use a permitted empty-scene photo; confirm another-photo guidance and no Start. Do not bypass the preview by replaying requests.
+3. Check permitted group, cropped, blurred or dark photos; advice must offer both continuing and choosing another photo.
+4. Repeat refusal through handoff: the phone offers another-photo selection and the desktop reconciles. Advice belongs in the drawer.
+5. If a provider refusal occurs during ordinary testing, check change-photo and return-to-product recovery. A saved photo remains available later. Do not manufacture unsafe content to trigger a refusal.
+
+These project-mode checks do not prove the enforce-only server launch or saved-collection gates are live. See [photo recovery](/troubleshooting/symptoms#a-photo-is-refused-or-receives-advice).
+
 ## Check layout and accessibility
 
 Test phone and desktop widths, orientation changes, keyboard navigation, browser Back, Escape, 200% text zoom, and the site's sticky headers or overlays. Verify long translated labels and both drawer-open and drawer-closed states.

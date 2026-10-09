@@ -20,6 +20,14 @@ Le fichier canonique `/v4/` utilise `fittingme/4` pour les images fournies et le
 
 L’URL du loader hébergé est stable et ne contient pas d’empreinte du contenu. Elle ne pointe pas vers une version immuable. Évitez d’ajouter un cache permanent ou une copie embarquée qui pourrait subsister après des changements incompatibles du widget ou de l’API.
 
+## Photo Refusal — déploiement dev du 9 octobre 2026
+
+La lecture, les écrans de refus et de conseils, le transfert téléphone, les refus fournisseur, les exclusions du catalogue et le fait de refus sont déployés sur dev. Dev est en `project` : les acheteurs voient les indications, tandis que les contrôles serveur de lancement et d’enregistrement restent désactivés après deux échecs du critère de latence.
+
+Cette campagne n’a pas promu les services produit sur staging ou en production. Confirmez leur disponibilité pour votre boutique. Aucun nouvel attribut du loader ni événement navigateur n’est requis. Les consommateurs doivent accepter l’ajout annoncé `tryon_photo_refused` dans les [Delivered Events](/fr/reference/events#delivered-events-et-refus-de-photo), avec les huit colonnes existantes et sans cause ni origine.
+
+Consultez les [actions après refus](/fr/troubleshooting/symptoms#une-photo-est-refusée-ou-reçoit-un-conseil), les [exclusions produit](/fr/integration/products#quand-l’essayage-est-indisponible) et les [vérifications d’acceptation](/fr/testing/journey#vérifier-les-conseils-photo-dans-un-environnement-activé).
+
 ## Projet de compatibilité v5 avec plusieurs vues
 
 L’intégration v5 non publiée utilise `/v5/fittingme-loader.js`, les messages anglais `fittingme/5` et `data-garment-image-urls` pour une URL ou plusieurs vues ordonnées du même produit et de la même couleur. Le loader exige que le widget et l’API confirment explicitement cette capacité. Vérifiez la disponibilité des trois composants dans votre environnement avant d’utiliser le nouvel attribut. Les images utilisables du catalogue sont prioritaires ; une configuration fournie invalide peut encore utiliser les images éligibles du catalogue.

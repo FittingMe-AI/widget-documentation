@@ -82,6 +82,23 @@ Si l’ouverture provient de `FittingMe.open(container)`, notamment d’un bouto
 
 Consultez la page [Gestion des boutiques dynamiques](/fr/integration/react) et reproduisez le problème avec un chargement réseau lent et une navigation rapide.
 
+## Une photo est refusée ou reçoit un conseil
+
+Les conseils photo sont disponibles sur dev. Le 9 octobre 2026, dev utilise `project` : le widget affiche les refus et les conseils, tandis que le blocage serveur reste désactivé en attendant la validation de la latence. Confirmez leur disponibilité dans votre environnement avant les tests de production.
+
+| Ce que voit l’acheteur | Signification et prochaine action |
+| --- | --- |
+| Refus avant la génération | Aucune personne, un jeune enfant clairement identifié, une nudité explicite ou une lecture bloquée par le modèle. Choisir une autre photo ; l’aperçu ne propose pas Lancer. |
+| Conseil sur plusieurs personnes, le cadrage, le flou ou l’obscurité | Essayer avec cette photo ou en choisir une autre. Le conseil ne promet pas quelle personne sera habillée. |
+| Aucun conseil après une lecture trop lente ou indisponible | Le parcours normal reste disponible ; le fournisseur garde son rôle de dernier contrôle. Cela ne certifie pas la photo. |
+| Refus après le lancement | Cet article n’a pas pu être essayé sur cette photo. Choisir une autre photo ou revenir au produit ; l’écran de refus ne propose pas Réessayer. |
+
+Lors du transfert, le refus apparaît sur le téléphone avec une action pour changer de photo, puis se retrouve dans le panneau sur ordinateur. Les conseils apparaissent dans le panneau où l’acheteur décide de lancer l’essayage.
+
+Une photo enregistrée ne réaffiche pas ses conseils. Un refus du fournisseur ne la marque ni ne la bloque définitivement ; une nouvelle tentative avec le même article reste possible. Une image de vêtement invalide suit le rétablissement du service et ne doit pas demander de changer une photo valide.
+
+Le widget gère ces contrôles. Ne recréez pas la classification dans votre boutique et ne collectez pas les causes de refus dans vos analyses de la page hôte. En project, un aperçu refusé peut encore correspondre à un stockage temporaire ; masquer Lancer ne prouve ni le blocage serveur ni l’absence de conservation. Consultez les [erreurs et le rétablissement](/fr/reference/errors#refus-de-photo-et-défaillance-du-service).
+
 ## Le transfert de photo ou la génération n’aboutit pas
 
 Laissez ouverte la fiche produit d’origine et vérifiez que le lien de capture correspond à la tentative active. Recommencez avec les commandes disponibles dans le widget au lieu de réutiliser l’URL d’un ancien QR code enregistré.

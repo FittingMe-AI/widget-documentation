@@ -241,3 +241,44 @@ across b2b, widget, ml, retailer-portal, QA, public-site and shopify-app: 0 file
 Affected pages: `integration/products.mdx` and `fr/integration/products.mdx`,
 new section before "Supply garment views". No code fence, link or navigation
 changed.
+## Photo Refusal publication update — 2026-10-09
+
+The founder explicitly requested the Notion update and publication to
+docs.fittingme.ai on 2026-10-09. This supersedes the campaign's earlier
+local-only documentation restriction.
+
+Documentation updated: English/French products, symptoms, errors, events,
+journey checks and release notes. The 22-page navigation per language and all
+32 fenced examples are preserved. Current main's accepted garment-category
+list from PR #13 is retained.
+
+Selected b2b dev source: `0adac6cb111d4cc295c8631b192a04b1fc0b214b`.
+Fifteen relevant implementation files, 747,124 bytes, match the reviewed owning
+worktree byte-for-byte. Selected widget dev source:
+`0fd282fb767218c11fbfc3f2ad032511ca2a619e`; a fresh fetch found no change.
+The source-binding receipt is a private metadata file; no shopper images or
+provider raw messages were read for this documentation update.
+
+| Claim | Current owning source |
+| --- | --- |
+| Closed refusal/advice values, precedence and fail-open reading | `b2b/backend/src/services/photo_reading.rs:15`, `:54` |
+| Optional photo fields, no empty advice, project/enforce projection | `b2b/backend/src/models/journey_session.rs:781`; `b2b/backend/src/services/journey_session.rs:2180` |
+| Enforce-only selected-photo gate before generation and collection admission | `b2b/backend/src/services/anchor_lifecycle.rs:1744`; `b2b/backend/src/services/try_on_collection/admission.rs:216` |
+| HTTP 422 image_invalid uses the existing public Problem Details contract | `b2b/backend/src/error.rs:783` |
+| Garment-unavailable maps to service recovery | `b2b/backend/src/services/vton_api_client.rs:477` |
+| Content refusals do not trigger provider fallback | `b2b/vton-service/src/orchestrator.rs:713` |
+| Refusal type, eight columns, no additional details | `b2b/infra/modules/delivered_events/main.tf:23`, `:79`; `b2b/crates/tracking-events/src/generated.rs:150` |
+| Daily floor of 10 distinct non-null sessions with atomic day replacement | `b2b/infra/modules/tracking/photo_reading_daily.sql.tftpl:1`, `:117` |
+
+Fresh dev traffic read at 15:48 UTC: backend `00257-dt8`, VTON API
+`00061-476`, prompt worker `00061-2zn`, widget `00392-bxh`, each 100%.
+The backend uses GCS, `PHOTO_READING_MODE=project` and a 3,000 ms outer
+budget. Product enforcement remains withheld after both complete instruction-v2
+rounds failed p90 latency. No staging/production product promotion was made by
+this campaign.
+
+The campaign delivery report supplies the earlier actual dev demo checks:
+healthy, no-person, several-person and separate-context phone refusal. Those
+checks are dated evidence on the previous backend revision; the new source
+comparison preserves the affected behavior. No new paid reading, render or GPU
+call was made for prose-only publication.

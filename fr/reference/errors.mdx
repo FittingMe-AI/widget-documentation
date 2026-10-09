@@ -52,6 +52,14 @@ Un proxy, un blocage du navigateur ou un échec de transport peut empêcher la p
 
 Ce tableau couvre les défaillances pertinentes pour l’intégration. Signalez tout code inconnu avec son contexte de diagnostic, après suppression des données sensibles ; ne concluez pas par supposition que le produit est éligible ou inéligible.
 
+## Refus de photo et défaillance du service
+
+Un refus avant la génération demande une autre photo. Les conseils permettent de continuer ; une lecture trop lente ou indisponible laisse le parcours normal disponible. Un refus fournisseur utilise un écran dédié proposant de changer de photo ou de revenir au produit. Les codes et messages bruts du fournisseur ne sont pas des diagnostics publics. Les échecs de téléchargement ou de décodage du vêtement suivent le rétablissement du service sans incriminer la photo de l’acheteur.
+
+Le blocage serveur est implémenté, mais désactivé sur dev au 9 octobre 2026. Une fois activé, un lancement sélectionnant une photo courante refusée renvoie HTTP 422 `image_invalid` avant l’admission d’une génération. Ce code couvre aussi d’autres images inutilisables ; il ne révèle aucune cause de refus. Ne répétez pas ce lancement en boucle et ne déduisez pas de ce code un constat lié à un enfant ou à la nudité.
+
+Le loader n’émet aucun événement dédié au refus de photo. Consultez les [actions après refus](/fr/troubleshooting/symptoms#une-photo-est-refusée-ou-reçoit-un-conseil) et les [Delivered Events](/fr/reference/events#delivered-events-et-refus-de-photo).
+
 ## Échecs sans événement d’erreur public
 
 Un refus du navigateur lié à `frame-ancestors` bloque l’iframe avant l’amorçage et ne produit aucun corps d’erreur d’API. Demandez [l’autorisation d’encadrement à FittingMe](/fr/start/prerequisites#faire-approuver-l’encadrement-de-la-boutique). Le refus du domaine associé à la clé survient plus tard, à l’ouverture de la session, même si l’amorçage était éligible.
