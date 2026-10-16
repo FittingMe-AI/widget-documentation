@@ -1,3 +1,10 @@
+## Analytics adapter opening key — 2026-10-16
+
+The loader publishes `opened` (`widget/loader/fittingme-loader.js:30`,
+`"ouverture": "opened"`, widget `origin/dev` `35a4380a`); no public event has
+type `opening_id`, which is the optional counter field of the `opened` wire
+message (`reference/protocol.mdx`). The adapter key is now `opened`.
+
 ## Photo Refusal category policy — local unpublished draft, 2026-10-08
 
 Documentation updated: `integration/products.mdx`, `troubleshooting/symptoms.mdx`

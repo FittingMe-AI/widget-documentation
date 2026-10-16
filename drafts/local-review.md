@@ -1,3 +1,21 @@
+## Analytics adapter records opens — local review, 2026-10-16
+
+`integration/analytics.mdx` and its French mirror mapped `opening_id`, a type
+the loader never publishes, so the published adapter never recorded a drawer
+opening. The English migration (#10, `dac93c4`, 2026-09-28) translated the
+French key `ouverture` to `opening_id` instead of `opened`. The fence now maps
+`opened`; nothing else changed.
+
+| Check | Result |
+| --- | --- |
+| `node scripts/validate-docs.mjs` (Node 24.18.0) | PASS, rc 0: 44 pages, 212 links, 32 locale-identical code blocks, zero errors. |
+| Dev demo, 2026-10-16 06:49 UTC, Try-On embed `#fittingme-widget-container-2`, one drawer opening each, no try-on | The page heard `bootstrap, bootstrap, opened` in all three runs. Snippet from `main`: adapter records `[]`. Fixed snippet, run before and after it: `["fittingme_opened"]` both times. Only the container id was changed in the fence (this demo's default id is its Sizing embed); headless Chromium with `bypassCSP`. |
+| `git diff --check` | rc 0. |
+
+No product journey, photo or generation was needed. Retailers who copied the
+earlier snippet have no `fittingme_opened` records; closes and completions
+were unaffected.
+
 ## Photo Refusal categories — local unpublished review, 2026-10-08
 
 The English/French products and troubleshooting pages now explain the five
