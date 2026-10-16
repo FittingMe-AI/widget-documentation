@@ -68,7 +68,7 @@ To count shown try-ons, count distinct `try_on_reference` values. Your invoice c
 
 ## Join your own analytics
 
-Supply your own correlation identifier, such as a visit number, to join these facts to your analytics. Set the `data-correlation-id` attribute on the loader script tag, or call `window.FittingMe.setCorrelationId(id)`. The value belongs to the page, the last call wins, and it applies from the next drawer opening. It is 1 to 128 characters of text and must not start with `FM_`; the loader refuses any other value and logs the reason in the console. Never put a direct personal identifier, such as an email address, in it.
+Supply your own correlation identifier, such as a visit number, to join these facts to your analytics. Set the `data-correlation-id` attribute on the loader script tag, or call [`window.FittingMe.setCorrelationId(id)`](/reference/javascript#correlation-identifier). The value belongs to the page, the last call wins, and it applies from the next drawer opening. It is 1 to 128 characters of text and must not start with `FM_`; the loader refuses any other value and logs the reason in the console. Never put a direct personal identifier, such as an email address, in it.
 
 The value is recorded on each fact as it stands at that moment, so it can change within a session. A value starting with `FM_` is FittingMe's stand-in, never yours.
 

@@ -36,6 +36,18 @@ Si le panneau est ouvert, appeler `close(element)` puis immédiatement `destroy(
 
 Les commandes renvoient leur résultat de façon synchrone. `accepted` signifie que la commande a été acceptée ; observez les événements pour connaître l’état obtenu. Une demande d’ouverture faite avant la fin de l’amorçage est refusée, et non mise en attente.
 
+## Identifiant de corrélation
+
+`window.FittingMe.setCorrelationId(id)` définit l’identifiant de corrélation de votre page, la valeur de jointure des [Delivered Events](/fr/reference/delivered-events#joindre-vos-propres-analyses). C’est une méthode de page, pas une commande d’intégration : elle ne prend aucun élément, s’applique à toutes les intégrations de la page et ne renvoie rien.
+
+- Passez 1 à 128 caractères de texte qui ne commencent pas par `FM_`. Passez `""`, `null` ou `undefined` pour effacer la valeur.
+- La dernière valeur l’emporte, qu’elle vienne de cette méthode ou de l’attribut [`data-correlation-id`](/fr/reference/configuration#attributs-facultatifs). Définir de nouveau la même valeur ne change rien.
+- Une intégration prend la valeur en vigueur à l’ouverture de son panneau. Une valeur définie panneau ouvert s’applique à partir de l’ouverture suivante.
+- Une valeur refusée (pas du texte, plus de 128 caractères ou préfixe `FM_`) écrit un avertissement dans la console, ne lève jamais d’exception et ne laisse aucun identifiant de corrélation en vigueur, pas même le précédent.
+- La méthode existe dès que la première balise script du loader a été acceptée. Avant cela, utilisez l’attribut.
+
+N’y placez jamais d’identifiant personnel direct, comme une adresse e-mail.
+
 ## Instantané d’état
 
 ```javascript
