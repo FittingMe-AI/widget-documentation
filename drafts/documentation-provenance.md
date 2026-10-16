@@ -331,3 +331,34 @@ healthy, no-person, several-person and separate-context phone refusal. Those
 checks are dated evidence on the previous backend revision; the new source
 comparison preserves the affected behavior. No new paid reading, render or GPU
 call was made for prose-only publication.
+
+## Delivered Events page (2026-10-16)
+
+New page `reference/delivered-events` (+ `fr/`), founder-approved 23rd page;
+the former "Delivered Events and photo refusals" section of `reference/events`
+moved there and left a pointer. Sources read at b2b `origin/dev` `d416c7bb`,
+b2b `origin/main` `805ae61e`, widget `origin/dev` `35a4380a`, widget
+`origin/main` `d536cdcd`.
+
+| Claim | Current owning source |
+| --- | --- |
+| Nine columns, order, types, `FM_` stand-in, filters (journey `tryon`, every session delivered) | `b2b/infra/modules/delivered_events/main.tf:23`, `:106`, `:130`; `README.md:17-29` |
+| One dataset `delivered_events_<key>`, one view, read-only grant, location `europe-west1` | `b2b/infra/modules/delivered_events/main.tf:138-145`; `README.md` "Access" |
+| Production view has `tryon_photo_refused`, no `try_on_reference` | `bq show` of the production view definition, 2026-10-16 07:00 UTC (metadata only, no rows read); b2b `origin/main` `main.tf` has no `try_on_reference` |
+| `occurred_at` is server time | `b2b/backend/src/services/tracking/mod.rs:205-210`, `:275-276` |
+| `session_created` once per session, not on resume | `b2b/backend/src/services/journey_session.rs:447-484`; widget `TECHNICAL-GLOSSARY.md:249-252` (anchor scope and 48 h bound) |
+| Photo accepted from computer or phone | `b2b/backend/src/routes/tryon.rs:273`; `b2b/backend/src/services/device_handoff/ingest.rs:743` |
+| Cart Intent = result-screen main button "Back to product", followed by a Journey Exit | widget `journeys/tryon/declaration.ts:1751-1759`; `journeys/tryon/locales.ts:256`, `:444` (same on `origin/main`) |
+| Journey Exit at most once per drawer opening, page leave included | widget `foundation/journey-exit.ts:15-17` |
+| Refusal at acceptance or during generation, no reason | `b2b/backend/src/services/tracking/mod.rs:890` |
+| 13-month retention (396-day partitions) | `b2b/infra/modules/tracking/main.tf:401`; `variables.tf:65-69` |
+| Erasure keeps rows, value becomes NULL, view shows `FM_` | `b2b/scripts/erase-correlation-ids.sh:3-9`; `delivered_events/main.tf:106` |
+| `data-correlation-id` on the loader tag, `setCorrelationId`, 1-128 code points, `FM_` refused, console reason | widget `loader/fittingme-loader.js:307`, `:313-317`, `:343`, `:1699`, `:1745` |
+| Value taken at drawer opening; can change within a session | widget `foundation/correlation.ts:8-13`; `b2b/infra/modules/tracking/README.md:167-208` |
+
+Not documented on purpose (founder, 2026-10-16): internal environments and
+their datasets, project ids, the internal photo-reading mode. Test traffic is
+described as a separate test Retailer (founder ruling); a named test key of the
+production Retailer is not distinguishable in `events_v1`. The funnel and join
+examples passed a BigQuery dry run (no rows read) on the dev view on
+2026-10-16; the MERGE example was not run, as it needs a target table.

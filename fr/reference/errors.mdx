@@ -58,7 +58,7 @@ Un refus avant la génération demande une autre photo. Les conseils permettent 
 
 Le blocage serveur est implémenté, mais désactivé sur dev au 9 octobre 2026. Une fois activé, un lancement sélectionnant une photo courante refusée renvoie HTTP 422 `image_invalid` avant l’admission d’une génération. Ce code couvre aussi d’autres images inutilisables ; il ne révèle aucune cause de refus. Ne répétez pas ce lancement en boucle et ne déduisez pas de ce code un constat lié à un enfant ou à la nudité.
 
-Le loader n’émet aucun événement dédié au refus de photo. Consultez les [actions après refus](/fr/troubleshooting/symptoms#une-photo-est-refusée-ou-reçoit-un-conseil) et les [Delivered Events](/fr/reference/events#delivered-events-et-refus-de-photo).
+Le loader n’émet aucun événement dédié au refus de photo. Consultez les [actions après refus](/fr/troubleshooting/symptoms#une-photo-est-refusée-ou-reçoit-un-conseil) et les [Delivered Events](/fr/reference/delivered-events).
 
 ## Échecs sans événement d’erreur public
 

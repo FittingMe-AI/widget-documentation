@@ -25,8 +25,8 @@ The checkboxes record approval of the goals, not a claim that final acceptance h
 
 ## French edition
 
-The founder requested a French edition on 2026-09-24. It mirrors the 22 approved
-English routes under `fr/`; English remains the canonical source and default
+The founder requested a French edition on 2026-09-24. It mirrors the approved
+English routes (22, then 23 from 2026-10-16) under `fr/`; English remains the canonical source and default
 language. Translate reader-facing content and navigation while preserving
 technical identifiers, route responsibilities, and every runnable code fence.
 
@@ -73,6 +73,7 @@ The initial draft did not pass the agreed exercise. The review found prerequisit
 - `reference/configuration`
 - `reference/javascript`
 - `reference/events`
+- `reference/delivered-events` (23rd page, founder-approved 2026-10-16)
 - `reference/errors`
 - `reference/compatibility`
 - `reference/protocol`

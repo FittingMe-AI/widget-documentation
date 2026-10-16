@@ -14,8 +14,8 @@ const pages = [...pagesByLanguage.values()].flat();
 const errors = [];
 let links = 0, examples = 0, blocks = 0, anchors = 0;
 if (!pagesByLanguage.has('en') || !pagesByLanguage.has('fr')) errors.push('Expected English and French navigation.');
-if (pagesByLanguage.get('en')?.length !== 22 || pagesByLanguage.get('fr')?.length !== 22) {
-  errors.push(`Expected 22 pages in each language, found en=${pagesByLanguage.get('en')?.length ?? 0}, fr=${pagesByLanguage.get('fr')?.length ?? 0}.`);
+if (pagesByLanguage.get('en')?.length !== 23 || pagesByLanguage.get('fr')?.length !== 23) {
+  errors.push(`Expected 23 pages in each language, found en=${pagesByLanguage.get('en')?.length ?? 0}, fr=${pagesByLanguage.get('fr')?.length ?? 0}.`);
 }
 if (!languages?.find(language => language.language === 'en')?.default) errors.push('English must remain the default language.');
 async function publicMdx(directory = root) {
@@ -30,7 +30,7 @@ async function publicMdx(directory = root) {
 }
 const inventory = await publicMdx();
 for (const page of inventory) if (!pages.includes(page)) errors.push(`Unlisted public page: ${page}`);
-if (pages.length !== 44 || new Set(pages).size !== 44) errors.push(`Expected 44 distinct localized pages, found ${pages.length}.`);
+if (pages.length !== 46 || new Set(pages).size !== 46) errors.push(`Expected 46 distinct localized pages, found ${pages.length}.`);
 const codeBlocksByPage = new Map();
 const proseIdentifiersByPage = new Map();
 const codeFences = /^```([^\n]*)\n([\s\S]*?)\n```/gm;

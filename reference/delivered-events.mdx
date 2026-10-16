@@ -1,0 +1,126 @@
+---
+title: "Delivered Events (BigQuery)"
+sidebarTitle: "Delivered Events"
+description: "The Try-On funnel facts FittingMe delivers to your BigQuery project: event types, columns, reading rules and example queries."
+---
+
+Delivered Events are the Try-On funnel facts FittingMe records on its servers and lets you read in BigQuery. They are not browser events: [page events](/reference/events) reach your page through `window.FittingMe.on`, and adding a Delivered Events name to that handler subscribes it to nothing.
+
+## Get access
+
+FittingMe provisions one BigQuery dataset for your company, named `delivered_events_YOUR_KEY`, holding one read-only view, `events_v1`. A company that runs one Retailer per country can read all of them in the same view; each row names its Retailer.
+
+1. Send FittingMe the Google principals that will read the view: a Google group for your analysts, and the service accounts of your pipelines.
+2. FittingMe grants each principal read access to that dataset only, and sends you the full path of the view.
+3. Run your queries from your own Google Cloud project, which pays for them. The view is in the `europe-west1` location; a table you copy rows into must be in the same location.
+
+Ask FittingMe about access if your dataset has not been provisioned.
+
+## Columns
+
+`events_v1` has nine columns, in this order. One row is one fact.
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| `event_type` | STRING | The fact, one of the [event types](#event-types). |
+| `occurred_at` | TIMESTAMP | When FittingMe's servers recorded the fact, in UTC. Never the shopper's clock. |
+| `journey` | STRING | Always `tryon`. Sizing facts are not delivered yet. |
+| `product_id` | STRING | Your product identifier, as your page supplied it. Never empty. |
+| `session_key` | STRING | 32 lowercase hexadecimal characters, the same for every fact of one session. |
+| `correlation_id` | STRING | The join value: your [correlation identifier](#join-your-own-analytics) in force when the fact happened, or `FM_` followed by the `session_key` when your page supplied none. Never empty. |
+| `event_id` | STRING | The fact's own identifier, a UUID. Unique per row and never empty. |
+| `retailer_id` | STRING | The Retailer the fact belongs to, a lowercase UUID. |
+| `try_on_reference` | STRING | On `tryon_result_revealed` rows, the try-on's reference: 32 lowercase hexadecimal characters. `NULL` on every other row. |
+
+A session is one shopper's Try-On journey on one product. It lasts up to 48 hours: a shopper who comes back to the same product in the same browser within that time resumes it, and its facts keep the same `session_key`. `session_key` is derived from FittingMe's session and opens nothing on the API.
+
+`try_on_reference` was appended on 15 October 2026. FittingMe tells you when it reaches your dataset. It carries the same value as the [`tryon_result_revealed` page event](/reference/events#shown-try-on-renders) of that try-on, so you can join the two. It is also `NULL` on reveal rows recorded before it existed (those of 11 September 2026 and earlier).
+
+## Event types
+
+Every type can occur more than once in a session.
+
+| `event_type` | What happened | How often |
+| --- | --- | --- |
+| `session_created` | The shopper opened the Try-On journey on a product, starting a new session. | Once per session. Resuming a session does not repeat it. |
+| `tryon_photo_ingested` | FittingMe accepted a shopper photo, uploaded from the computer or the phone. | Once per accepted photo. Reusing a remembered photo adds no row. |
+| `tryon_launch` | FittingMe accepted a try-on request. | Once per request, re-runs included. |
+| `tryon_result_revealed` | A try-on render was displayed to the shopper for the first time. | Once per try-on. Showing the same render again adds no row. |
+| `cart_intent_expressed` | The shopper tapped the main button of the result screen, **Back to product**, which closes the drawer so that they choose a size and add the item to the cart on your page. | Once per tap. A `journey_exited` row follows it. |
+| `journey_exited` | The shopper left the journey: they closed the drawer by any means, including **Back to product**, or left the page with the drawer open. | At most once per drawer opening. |
+| `tryon_photo_refused` | A shopper photo was refused, at acceptance or during generation. | Once per refusal. |
+
+Read these facts as observations, not as conversions:
+
+- `cart_intent_expressed` is the last purchase gesture the widget sees. It is not an add-to-cart: it carries no size or variant, and FittingMe never learns whether the shopper bought the item. Use your own cart and order events for that.
+- `journey_exited` is not an abandonment: a shopper who reopens the drawer continues where they stopped.
+- `tryon_photo_refused` carries no reason, no origin and no photo. A missing fact is not proof that the shopper left.
+
+To count shown try-ons, count distinct `try_on_reference` values. Your invoice comes from FittingMe's own records, not from these rows.
+
+## Reading rules
+
+- **Freshness.** Rows usually appear within minutes. No delay is guaranteed: pull an overlapping window and deduplicate on `event_id`.
+- **Stable contract.** A column is never renamed, removed or reordered, and an event type is never renamed or removed. New columns are appended last, and new types are announced before they reach your dataset. Ignore types you do not handle.
+- **Test traffic.** Every session is delivered. To tell your test traffic apart, ask FittingMe to set up your test domains as a separate Retailer: its rows carry its own `retailer_id`.
+- **Retention.** Facts stay readable for 13 months, then leave the view.
+- **Erasure.** When you ask FittingMe to erase correlation identifiers, the matching rows stay and their `correlation_id` becomes the `FM_` stand-in, so your counts do not change. Rows you have copied into your own tables are yours to erase.
+
+## Join your own analytics
+
+Supply your own correlation identifier, such as a visit number, to join these facts to your analytics. Set the `data-correlation-id` attribute on the loader script tag, or call `window.FittingMe.setCorrelationId(id)`. The value belongs to the page, the last call wins, and it applies from the next drawer opening. It is 1 to 128 characters of text and must not start with `FM_`; the loader refuses any other value and logs the reason in the console. Never put a direct personal identifier, such as an email address, in it.
+
+The value is recorded on each fact as it stands at that moment, so it can change within a session. A value starting with `FM_` is FittingMe's stand-in, never yours.
+
+## Example queries
+
+Replace `FITTINGME_PROJECT.delivered_events_YOUR_KEY` with the path FittingMe sent you.
+
+Daily funnel, in Paris time, counting sessions that reached each step on that day:
+
+```sql
+SELECT
+  DATE(occurred_at, 'Europe/Paris') AS day,
+  COUNT(DISTINCT IF(event_type = 'session_created', session_key, NULL)) AS sessions,
+  COUNT(DISTINCT IF(event_type = 'tryon_photo_ingested', session_key, NULL)) AS with_photo,
+  COUNT(DISTINCT IF(event_type = 'tryon_launch', session_key, NULL)) AS with_launch,
+  COUNT(DISTINCT IF(event_type = 'tryon_result_revealed', session_key, NULL)) AS with_render,
+  COUNT(DISTINCT IF(event_type = 'cart_intent_expressed', session_key, NULL)) AS with_cart_intent
+FROM `FITTINGME_PROJECT.delivered_events_YOUR_KEY.events_v1`
+WHERE occurred_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+GROUP BY day
+ORDER BY day
+```
+
+A session that starts one day and continues the next counts on both days.
+
+Incremental copy into your own table, pulling the last two days again and keeping each fact once:
+
+```sql
+MERGE `YOUR_PROJECT.YOUR_DATASET.fittingme_events` AS target
+USING (
+  SELECT *
+  FROM `FITTINGME_PROJECT.delivered_events_YOUR_KEY.events_v1`
+  WHERE occurred_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 DAY)
+) AS source
+ON target.event_id = source.event_id
+WHEN NOT MATCHED THEN
+  INSERT ROW
+```
+
+When FittingMe announces a new column, add it to your table before the next run.
+
+Renders shown and cart intents per visit, joined to your own visits table:
+
+```sql
+SELECT
+  visits.visit_id,
+  COUNTIF(events.event_type = 'tryon_result_revealed') AS renders_shown,
+  COUNTIF(events.event_type = 'cart_intent_expressed') AS cart_intents
+FROM `FITTINGME_PROJECT.delivered_events_YOUR_KEY.events_v1` AS events
+JOIN `YOUR_PROJECT.YOUR_DATASET.visits` AS visits
+  ON visits.visit_id = events.correlation_id
+WHERE NOT STARTS_WITH(events.correlation_id, 'FM_')
+  AND events.occurred_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
+GROUP BY visits.visit_id
+```
