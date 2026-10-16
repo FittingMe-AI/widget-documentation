@@ -81,7 +81,7 @@ documented behavior need no public prose edit if the existing content remains tr
 
 ## Canonical vocabulary
 
-Product vocabulary lives in `CONTEXT.md` at the workspace root. Never resolve it with a relative `../` path from a worktree.
+Product vocabulary lives in `CONTEXT.md` at the workspace root. Never resolve it with a relative `../` path from a worktree. The French name in « » after a term is the term the French edition uses, for example Retailer « enseigne » and Delivered Events « Événements Livrés ».
 
 Run `git worktree list` in this repository. The first worktree is the main checkout; its parent directory is the workspace root containing `CONTEXT.md`.
 

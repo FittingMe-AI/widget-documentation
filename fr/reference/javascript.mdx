@@ -38,7 +38,7 @@ Les commandes renvoient leur résultat de façon synchrone. `accepted` signifie 
 
 ## Identifiant de corrélation
 
-`window.FittingMe.setCorrelationId(id)` définit l’identifiant de corrélation de votre page, la valeur de jointure des [Delivered Events](/fr/reference/delivered-events#joindre-vos-propres-analyses). C’est une méthode de page, pas une commande d’intégration : elle ne prend aucun élément, s’applique à toutes les intégrations de la page et ne renvoie rien.
+`window.FittingMe.setCorrelationId(id)` définit l’identifiant de corrélation de votre page, la valeur de jointure des [Événements Livrés](/fr/reference/delivered-events#joindre-vos-propres-analyses). C’est une méthode de page, pas une commande d’intégration : elle ne prend aucun élément, s’applique à toutes les intégrations de la page et ne renvoie rien.
 
 - Passez 1 à 128 caractères de texte qui ne commencent pas par `FM_`. Passez `""`, `null` ou `undefined` pour effacer la valeur.
 - La dernière valeur l’emporte, qu’elle vienne de cette méthode ou de l’attribut [`data-correlation-id`](/fr/reference/configuration#attributs-facultatifs). Définir de nouveau la même valeur ne change rien.
@@ -70,7 +70,7 @@ N’y placez jamais d’identifiant personnel direct, comme une adresse e-mail.
 | `unknown_embed` | L’élément ne correspond à aucune intégration connue. | Vérifiez l’élément et l’ordre de montage. |
 | `embed_destroyed` | L’intégration référencée a été détruite. | Cessez d’utiliser l’ancienne référence ou montez une nouvelle intégration. |
 | `bootstrap_incomplete` | L’amorçage est en cours ou indéterminé. | Attendez un nouveau résultat ou diagnostiquez l’échec de l’amorçage. |
-| `embed_ineligible` | L’intégration ne peut pas être ouverte. | Vérifiez les données produit et sa disponibilité pour le détaillant. |
+| `embed_ineligible` | L’intégration ne peut pas être ouverte. | Vérifiez les données produit et sa disponibilité pour l’enseigne. |
 | `fullscreen_unavailable` | Un élément parent empêche l’affichage correct en plein écran. | Corrigez le problème de bloc conteneur signalé dans la console. |
 | `drawer_open` | La destruction a été demandée alors que le panneau était ouvert. | Fermez-le, attendez la confirmation de fermeture, puis détruisez l’intégration. |
 

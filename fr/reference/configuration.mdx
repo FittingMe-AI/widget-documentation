@@ -13,8 +13,8 @@ Chargez `https://widget.fittingme.ai/v5/fittingme-loader.js` une seule fois **pa
 | Attribut | Valeur | Exigence |
 | --- | --- | --- |
 | `data-api-base` | URL de base de l’API, généralement `https://api.fittingme.ai` | Doit correspondre à l’environnement de la clé. |
-| `data-retailer-key` | Clé détaillant publiable | Obligatoire ; utilisez la clé autorisée pour le nom d’hôte de la boutique. |
-| `data-product-id` | Identifiant produit du commerçant | Obligatoire même si vous fournissez une image de vêtement. |
+| `data-retailer-key` | Clé d’enseigne publiable | Obligatoire ; utilisez la clé autorisée pour le nom d’hôte de la boutique. |
+| `data-product-id` | Identifiant produit de l’enseigne | Obligatoire même si vous fournissez une image de vêtement. |
 | `data-journey` | `tryon` | Obligatoire pour l’intégration décrite dans ce guide. |
 
 Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n’est sélectionné implicitement.
@@ -28,7 +28,7 @@ Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n�
 | `data-container` | `#fittingme-widget-container` | Sélecteur CSS correspondant au conteneur existant. Son contenu est géré par FittingMe. |
 | `data-trigger-mode` | Déclencheur géré par la page hôte | `widget` pour le point d’accès FittingMe ; `host` pour un bouton contrôlé par votre page. |
 | `data-locale` | Français par défaut | Langue du widget : `en` ou `fr` ; les variantes régionales prises en charge reviennent à leur langue de base. La page de capture sur téléphone utilise la langue de son navigateur. |
-| `data-correlation-id` | Aucun identifiant de corrélation | Votre propre valeur de jointure pour les [Delivered Events](/fr/reference/delivered-events#joindre-vos-propres-analyses), par exemple un numéro de visite : 1 à 128 caractères de texte, sans le préfixe `FM_`. Jamais un identifiant personnel direct. |
+| `data-correlation-id` | Aucun identifiant de corrélation | Votre propre valeur de jointure pour les [Événements Livrés](/fr/reference/delivered-events#joindre-vos-propres-analyses), par exemple un numéro de visite : 1 à 128 caractères de texte, sans le préfixe `FM_`. Jamais un identifiant personnel direct. |
 | `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Remplacement explicite du document du widget pour un environnement attribué. Assurez la compatibilité du loader, du widget et de l’API. |
 
 `data-sizing-domain` appartient à l’intégration distincte de recommandations de taille et n’est pas nécessaire pour l’essayage virtuel.

@@ -34,11 +34,11 @@ En mode déclencheur `host`, vous devez afficher votre propre bouton. Dans ce mo
 
 ## Échec de l’authentification ou de l’accès au domaine
 
-1. Vérifiez que la clé correspond au détaillant et à l’environnement d’API prévus.
+1. Vérifiez que la clé correspond à l’enseigne et à l’environnement d’API prévus.
 2. Vérifiez qu’elle est active ou encore valide pendant une rotation et qu’elle n’a pas été révoquée.
 3. Comparez le nom d’hôte du navigateur avec les domaines autorisés de la clé, y compris `www` et les sous-domaines de prévisualisation.
 4. Pour les tests locaux, utilisez une clé `localhost` dédiée et ouvrez une URL HTTP sur `localhost`, et non une URL de fichier ou `127.0.0.1`.
-5. Si la requête est interdite alors que la clé et le domaine sont valides, faites confirmer par FittingMe les droits d’essayage du détaillant.
+5. Si la requête est interdite alors que la clé et le domaine sont valides, faites confirmer par FittingMe les droits d’essayage de l’enseigne.
 
 Un amorçage éligible ne prouve pas que le domaine est autorisé pour la clé : ce contrôle a lieu à l’ouverture de la session. `origin_not_allowed` signifie que le nom d’hôte n’est pas autorisé ; `origin_underivable` signifie que le service n’a pas pu déterminer l’origine de l’intégration. Consultez les [codes d’erreur](/fr/reference/errors).
 
