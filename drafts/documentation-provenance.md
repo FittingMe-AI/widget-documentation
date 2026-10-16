@@ -1,7 +1,8 @@
 ## Shown try-on renders — local unpublished draft, 2026-10-16
 
 Documentation updated: `reference/events.mdx`, `integration/analytics.mdx`,
-`maintenance/releases.mdx` and their French counterparts. The ticket's
+`maintenance/releases.mdx`, `reference/protocol.mdx` (founder ruling
+2026-10-16) and their French counterparts. The ticket's
 `tracking/usage` route is a redirect to `/integration/analytics` in
 `docs.json`; its adapter name map is the analytics adapter, updated here. No
 other public page changed. The French events page also regains the
@@ -27,6 +28,7 @@ Selected sources, read on 2026-10-16 at 06:00–06:20 UTC:
 | `events_v1` nine columns in order; `try_on_reference` on reveal rows only, `NULL` elsewhere and on reveal rows without a try-on id (prod ≤ 2026-09-11) | `b2b/infra/modules/delivered_events/README.md:16-29`, `:45-46`, `:61-71`; `main.tf:61-66`; `tests/events_v1.tftest.hcl:71` |
 | `occurred_at` is server time at ingest | `b2b/infra/modules/delivered_events/README.md:51` |
 | A billed try-on belongs to the Paris month of its first display | `billing/billing-metering/src/period.rs:46`; `src/db/mod.rs:150-152`. Exception kept out of public prose: a unit assigned after its display month is final is charged in the assignment month and keeps its display month for audit. The pages promise no invoice match, so the display-month statement stays true |
+| Direct hosts on `fittingme/4` receive `tryon_result_revealed` with payload `try_on_reference` | `widget/tests/contract/fixtures/protocole/english_v4.json` (envelope `{"protocol":"fittingme/4","message":"tryon_result_revealed","payload":{"try_on_reference":…}}`); canon P36.1 (line 3092) and P36 paragraph 4 (majors 4 and 5) |
 | Indicative; invoices from FittingMe's records only | ADR-098 (Notion) and P36 paragraph 3; `CONTEXT.md` **Page Event** |
 
 The analytics adapter previously mapped `opening_id`, a type the loader never

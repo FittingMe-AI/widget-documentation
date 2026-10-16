@@ -2,8 +2,8 @@
 
 Local documentation: http://localhost:3230/reference/events#shown-try-on-renders
 (Mintlify CLI, detached, log `.review/trpe-03/mint.log`). Read
-`/reference/events`, `/integration/analytics`, `/maintenance/releases` and
-their `/fr/` counterparts.
+`/reference/events`, `/integration/analytics`, `/maintenance/releases`,
+`/reference/protocol#messages` and their `/fr/` counterparts.
 
 | Check | Result |
 | --- | --- |
@@ -13,7 +13,7 @@ their `/fr/` counterparts.
 | Desktop/mobile render | 12/12 cases (6 pages × 1440×1000 and 390×844): HTTP 200, expected new text, 0 horizontal overflow, 0 page errors, new anchors resolve, catalogue table has 5 event rows. 63.4 s at host load 37.95 → 50.26. |
 | `git diff --check` | rc 0. |
 | Refuting reader (fresh agent, mandated to refute) | All six pages read in full: no page promises an invoice match, a replay, or an event from saved try-ons. Its five wording points were applied: « in this embed » removed from the once-per-try-on sentence, the drawer-open aside removed from the handler warning, « FittingMe try-on identifier » in the payload list, month-boundary sentence reworded to « the month of your count can differ from the billed month », French « non accordé » for consent withheld. |
-| Open, needs a founder decision | `reference/protocol.mdx` documents `fittingme/4` for direct hosts, and P36 sends `tryon_result_revealed` under major 4: its Messages table does not list the message. The ticket forbids other page changes. |
+| Direct-embed protocol (founder ruling 2026-10-16: « reference/protocol.mdx must get a tryon_result_revealed row ») | `reference/protocol.mdx` documents `fittingme/4`, and P36 sends the message under major 4. Both locales gained a Messages row, widget → host, `try_on_reference`, optional to handle. Red first: English row alone gave rc 1 with 2 count errors on `fr/reference/protocol`; green after the French row. The direct-embed example's `switch` has no `default` branch, so it already ignores the message: no code change. Rendered at 1440×1000 and 390×844: one row, page overflow 0 (the table scrolls inside its container on mobile, as before). |
 
 ### Dev run of the updated adapter, 2026-10-16 06:09–06:17 UTC
 
