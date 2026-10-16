@@ -85,6 +85,7 @@
                   "reference/configuration",
                   "reference/javascript",
                   "reference/events",
+                  "reference/delivered-events",
                   "reference/errors",
                   "reference/compatibility",
                   "reference/protocol"
@@ -147,6 +148,7 @@
                   "fr/reference/configuration",
                   "fr/reference/javascript",
                   "fr/reference/events",
+                  "fr/reference/delivered-events",
                   "fr/reference/errors",
                   "fr/reference/compatibility",
                   "fr/reference/protocol"

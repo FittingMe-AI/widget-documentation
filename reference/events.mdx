@@ -34,19 +34,9 @@ Eligibility is not a successful session or generation. Key-domain permission is 
 
 `transport_code` may be a string on an indeterminate event. Its values include `network`, `timeout`, and HTTP status strings. Use it as diagnostic information; do not infer a business reason from an HTTP transport outcome.
 
-## Delivered Events and photo refusals
+## Delivered Events
 
-`tryon_photo_refused` is a server-side Delivered Events fact, **not** a `window.FittingMe.on` event. It covers refusals at photo acceptance and by the generation provider without exposing which occurred.
-
-The addition is deployed to dev as of 9 October 2026. Confirm its announcement and rollout for your assigned dataset before expecting it in production. If you already read `events_v1`, accept the new event type.
-
-`events_v1` has nine columns, in this order: `event_type`, `occurred_at`, `journey`, `product_id`, `session_key`, `correlation_id`, `event_id`, `retailer_id`, `try_on_reference`. FittingMe appended the ninth column, `try_on_reference`, on 15 October 2026; it is deployed to dev. FittingMe fills it on `tryon_result_revealed` rows only, with the same value as the [page event](#shown-try-on-renders) of that try-on. It is `NULL` on every other row, and on older reveal rows recorded without their try-on (in production, those of 11 September 2026 and earlier). Columns are only ever appended, never renamed or reordered.
-
-Use `event_id` to deduplicate overlapping reads. `session_key` is a derived key, not an API capability; `correlation_id` carries the retailer join value or the marked `FM_` fallback. `retailer_id` identifies the retailer within the dataset.
-
-No refusal reason, origin, reading values, provider code, photo or result URL is delivered. Internal `tryon_photo_read` is excluded from `events_v1`. A refusal fact is an observed outcome, not a unique shopper or proof of complete delivery; do not classify every missing fact as abandonment.
-
-Ask FittingMe about access if Delivered Events has not been provisioned. Adding this name to a loader handler does not subscribe it to server-side facts.
+`tryon_photo_refused` and the other server-side facts are [Delivered Events](/reference/delivered-events), which you read in BigQuery. They are not `window.FittingMe.on` events: adding their names to a loader handler subscribes it to nothing.
 
 ## Opening origin
 
@@ -82,7 +72,7 @@ The widget sends `tryon_result_revealed` once per try-on, at the first display o
 
 Showing a render that was already displayed sends nothing: reopening the drawer, reloading the page or resuming the same render. A render opened for the first time from the shopper's saved try-ons does not send this event. A re-run is a new try-on and sends a new event with a different reference.
 
-`try_on_reference` names that try-on: 32 lowercase hexadecimal characters, the same value as the `try_on_reference` column of its `tryon_result_revealed` row in [Delivered Events](#delivered-events-and-photo-refusals). It is derived for you, is not FittingMe's try-on identifier and opens nothing on the API. Count distinct `try_on_reference` values to count shown try-ons.
+`try_on_reference` names that try-on: 32 lowercase hexadecimal characters, the same value as the `try_on_reference` column of its `tryon_result_revealed` row in [Delivered Events](/reference/delivered-events). It is derived for you, is not FittingMe's try-on identifier and opens nothing on the API. Count distinct `try_on_reference` values to count shown try-ons.
 
 The event reaches your page in the order the widget announced it: before the `closed` and `completed` of a later closure. It can follow `closed` only when the browser had not finished computing the reference when the render was displayed. If the browser refuses that computation, the widget sends no event and writes one console line; an event never arrives without its reference.
 
