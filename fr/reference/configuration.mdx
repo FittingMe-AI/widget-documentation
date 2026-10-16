@@ -28,6 +28,7 @@ Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n�
 | `data-container` | `#fittingme-widget-container` | Sélecteur CSS correspondant au conteneur existant. Son contenu est géré par FittingMe. |
 | `data-trigger-mode` | Déclencheur géré par la page hôte | `widget` pour le point d’accès FittingMe ; `host` pour un bouton contrôlé par votre page. |
 | `data-locale` | Français par défaut | Langue du widget : `en` ou `fr` ; les variantes régionales prises en charge reviennent à leur langue de base. La page de capture sur téléphone utilise la langue de son navigateur. |
+| `data-correlation-id` | Aucun identifiant de corrélation | Votre propre valeur de jointure pour les [Delivered Events](/fr/reference/delivered-events#joindre-vos-propres-analyses), par exemple un numéro de visite : 1 à 128 caractères de texte, sans le préfixe `FM_`. Jamais un identifiant personnel direct. |
 | `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Remplacement explicite du document du widget pour un environnement attribué. Assurez la compatibilité du loader, du widget et de l’API. |
 
 `data-sizing-domain` appartient à l’intégration distincte de recommandations de taille et n’est pas nécessaire pour l’essayage virtuel.
@@ -42,6 +43,7 @@ Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n�
 - Les attributs `data-*` inconnus et les parcours non pris en charge sont signalés comme refusés dans la console.
 - Une langue inconnue entraîne un repli ; elle ne crée pas de traduction. Pour une boutique anglophone, définissez explicitement `data-locale="en"`.
 - `data-container` et `data-widget-url` configurent le loader ; ils ne sont pas transmis au widget comme paramètres d’URL.
+- `data-correlation-id` est lu tel qu’il est écrit, sans suppression des espaces, et ne circule jamais dans une URL. Une valeur refusée (plus de 128 caractères ou préfixe `FM_`) écrit un avertissement dans la console et ne laisse aucun identifiant de corrélation en vigueur ; l’intégration se monte quand même. Pour changer la valeur ensuite, appelez [`setCorrelationId(id)`](/fr/reference/javascript#identifiant-de-corrélation).
 - Le loader déduit `host_origin` de la page et choisit la version majeure du protocole de messages. N’ajoutez ni `data-host-origin` ni `data-loader-major`.
 
 Le loader `/v5/` utilise les messages anglais `fittingme/5` et exige que le widget et l’API confirment explicitement la capacité plurielle. Une ancienne version ne peut pas accepter silencieusement une seule vue. Le chemin du fichier et la version du protocole sont deux contrats distincts. Indiquez explicitement `data-trigger-mode="widget"` pour afficher le déclencheur du widget. Une valeur omise, vide ou inconnue conserve le mode hôte. Les alias français sont décrits dans la [migration](/fr/reference/compatibility#compatibilité-française-temporaire).

@@ -36,6 +36,18 @@ Calling `close(element)` followed immediately by `destroy(element)` is unsafe wh
 
 Commands return synchronously. `accepted` means the command was accepted; observe events for the resulting state. An open request made before bootstrap completes is refused, not queued for later.
 
+## Correlation identifier
+
+`window.FittingMe.setCorrelationId(id)` sets your page's correlation identifier, the join value of [Delivered Events](/reference/delivered-events#join-your-own-analytics). It is a page method, not an embed command: it takes no element, applies to every embed on the page and returns nothing.
+
+- Pass 1 to 128 characters of text that do not start with `FM_`. Pass `""`, `null` or `undefined` to clear the value.
+- The last value wins, whether it comes from this method or from the [`data-correlation-id`](/reference/configuration#optional-attributes) attribute. Setting the same value again changes nothing.
+- An embed takes the value in force when its drawer opens. A value set while the drawer is open applies from the next opening.
+- A refused value (not text, over 128 characters, or starting with `FM_`) logs one console warning, never throws, and leaves no correlation identifier in force, not even the previous one.
+- The method exists once the first loader script tag has been accepted. Before that, use the attribute.
+
+Never put a direct personal identifier, such as an email address, in this value.
+
 ## State snapshot
 
 ```javascript

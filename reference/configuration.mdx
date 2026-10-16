@@ -28,6 +28,7 @@ Missing or blank required inputs prevent mounting. There is no implicit journey 
 | `data-container` | `#fittingme-widget-container` | CSS selector resolving to the existing container. Its contents belong to FittingMe. |
 | `data-trigger-mode` | Host-owned trigger | `widget` for the FittingMe entry point; `host` for a button controlled by your page. |
 | `data-locale` | French fallback | Widget language: `en` or `fr`; supported regional forms fall back to their base language. The separate phone capture page uses its browser’s language. |
+| `data-correlation-id` | No correlation identifier | Your own join value for [Delivered Events](/reference/delivered-events#join-your-own-analytics), such as a visit number: 1 to 128 characters of text, not starting with `FM_`. Never a direct personal identifier. |
 | `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Explicit widget document override for an assigned environment. Keep loader, widget, and API compatible. |
 
 `data-sizing-domain` belongs to the separate Sizing integration and is unnecessary for try-on.
@@ -42,6 +43,7 @@ Missing or blank required inputs prevent mounting. There is no implicit journey 
 - Unknown `data-*` attributes and unsupported journeys are rejected in the console.
 - An unknown locale falls back; it does not create a new translation. Set `data-locale="en"` explicitly for an English storefront.
 - `data-container` and `data-widget-url` configure the loader; they are not forwarded as widget query parameters.
+- `data-correlation-id` is read exactly as written, without trimming, and never travels in a URL. A refused value (over 128 characters or starting with `FM_`) logs one console warning and leaves no correlation identifier in force; the embed still mounts. To change the value later, call [`setCorrelationId(id)`](/reference/javascript#correlation-identifier).
 - The loader derives `host_origin` from the page and chooses the message protocol major. Do not add `data-host-origin` or `data-loader-major`.
 
 The `/v5/` loader uses `fittingme/5` English messages and requires an explicit plural capability acknowledgement from the widget and API. Older peers cannot silently accept one view. Artifact paths and wire majors are separate contracts. Set `data-trigger-mode="widget"` explicitly to show the widget trigger. Omission, empty and unknown values retain host mode. Deprecated French trigger aliases are described in [migration guidance](/reference/compatibility#temporary-french-compatibility).

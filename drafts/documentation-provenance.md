@@ -362,3 +362,19 @@ described as a separate test Retailer (founder ruling); a named test key of the
 production Retailer is not distinguishable in `events_v1`. The funnel and join
 examples passed a BigQuery dry run (no rows read) on the dev view on
 2026-10-16; the MERGE example was not run, as it needs a target table.
+
+## Correlation identifier in the loader reference (2026-10-16)
+
+`reference/configuration` gains the optional `data-correlation-id` row and a
+validation bullet; `reference/javascript` gains the "Correlation identifier"
+section for `window.FittingMe.setCorrelationId(id)` (+ `fr/`). The French
+Delivered Events page now says "panneau" for the drawer, like the other
+French pages. Sources read at widget `origin/main` `d536cdcd`.
+
+| Claim | Current owning source |
+| --- | --- |
+| Attribute on the loader tag, read untrimmed, never in a URL | widget `loader/fittingme-loader.js:294-307`, `:464`, `:1745`; `loader/lib/embed-protocol.js:144-159`, `:201` |
+| 1-128 code points, `FM_` refused, not-text refused, one console warning | widget `loader/fittingme-loader.js:313-317`, `:343-357` |
+| A refusal leaves no value in force; same value twice changes nothing; never throws | widget `loader/fittingme-loader.js:358-384` |
+| Page method, no element, no verdict; `""`, `null`, `undefined` clear; exists after the first accepted tag | widget `loader/fittingme-loader.js:1691-1701`, `:405-425` |
+| Value taken at drawer opening; a value set while open applies to the next opening | widget `foundation/correlation.ts:1-15` |

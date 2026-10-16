@@ -46,14 +46,14 @@ Chaque type peut se produire plusieurs fois dans une session.
 | `tryon_photo_ingested` | FittingMe a accepté une photo de l’acheteur, envoyée depuis l’ordinateur ou le téléphone. | Une fois par photo acceptée. Réutiliser une photo mémorisée n’ajoute aucune ligne. |
 | `tryon_launch` | FittingMe a accepté une demande d’essayage. | Une fois par demande, relances comprises. |
 | `tryon_result_revealed` | Un rendu d’essayage a été affiché à l’acheteur pour la première fois. | Une fois par essayage. Afficher de nouveau le même rendu n’ajoute aucune ligne. |
-| `cart_intent_expressed` | L’acheteur a appuyé sur le bouton principal de l’écran de résultat, **Retour au produit**, qui ferme le tiroir pour qu’il choisisse une taille et ajoute l’article au panier sur votre page. | Une fois par appui. Une ligne `journey_exited` la suit. |
-| `journey_exited` | L’acheteur a quitté le parcours : il a fermé le tiroir par n’importe quel moyen, **Retour au produit** compris, ou a quitté la page tiroir ouvert. | Au plus une fois par ouverture du tiroir. |
+| `cart_intent_expressed` | L’acheteur a appuyé sur le bouton principal de l’écran de résultat, **Retour au produit**, qui ferme le panneau pour qu’il choisisse une taille et ajoute l’article au panier sur votre page. | Une fois par appui. Une ligne `journey_exited` la suit. |
+| `journey_exited` | L’acheteur a quitté le parcours : il a fermé le panneau par n’importe quel moyen, **Retour au produit** compris, ou a quitté la page panneau ouvert. | Au plus une fois par ouverture du panneau. |
 | `tryon_photo_refused` | Une photo de l’acheteur a été refusée, à l’acceptation ou pendant la génération. | Une fois par refus. |
 
 Lisez ces faits comme des observations, pas comme des conversions :
 
 - `cart_intent_expressed` est le dernier geste d’achat que voit le widget. Ce n’est pas un ajout au panier : il ne porte ni taille ni variante, et FittingMe ne sait jamais si l’acheteur a acheté l’article. Utilisez pour cela vos propres événements de panier et de commande.
-- `journey_exited` n’est pas un abandon : un acheteur qui rouvre le tiroir reprend là où il s’était arrêté.
+- `journey_exited` n’est pas un abandon : un acheteur qui rouvre le panneau reprend là où il s’était arrêté.
 - `tryon_photo_refused` ne porte ni cause, ni origine, ni photo. Un fait manquant ne prouve pas que l’acheteur est parti.
 
 Pour compter les essayages affichés, comptez les valeurs distinctes de `try_on_reference`. Votre facture provient des propres enregistrements de FittingMe, pas de ces lignes.
@@ -68,7 +68,7 @@ Pour compter les essayages affichés, comptez les valeurs distinctes de `try_on_
 
 ## Joindre vos propres analyses
 
-Fournissez votre propre identifiant de corrélation, par exemple un numéro de visite, pour joindre ces faits à vos analyses. Placez l’attribut `data-correlation-id` sur la balise script du loader, ou appelez `window.FittingMe.setCorrelationId(id)`. La valeur appartient à la page, le dernier appel l’emporte, et elle s’applique à partir de la prochaine ouverture du tiroir. Elle compte de 1 à 128 caractères de texte et ne doit pas commencer par `FM_` ; le loader refuse toute autre valeur et en écrit la raison dans la console. N’y placez jamais d’identifiant personnel direct, comme une adresse e-mail.
+Fournissez votre propre identifiant de corrélation, par exemple un numéro de visite, pour joindre ces faits à vos analyses. Placez l’attribut `data-correlation-id` sur la balise script du loader, ou appelez [`window.FittingMe.setCorrelationId(id)`](/fr/reference/javascript#identifiant-de-corrélation). La valeur appartient à la page, le dernier appel l’emporte, et elle s’applique à partir de la prochaine ouverture du panneau. Elle compte de 1 à 128 caractères de texte et ne doit pas commencer par `FM_` ; le loader refuse toute autre valeur et en écrit la raison dans la console. N’y placez jamais d’identifiant personnel direct, comme une adresse e-mail.
 
 La valeur est enregistrée sur chaque fait telle qu’elle est à ce moment-là : elle peut donc changer au cours d’une session. Une valeur qui commence par `FM_` est le remplacement de FittingMe, jamais la vôtre.
 
