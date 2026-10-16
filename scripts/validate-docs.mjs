@@ -112,6 +112,14 @@ for (const page of pages) {
   }
   const retired = /data-api-url|data-api-key|cdn\.fittingme\.ai|fittingme:ready|fittingme:triggerState|Bearer YOUR|reset page|coming soon|TODO|TBD/gi;
   for (const match of source.matchAll(retired)) errors.push(`${page}: retired or unfinished text: ${match[0]}`);
+  // French prose keeps the documentation's terms; code keeps its identifiers (`tiroir_ouvert`).
+  if (page.startsWith('fr/')) {
+    const prose = source.replace(codeFences, '').replace(/`[^`\n]+`/g, '');
+    for (const [word] of prose.matchAll(/\b[Tt]iroirs?\b|\b[Cc]hargeurs?\b|\bCHAÎNE\b/g)) {
+      const term = /^t/i.test(word) ? '« panneau »' : /^ch/i.test(word) && word !== 'CHAÎNE' ? '« loader »' : 'STRING';
+      errors.push(`${page}: « ${word} » in French prose; the documentation writes ${term}.`);
+    }
+  }
 }
 for (const page of pagesByLanguage.get('en') ?? []) {
   const frenchPage = `fr/${page}`;
