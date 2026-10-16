@@ -1,0 +1,32 @@
+# Merging to main publishes the site (Mintlify), so every PR runs the
+# repository's validation before merge: one job, no dependencies.
+# Keep the trigger unconditional so the check always reports.
+name: Validate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+      - name: Validate pages, links, anchors and French parity
+        run: node scripts/validate-docs.mjs
+      - name: Check whitespace in the PR diff
+        run: git diff --check "${{ github.event.pull_request.base.sha }}" HEAD
