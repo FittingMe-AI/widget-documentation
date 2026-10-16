@@ -32,6 +32,8 @@ const inventory = await publicMdx();
 for (const page of inventory) if (!pages.includes(page)) errors.push(`Unlisted public page: ${page}`);
 if (pages.length !== 44 || new Set(pages).size !== 44) errors.push(`Expected 44 distinct localized pages, found ${pages.length}.`);
 const codeBlocksByPage = new Map();
+const proseIdentifiersByPage = new Map();
+const codeFences = /^```([^\n]*)\n([\s\S]*?)\n```/gm;
 for (const page of pages) {
   let source;
   try { source = await readFile(resolve(root, `${page}.mdx`), 'utf8'); }
@@ -60,7 +62,10 @@ for (const page of pages) {
   const fences = [...source.matchAll(/^```/gm)].length;
   if (fences % 2) errors.push(`${page}: unclosed code fence`);
   blocks += fences / 2;
-  codeBlocksByPage.set(page, [...source.matchAll(/^```([^\n]*)\n([\s\S]*?)\n```/gm)].map(([, language, code]) => `${language}\n${code}`));
+  codeBlocksByPage.set(page, [...source.matchAll(codeFences)].map(([, language, code]) => `${language}\n${code}`));
+  const identifiers = new Map();
+  for (const [, code] of source.replace(codeFences, '').matchAll(/`([^`\n]+)`/g)) identifiers.set(code, (identifiers.get(code) ?? 0) + 1);
+  proseIdentifiersByPage.set(page, identifiers);
   for (const [, html] of source.matchAll(/```html[^\n]*\n([\s\S]*?)\n```/g)) {
     if (!html.startsWith('<!doctype html>')) continue;
     examples++;
@@ -79,6 +84,19 @@ for (const page of pagesByLanguage.get('en') ?? []) {
   if (!frenchBlocks) errors.push(`${frenchPage}: missing French code blocks.`);
   else if (JSON.stringify(englishBlocks) !== JSON.stringify(frenchBlocks)) errors.push(`${frenchPage}: code blocks differ from the English source.`);
 }
+// Every inline identifier of the English events reference (event types, fields, columns,
+// values) must be named the same number of times on each page in both languages.
+const eventsPageIdentifiers = [...(proseIdentifiersByPage.get('reference/events')?.keys() ?? [])];
+let vocabularyChecks = 0;
+for (const page of pagesByLanguage.get('en') ?? []) {
+  const [english, french] = [page, `fr/${page}`].map(path => proseIdentifiersByPage.get(path));
+  if (!english || !french) continue; // a missing page is already reported above
+  for (const identifier of eventsPageIdentifiers) {
+    vocabularyChecks++;
+    const [inEnglish, inFrench] = [english, french].map(counts => counts.get(identifier) ?? 0);
+    if (inEnglish !== inFrench) errors.push(`fr/${page}: \`${identifier}\` is named ${inEnglish} time(s) in English, ${inFrench} in French.`);
+  }
+}
 if (examples < 6) errors.push(`Expected at least 3 complete HTML examples in each language, found ${examples}.`);
-console.log(JSON.stringify({ pages: pages.length, pagesByLanguage: Object.fromEntries([...pagesByLanguage].map(([language, entries]) => [language, entries.length])), publicFiles: inventory.length, links, anchors, codeBlocks: blocks, completeHtmlExamples: examples, errors }, null, 2));
+console.log(JSON.stringify({ pages: pages.length, pagesByLanguage: Object.fromEntries([...pagesByLanguage].map(([language, entries]) => [language, entries.length])), publicFiles: inventory.length, links, anchors, codeBlocks: blocks, completeHtmlExamples: examples, eventsPageIdentifiers: eventsPageIdentifiers.length, vocabularyChecks, errors }, null, 2));
 process.exitCode = errors.length ? 1 : 0;

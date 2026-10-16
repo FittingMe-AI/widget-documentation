@@ -55,6 +55,7 @@ Avant de traiter un message reçu, vérifiez **à la fois** `event.source === if
 | Widget → hôte | `opened` | Compteur `opening_id` facultatif | Agrandissez l’iframe, verrouillez le défilement de la page et gérez l’historique des commandes hôte. |
 | Widget → hôte | `closed` | Objet vide | Rétablissez la hauteur dans le flux, le défilement, le focus et l’état d’historique approprié. |
 | Widget → hôte | `completed` | Objet vide | Observez à la fermeture un résultat terminé, après `closed` ; il ne s’agit pas d’un décompte de générations uniques. |
+| Widget → hôte | `tryon_result_revealed` | `try_on_reference` : 32 caractères hexadécimaux minuscules | Facultatif. Un rendu d’essayage a été affiché pour la première fois, une fois par essayage ; jamais renvoyé. Comptez les références distinctes pour compter les essayages affichés ; indicatif, jamais une facture. Ignorez-le si vous ne l’utilisez pas. Consultez [rendus d’essayage affichés](/fr/reference/events#rendus-d’essayage-affichés). |
 | Hôte → widget | `open` | Objet vide dans cet exemple | Demandez l’ouverture après confirmation de l’éligibilité ; ne renvoyez pas la commande tant que le panneau est ouvert. |
 | Hôte → widget | `close` | Objet vide | Demandez la fermeture. Attendez l’annonce de fermeture. |
 | Hôte → widget | `layout` | `capability: 'drawer_geometry'` ; `opening_id`, `width_px` et `height_px` facultatifs | Négociez la géométrie si cette option est proposée et confirmez l’ouverture correspondante une fois la mise en page calculée. |

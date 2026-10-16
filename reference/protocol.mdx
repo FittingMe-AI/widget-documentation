@@ -55,6 +55,7 @@ Before processing a received message, verify **both** `event.source === iframe.c
 | Widget → host | `opened` | Optional `opening_id` counter | Expand the iframe, lock page scrolling, and manage host-command history. |
 | Widget → host | `closed` | Empty object | Restore in-flow height, scrolling, focus, and the appropriate history state. |
 | Widget → host | `completed` | Empty object | Observe a completed result at close, after `closed`; not a unique generation count. |
+| Widget → host | `tryon_result_revealed` | `try_on_reference`: 32 lowercase hexadecimal characters | Optional. A try-on render was displayed for the first time, once per try-on; never resent. Count distinct references to count shown try-ons; indicative, never an invoice. Ignore it if unused. See [shown try-on renders](/reference/events#shown-try-on-renders). |
 | Host → widget | `open` | Empty object for this recipe | Request opening after eligibility; do not resend while open. |
 | Host → widget | `close` | Empty object | Request closure. Observe the closing announcement. |
 | Host → widget | `layout` | `capability: 'drawer_geometry'`; optional `opening_id`, `width_px`, `height_px` | Negotiate geometry when offered and acknowledge the corresponding opening after layout. |
