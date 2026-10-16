@@ -6,7 +6,7 @@ This repository publishes the retailer-facing FittingMe integration documentatio
 
 The current documentation scope is virtual try-on only: onboarding, Journey Embed placement, the public loader contract, direct `fittingme/3` integration, configuration, tracking and observable integration failures. Sizing is deferred while it is still being developed.
 
-The founder-approved scope, developer goals and page structure (22 pages approved 2026-09-23; the 23rd, Delivered Events, approved 2026-10-16) are recorded in `drafts/documentation-design.md`. Catalogue onboarding is FittingMe-assisted and catalogue integration uses the loader; direct protocol examples use `fittingme/3` with a supplied garment image URL.
+The founder-approved scope, developer goals and page list are recorded in `drafts/documentation-design.md`. Its Navigation section is the approved page list: `scripts/validate-docs.mjs` requires `docs.json` to match it in order and groups, with `fr/` mirroring it. Catalogue onboarding is FittingMe-assisted and catalogue integration uses the loader; direct protocol examples use `fittingme/3` with a supplied garment image URL.
 
 ## Repository boundary
 
@@ -39,7 +39,7 @@ size is not the criterion.
 Changes in other repositories trigger an update only through an actual effect on
 this documented surface. Sizing, internal administration, model training and
 billing internals do not enter the public guide merely because their code changes.
-Keep the approved Try-On scope and 23-page navigation unless a scope change is
+Keep the approved Try-On scope and navigation unless a scope change is
 explicitly approved. Pure refactors, test/CI changes, or fixes restoring already
 documented behavior need no public prose edit if the existing content remains true.
 
@@ -139,7 +139,7 @@ Presentation follows the FittingMe design system, whose canonical source is `pub
 - Address the developer directly, whether they work in-house for the retailer or as an external integrator. Refer to "your storefront", "your team", or "the retailer" as appropriate; do not assume the retailer is the developer's client. Name specific roles, such as retailer Admin or release owner, when an action belongs to them.
 - Use active voice, second person, sentence-case headings, and concise paragraphs.
 - Keep examples copyable and use placeholders such as `YOUR_PUBLISHABLE_KEY`.
-- Add, move, or delete a page and its `docs.json` navigation entry together.
+- Add, move, or delete a page together with its `docs.json` entry and its line in the approved page list (`drafts/documentation-design.md`, Navigation). A new page needs founder approval before it enters that list.
 - Changing the external publication domain of this Mintlify site is a separate deployment decision. Do not infer that change from API, CDN, marketing, or portal domain migrations.
 
 ## Validation

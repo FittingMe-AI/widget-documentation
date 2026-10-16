@@ -26,7 +26,7 @@ The checkboxes record approval of the goals, not a claim that final acceptance h
 ## French edition
 
 The founder requested a French edition on 2026-09-24. It mirrors the approved
-English routes (22, then 23 from 2026-10-16) under `fr/`; English remains the canonical source and default
+English routes (see Navigation) in `fr/`; English remains the canonical source and default
 language. Translate reader-facing content and navigation while preserving
 technical identifiers, route responsibilities, and every runnable code fence.
 
@@ -41,6 +41,8 @@ This exercise and physical-device coverage remain separate from automated docume
 The initial draft did not pass the agreed exercise. The review found prerequisite gaps, incorrect input/event facts, and unsafe lifecycle examples. Local corrections and focused regression evidence are recorded in `review-response.md`; all 12 goals remain subject to acceptance of the corrected draft. Approval of the goals and structure is unchanged.
 
 ## Navigation
+
+This list is the approved page list. `scripts/validate-docs.mjs` requires `docs.json` to match it in order and groups, and the French navigation to mirror it under `fr/`. Approving a page is one edit here.
 
 ### Get started
 
@@ -73,7 +75,7 @@ The initial draft did not pass the agreed exercise. The review found prerequisit
 - `reference/configuration`
 - `reference/javascript`
 - `reference/events`
-- `reference/delivered-events` (23rd page, founder-approved 2026-10-16)
+- `reference/delivered-events` (founder-approved 2026-10-16)
 - `reference/errors`
 - `reference/compatibility`
 - `reference/protocol`

@@ -6,18 +6,49 @@ import vm from 'node:vm';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(await readFile(resolve(root, 'docs.json'), 'utf8'));
 const languages = config.navigation.languages;
-const pagesByLanguage = new Map((languages ?? []).map(language => [
+const groupsByLanguage = new Map((languages ?? []).map(language => [
   language.language,
-  language.tabs.flatMap(tab => tab.groups.flatMap(group => group.pages)),
+  language.tabs.flatMap(tab => tab.groups),
 ]));
+const pagesByLanguage = new Map([...groupsByLanguage].map(([language, groups]) => [language, groups.flatMap(group => group.pages)]));
 const pages = [...pagesByLanguage.values()].flat();
 const errors = [];
 let links = 0, examples = 0, blocks = 0, anchors = 0;
-if (!pagesByLanguage.has('en') || !pagesByLanguage.has('fr')) errors.push('Expected English and French navigation.');
-if (pagesByLanguage.get('en')?.length !== 23 || pagesByLanguage.get('fr')?.length !== 23) {
-  errors.push(`Expected 23 pages in each language, found en=${pagesByLanguage.get('en')?.length ?? 0}, fr=${pagesByLanguage.get('fr')?.length ?? 0}.`);
+const languageCodes = (languages ?? []).map(language => language.language);
+if (languageCodes.length !== 2 || !languageCodes.includes('en') || !languageCodes.includes('fr')) {
+  errors.push(`Expected exactly one English and one French navigation, found: ${languageCodes.join(', ') || 'none'}.`);
 }
 if (!languages?.find(language => language.language === 'en')?.default) errors.push('English must remain the default language.');
+// The founder-approved pages are the `### Group` / `- \`route\`` list under `## Navigation` in the
+// design record. English navigation must equal it group by group (names and pages, in order), and
+// French must mirror it under `fr/`: approving a page is one edit to that list.
+const designRecord = 'drafts/documentation-design.md';
+const approvedGroups = [];
+for (const line of (await readFile(resolve(root, designRecord), 'utf8')).split(/^## /m).find(section => section.startsWith('Navigation\n'))?.split('\n') ?? []) {
+  const heading = line.match(/^### (.+)$/)?.[1].trim();
+  const route = line.match(/^- `([^`]+)`/)?.[1];
+  if (heading || (route && !approvedGroups.length)) approvedGroups.push({ group: heading, pages: [] });
+  if (route) approvedGroups.at(-1).pages.push(route);
+}
+const approved = approvedGroups.flatMap(group => group.pages);
+function compareWithApproved(language, found, expected) {
+  const [foundPages, expectedPages] = [found, expected].map(groups => groups.flatMap(group => group.pages));
+  const unapproved = foundPages.filter(page => !expectedPages.includes(page));
+  const missing = expectedPages.filter(page => !foundPages.includes(page));
+  for (const page of unapproved) errors.push(`docs.json (${language}) lists ${page}, which is not on the approved list in ${designRecord}; a new page needs founder approval there first.`);
+  for (const page of missing) errors.push(`docs.json (${language}) is missing the approved page ${page}.`);
+  if (unapproved.length || missing.length) return;
+  // French group labels are translated, so only English group names are compared.
+  const describe = group => (group ? `${language === 'en' ? `"${group.group ?? 'no heading'}"` : 'a group'} with ${group.pages.join(', ') || 'no pages'}` : 'absent');
+  for (let index = 0; index < Math.max(found.length, expected.length); index++) {
+    const [actual, approvedGroup] = [found[index], expected[index]];
+    if (actual && approvedGroup && (language !== 'en' || actual.group === approvedGroup.group) && actual.pages.join() === approvedGroup.pages.join()) continue;
+    errors.push(`docs.json (${language}) group ${index + 1} is ${describe(actual)}; the approved list expects ${describe(approvedGroup)}.`);
+    return;
+  }
+}
+compareWithApproved('en', groupsByLanguage.get('en') ?? [], approvedGroups);
+compareWithApproved('fr', groupsByLanguage.get('fr') ?? [], approvedGroups.map(group => ({ ...group, pages: group.pages.map(page => `fr/${page}`) })));
 async function publicMdx(directory = root) {
   const found = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -30,7 +61,7 @@ async function publicMdx(directory = root) {
 }
 const inventory = await publicMdx();
 for (const page of inventory) if (!pages.includes(page)) errors.push(`Unlisted public page: ${page}`);
-if (pages.length !== 46 || new Set(pages).size !== 46) errors.push(`Expected 46 distinct localized pages, found ${pages.length}.`);
+if (new Set(pages).size !== pages.length) errors.push(`docs.json lists ${pages.length} pages, ${new Set(pages).size} of them distinct.`);
 const codeBlocksByPage = new Map();
 const proseIdentifiersByPage = new Map();
 const codeFences = /^```([^\n]*)\n([\s\S]*?)\n```/gm;
@@ -98,5 +129,5 @@ for (const page of pagesByLanguage.get('en') ?? []) {
   }
 }
 if (examples < 6) errors.push(`Expected at least 3 complete HTML examples in each language, found ${examples}.`);
-console.log(JSON.stringify({ pages: pages.length, pagesByLanguage: Object.fromEntries([...pagesByLanguage].map(([language, entries]) => [language, entries.length])), publicFiles: inventory.length, links, anchors, codeBlocks: blocks, completeHtmlExamples: examples, eventsPageIdentifiers: eventsPageIdentifiers.length, vocabularyChecks, errors }, null, 2));
+console.log(JSON.stringify({ approvedPages: approved.length, pages: pages.length, pagesByLanguage: Object.fromEntries([...pagesByLanguage].map(([language, entries]) => [language, entries.length])), publicFiles: inventory.length, links, anchors, codeBlocks: blocks, completeHtmlExamples: examples, eventsPageIdentifiers: eventsPageIdentifiers.length, vocabularyChecks, errors }, null, 2));
 process.exitCode = errors.length ? 1 : 0;
