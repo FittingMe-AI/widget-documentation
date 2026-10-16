@@ -34,9 +34,9 @@ L’éligibilité ne signifie pas qu’une session ou une génération a réussi
 
 Dans un événement indéterminé, `transport_code` peut être une chaîne. Ses valeurs incluent `network`, `timeout` et des codes de statut HTTP sous forme de chaîne. Utilisez cette donnée à des fins de diagnostic ; ne déduisez pas une cause métier d’un résultat de transport HTTP.
 
-## Delivered Events
+## Événements Livrés
 
-`tryon_photo_refused` et les autres faits côté serveur sont des [Delivered Events](/fr/reference/delivered-events), que vous lisez dans BigQuery. Ce ne sont pas des événements de `window.FittingMe.on` : ajouter leurs noms à un gestionnaire du loader ne l’abonne à rien.
+`tryon_photo_refused` et les autres faits côté serveur sont des [Événements Livrés](/fr/reference/delivered-events), que vous lisez dans BigQuery. Ce ne sont pas des événements de `window.FittingMe.on` : ajouter leurs noms à un gestionnaire du loader ne l’abonne à rien.
 
 ## Origine de l’ouverture
 
@@ -72,7 +72,7 @@ Le widget envoie `tryon_result_revealed` une fois par essayage, au premier affic
 
 Afficher à nouveau un rendu déjà affiché n’envoie rien : réouverture du panneau, rechargement de la page ou reprise du même rendu. Un rendu ouvert pour la première fois à partir des essayages enregistrés de l’acheteur n’envoie pas cet événement. Relancer l’essayage crée un nouvel essayage et envoie un nouvel événement avec une autre référence.
 
-`try_on_reference` désigne cet essayage : 32 caractères hexadécimaux minuscules, la même valeur que la colonne `try_on_reference` de sa ligne `tryon_result_revealed` dans les [Delivered Events](/fr/reference/delivered-events). Cette valeur est dérivée pour vous ; ce n’est pas l’identifiant d’essayage de FittingMe et elle n’ouvre rien sur l’API. Comptez les valeurs distinctes de `try_on_reference` pour compter les essayages affichés.
+`try_on_reference` désigne cet essayage : 32 caractères hexadécimaux minuscules, la même valeur que la colonne `try_on_reference` de sa ligne `tryon_result_revealed` dans les [Événements Livrés](/fr/reference/delivered-events). Cette valeur est dérivée pour vous ; ce n’est pas l’identifiant d’essayage de FittingMe et elle n’ouvre rien sur l’API. Comptez les valeurs distinctes de `try_on_reference` pour compter les essayages affichés.
 
 L’événement parvient à votre page dans l’ordre où le widget l’a annoncé : avant les événements `closed` et `completed` d’une fermeture ultérieure. Il ne peut suivre `closed` que si le navigateur n’avait pas fini de calculer la référence au moment de l’affichage du rendu. Si le navigateur refuse ce calcul, le widget n’envoie aucun événement et écrit une ligne dans la console ; un événement n’arrive jamais sans sa référence.
 
@@ -80,6 +80,6 @@ Seuls les loaders `/v4` et `/v5` transmettent cet événement. Le loader `/v2` n
 
 ### Indicatif, pas une facture
 
-Cet événement est indicatif. Votre facture provient des propres enregistrements de FittingMe, pas des événements de page ni des Delivered Events. Une page peut manquer des événements : consentement analytique non accordé, abonnement enregistré après l’affichage, page fermée ou quittée. Un essayage facturé appartient au mois, heure de Paris, de son premier affichage. Dans `events_v1`, `occurred_at` est l’heure du serveur à laquelle le fait a été enregistré : près d’un changement de mois, le mois de votre décompte peut différer du mois facturé.
+Cet événement est indicatif. Votre facture provient des propres enregistrements de FittingMe, pas des événements de page ni des Événements Livrés. Une page peut manquer des événements : consentement analytique non accordé, abonnement enregistré après l’affichage, page fermée ou quittée. Un essayage facturé appartient au mois, heure de Paris, de son premier affichage. Dans `events_v1`, `occurred_at` est l’heure du serveur à laquelle le fait a été enregistré : près d’un changement de mois, le mois de votre décompte peut différer du mois facturé.
 
 Pour un adaptateur de suivi complet, consultez [Suivre l’engagement et les résultats d’essayage](/fr/integration/analytics).

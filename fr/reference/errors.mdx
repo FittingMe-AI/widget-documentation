@@ -40,7 +40,7 @@ Un proxy, un blocage du navigateur ou un échec de transport peut empêcher la p
 | `origin_underivable` / HTTP 403 | Le service n’a pas pu déterminer l’origine de l’intégration. | Utilisez une page de boutique HTTP(S) et le loader ou protocole pris en charge. Vérifiez auprès de FittingMe les proxys ou politiques d’intégration ; ne falsifiez pas les en-têtes d’origine. |
 | `validation_error` | Entrée indiquée par `field`, le cas échéant. | Corrigez-la ; ne réessayez pas sans modification. |
 | `consent_required` | Le consentement à la génération n’a pas été enregistré pour la session active. | Reprenez le parcours via l’étape de consentement du widget. |
-| `capability_not_entitled` | Droit du détaillant à utiliser l’essayage virtuel. | Demandez à FittingMe de confirmer les droits du compte. |
+| `capability_not_entitled` | Droit de l’enseigne à utiliser l’essayage virtuel. | Demandez à FittingMe de confirmer les droits du compte. |
 | `not_found` | Ressource ou contexte du parcours actif indisponible. | Commencez un nouveau parcours ; si l’erreur se répète, vérifiez la configuration du produit et du contexte. |
 | `conflict` | Une autre génération est déjà en cours. | Reprenez la tentative existante au lieu d’en soumettre une nouvelle. |
 | `payload_too_large` | La photo importée dépasse la taille autorisée. | Suivez les recommandations de saisie de photo et utilisez une photo plus petite dans un format pris en charge. |
@@ -58,7 +58,7 @@ Un refus avant la génération demande une autre photo. Les conseils permettent 
 
 Le blocage serveur est implémenté, mais désactivé sur dev au 9 octobre 2026. Une fois activé, un lancement sélectionnant une photo courante refusée renvoie HTTP 422 `image_invalid` avant l’admission d’une génération. Ce code couvre aussi d’autres images inutilisables ; il ne révèle aucune cause de refus. Ne répétez pas ce lancement en boucle et ne déduisez pas de ce code un constat lié à un enfant ou à la nudité.
 
-Le loader n’émet aucun événement dédié au refus de photo. Consultez les [actions après refus](/fr/troubleshooting/symptoms#une-photo-est-refusée-ou-reçoit-un-conseil) et les [Delivered Events](/fr/reference/delivered-events).
+Le loader n’émet aucun événement dédié au refus de photo. Consultez les [actions après refus](/fr/troubleshooting/symptoms#une-photo-est-refusée-ou-reçoit-un-conseil) et les [Événements Livrés](/fr/reference/delivered-events).
 
 ## Échecs sans événement d’erreur public
 

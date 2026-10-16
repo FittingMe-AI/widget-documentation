@@ -61,7 +61,7 @@ Si vous utilisez un autre système analytique, remplacez l’appel final par sa 
 
 ## Limiter les données à l’essentiel
 
-Ne transmettez que les champs nécessaires. N’envoyez pas aux outils analytiques l’élément DOM, la clé détaillant, l’URL complète de l’iframe, le lien de capture, le jeton de session, la photo de l’acheteur ni l’URL du résultat.
+Ne transmettez que les champs nécessaires. N’envoyez pas aux outils analytiques l’élément DOM, la clé d’enseigne, l’URL complète de l’iframe, le lien de capture, le jeton de session, la photo de l’acheteur ni l’URL du résultat.
 
 Utilisez un seul abonnement par composant responsable de l’intégration. Si vos outils signalent des doublons, recherchez d’abord les abonnements répétés avant d’ajouter une déduplication qui pourrait masquer des essayages répétés légitimes. Une nouvelle intégration ou un rechargement de page peut signaler à nouveau un résultat repris. L’événement de fin ne contient aucun identifiant unique d’événement ou de session permettant de le dédupliquer. Il ne permet donc pas de mesurer précisément les générations uniques, la facturation ou les conversions.
 
