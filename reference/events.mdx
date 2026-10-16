@@ -18,9 +18,9 @@ Subscribe with `window.FittingMe.on(handler)`. Each event identifies its embed w
 | `completed` | None | A completed result was observed when the drawer closed; sent after `closed`. | No. |
 | `tryon_result_revealed` | `try_on_reference`: 32 lowercase hexadecimal characters | A try-on render of this embed was displayed for the first time. Sent once per try-on, from Try-On embeds on the `/v4` and `/v5` loaders only. | No. |
 
-Every event also has `type` and `embed`. There is no timestamp, product identifier, session identifier, try-on identifier, shopper photo, result URL, or order identifier in this public payload.
+Every event also has `type` and `embed`. There is no timestamp, product identifier, session identifier, FittingMe try-on identifier, shopper photo, result URL, or order identifier in this public payload.
 
-Switch on `type` and ignore any type you do not handle. FittingMe adds events by announced addition. A handler written as `if (type === 'opened') … else …` would treat `tryon_result_revealed`, which arrives while the drawer is open, as a closure.
+Switch on `type` and ignore any type you do not handle. FittingMe adds events by announced addition. A handler written as `if (type === 'opened') … else …` would treat `tryon_result_revealed` as a closure.
 
 ## Bootstrap outcome
 
@@ -40,7 +40,7 @@ Eligibility is not a successful session or generation. Key-domain permission is 
 
 The addition is deployed to dev as of 9 October 2026. Confirm its announcement and rollout for your assigned dataset before expecting it in production. If you already read `events_v1`, accept the new event type.
 
-`events_v1` has nine columns, in this order: `event_type`, `occurred_at`, `journey`, `product_id`, `session_key`, `correlation_id`, `event_id`, `retailer_id`, `try_on_reference`. The ninth column, `try_on_reference`, was appended on 15 October 2026 and is deployed to dev. It is filled on `tryon_result_revealed` rows only, with the same value as the [page event](#shown-try-on-renders) of that try-on. It is `NULL` on every other row, and on older reveal rows recorded without their try-on (in production, those of 11 September 2026 and earlier). Columns are only ever appended, never renamed or reordered.
+`events_v1` has nine columns, in this order: `event_type`, `occurred_at`, `journey`, `product_id`, `session_key`, `correlation_id`, `event_id`, `retailer_id`, `try_on_reference`. FittingMe appended the ninth column, `try_on_reference`, on 15 October 2026; it is deployed to dev. FittingMe fills it on `tryon_result_revealed` rows only, with the same value as the [page event](#shown-try-on-renders) of that try-on. It is `NULL` on every other row, and on older reveal rows recorded without their try-on (in production, those of 11 September 2026 and earlier). Columns are only ever appended, never renamed or reordered.
 
 Use `event_id` to deduplicate overlapping reads. `session_key` is a derived key, not an API capability; `correlation_id` carries the retailer join value or the marked `FM_` fallback. `retailer_id` identifies the retailer within the dataset.
 
@@ -75,7 +75,7 @@ Treat this as an observation of a completed result at close, not a count of uniq
 
 ## Shown try-on renders
 
-`tryon_result_revealed` is sent once per try-on, at the first display of its render in this embed:
+The widget sends `tryon_result_revealed` once per try-on, at the first display of its render:
 
 - on the result step, when generation finishes while the drawer is open;
 - on reopening the drawer, or coming back to the product, after the shopper closed the drawer during generation.
@@ -84,12 +84,12 @@ Showing a render that was already displayed sends nothing: reopening the drawer,
 
 `try_on_reference` names that try-on: 32 lowercase hexadecimal characters, the same value as the `try_on_reference` column of its `tryon_result_revealed` row in [Delivered Events](#delivered-events-and-photo-refusals). It is derived for you, is not FittingMe's try-on identifier and opens nothing on the API. Count distinct `try_on_reference` values to count shown try-ons.
 
-The event reaches your page in the order the widget announced it: before the `closed` and `completed` of a later closure. It can follow `closed` only when the browser had not finished computing the reference when the render was displayed. If the browser refuses that computation, no event is sent and the widget writes one console line; an event never arrives without its reference.
+The event reaches your page in the order the widget announced it: before the `closed` and `completed` of a later closure. It can follow `closed` only when the browser had not finished computing the reference when the render was displayed. If the browser refuses that computation, the widget sends no event and writes one console line; an event never arrives without its reference.
 
 Only the `/v4` and `/v5` loaders deliver this event. The `/v2` loader never will. An older cached `/v4` loader drops it without a console line.
 
 ### Indicative, not an invoice
 
-This event is indicative. Your invoice comes from FittingMe's own records, not from page events or Delivered Events. A page can miss events: analytics consent withheld, a subscription registered after the display, or a page closed or left. A billed try-on belongs to the month, in Paris time, of its first display. `occurred_at` in `events_v1` is the server time at which the fact was recorded, so a try-on shown near midnight at a month boundary can land in the other month of your count.
+This event is indicative. Your invoice comes from FittingMe's own records, not from page events or Delivered Events. A page can miss events: analytics consent withheld, a subscription registered after the display, or a page closed or left. A billed try-on belongs to the month, in Paris time, of its first display. `occurred_at` in `events_v1` is the server time at which the fact was recorded, so near a month boundary the month of your count can differ from the billed month.
 
 For a complete tracking adapter, see [track engagement and try-on results](/integration/analytics).

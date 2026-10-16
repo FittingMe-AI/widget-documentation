@@ -18,9 +18,9 @@ Abonnez-vous avec `window.FittingMe.on(handler)`. Chaque événement identifie s
 | `completed` | Aucun | Un résultat terminé a été observé à la fermeture du panneau ; l’événement est envoyé après `closed`. | Non. |
 | `tryon_result_revealed` | `try_on_reference` : 32 caractères hexadécimaux minuscules | Un rendu d’essayage de cette intégration a été affiché pour la première fois. Envoyé une fois par essayage, uniquement par les intégrations d’essayage des loaders `/v4` et `/v5`. | Non. |
 
-Chaque événement contient aussi `type` et `embed`. Cette donnée publique ne comporte ni horodatage, ni identifiant produit, de session ou d’essayage, ni photo de l’acheteur, ni URL du résultat, ni identifiant de commande.
+Chaque événement contient aussi `type` et `embed`. Cette donnée publique ne comporte ni horodatage, ni identifiant produit ou de session, ni identifiant d’essayage de FittingMe, ni photo de l’acheteur, ni URL du résultat, ni identifiant de commande.
 
-Aiguillez sur `type` et ignorez tout type que vous ne traitez pas. FittingMe ajoute des événements par ajout annoncé. Un gestionnaire écrit `if (type === 'opened') … else …` traiterait `tryon_result_revealed`, qui arrive pendant que le panneau est ouvert, comme une fermeture.
+Traitez chaque événement selon la valeur de `type` et ignorez tout type que vous ne traitez pas. FittingMe ajoute des événements par ajout annoncé. Un gestionnaire écrit `if (type === 'opened') … else …` traiterait `tryon_result_revealed` comme une fermeture.
 
 ## Résultat de l’amorçage
 
@@ -40,7 +40,7 @@ Dans un événement indéterminé, `transport_code` peut être une chaîne. Ses 
 
 L’ajout est déployé sur dev au 9 octobre 2026. Confirmez son annonce et son déploiement pour votre dataset avant de l’attendre en production. Si vous lisez déjà `events_v1`, acceptez le nouveau type.
 
-`events_v1` compte neuf colonnes, dans cet ordre : `event_type`, `occurred_at`, `journey`, `product_id`, `session_key`, `correlation_id`, `event_id`, `retailer_id`, `try_on_reference`. La neuvième colonne, `try_on_reference`, a été ajoutée le 15 octobre 2026 et est déployée sur dev. Elle n’est remplie que sur les lignes `tryon_result_revealed`, avec la même valeur que l’[événement de page](#rendus-d’essayage-affichés) de cet essayage. Elle vaut `NULL` sur toutes les autres lignes, ainsi que sur les anciennes lignes d’affichage enregistrées sans leur essayage (en production, celles du 11 septembre 2026 et avant). Les colonnes sont seulement ajoutées à la fin, jamais renommées ni réordonnées.
+`events_v1` compte neuf colonnes, dans cet ordre : `event_type`, `occurred_at`, `journey`, `product_id`, `session_key`, `correlation_id`, `event_id`, `retailer_id`, `try_on_reference`. FittingMe a ajouté la neuvième colonne, `try_on_reference`, le 15 octobre 2026 ; elle est déployée sur dev. FittingMe ne la remplit que sur les lignes `tryon_result_revealed`, avec la même valeur que l’[événement de page](#rendus-d’essayage-affichés) de cet essayage. Elle vaut `NULL` sur toutes les autres lignes, ainsi que sur les anciennes lignes d’affichage enregistrées sans leur essayage (en production, celles du 11 septembre 2026 et avant). Les colonnes sont seulement ajoutées à la fin, jamais renommées ni réordonnées.
 
 Utilisez `event_id` pour dédupliquer des lectures qui se chevauchent. `session_key` est une clé dérivée, pas une capacité d’accès à l’API ; `correlation_id` contient la valeur du détaillant ou le remplacement préfixé par `FM_`. `retailer_id` identifie le détaillant dans le dataset.
 
@@ -75,21 +75,21 @@ Traitez cet événement comme l’observation d’un résultat terminé à la fe
 
 ## Rendus d’essayage affichés
 
-`tryon_result_revealed` est envoyé une fois par essayage, au premier affichage de son rendu dans cette intégration :
+Le widget envoie `tryon_result_revealed` une fois par essayage, au premier affichage de son rendu :
 
 - sur l’étape de résultat, lorsque la génération se termine pendant que le panneau est ouvert ;
 - à la réouverture du panneau, ou au retour sur le produit, lorsque l’acheteur a fermé le panneau pendant la génération.
 
-Afficher à nouveau un rendu déjà affiché n’envoie rien : réouverture du panneau, rechargement de la page ou reprise du même rendu. Un rendu ouvert pour la première fois depuis les essayages enregistrés de l’acheteur n’envoie pas cet événement. Relancer l’essayage crée un nouvel essayage et envoie un nouvel événement avec une autre référence.
+Afficher à nouveau un rendu déjà affiché n’envoie rien : réouverture du panneau, rechargement de la page ou reprise du même rendu. Un rendu ouvert pour la première fois à partir des essayages enregistrés de l’acheteur n’envoie pas cet événement. Relancer l’essayage crée un nouvel essayage et envoie un nouvel événement avec une autre référence.
 
 `try_on_reference` désigne cet essayage : 32 caractères hexadécimaux minuscules, la même valeur que la colonne `try_on_reference` de sa ligne `tryon_result_revealed` dans les [Delivered Events](#delivered-events-et-refus-de-photo). Cette valeur est dérivée pour vous ; ce n’est pas l’identifiant d’essayage de FittingMe et elle n’ouvre rien sur l’API. Comptez les valeurs distinctes de `try_on_reference` pour compter les essayages affichés.
 
-L’événement parvient à votre page dans l’ordre où le widget l’a annoncé : avant les événements `closed` et `completed` d’une fermeture ultérieure. Il ne peut suivre `closed` que si le navigateur n’avait pas fini de calculer la référence au moment de l’affichage du rendu. Si le navigateur refuse ce calcul, aucun événement n’est envoyé et le widget écrit une ligne dans la console ; un événement n’arrive jamais sans sa référence.
+L’événement parvient à votre page dans l’ordre où le widget l’a annoncé : avant les événements `closed` et `completed` d’une fermeture ultérieure. Il ne peut suivre `closed` que si le navigateur n’avait pas fini de calculer la référence au moment de l’affichage du rendu. Si le navigateur refuse ce calcul, le widget n’envoie aucun événement et écrit une ligne dans la console ; un événement n’arrive jamais sans sa référence.
 
 Seuls les loaders `/v4` et `/v5` transmettent cet événement. Le loader `/v2` ne le transmettra jamais. Un ancien loader `/v4` en cache l’ignore sans message dans la console.
 
 ### Indicatif, pas une facture
 
-Cet événement est indicatif. Votre facture provient des propres enregistrements de FittingMe, pas des événements de page ni des Delivered Events. Une page peut manquer des événements : consentement analytique refusé, abonnement enregistré après l’affichage, page fermée ou quittée. Un essayage facturé appartient au mois, heure de Paris, de son premier affichage. Dans `events_v1`, `occurred_at` est l’heure du serveur à laquelle le fait a été enregistré : un essayage affiché vers minuit à un changement de mois peut tomber dans l’autre mois de votre décompte.
+Cet événement est indicatif. Votre facture provient des propres enregistrements de FittingMe, pas des événements de page ni des Delivered Events. Une page peut manquer des événements : consentement analytique non accordé, abonnement enregistré après l’affichage, page fermée ou quittée. Un essayage facturé appartient au mois, heure de Paris, de son premier affichage. Dans `events_v1`, `occurred_at` est l’heure du serveur à laquelle le fait a été enregistré : près d’un changement de mois, le mois de votre décompte peut différer du mois facturé.
 
 Pour un adaptateur de suivi complet, consultez [Suivre l’engagement et les résultats d’essayage](/fr/integration/analytics).

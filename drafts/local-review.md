@@ -8,10 +8,12 @@ their `/fr/` counterparts.
 | Check | Result |
 | --- | --- |
 | `node scripts/validate-docs.mjs` (Node 24.18.0) | PASS, rc 0: 44 pages, 218 links, 90 anchors, 32 locale-identical code blocks, six complete HTML examples, 39 vocabulary identifiers × 22 pages = 858 parity checks, zero errors. |
-| New parity check, red first | With the English pages naming five events and the French pages unchanged: rc 1, 17 errors, the first `fr/reference/events: tryon_result_revealed is named in English only`. Green after the French pages were updated. The baseline run first found the French events page missing `network` and `timeout`; that sentence was restored. |
+| New parity check, red first | First written as a presence check. With the English pages naming five events and the French pages unchanged: rc 1, 17 errors, the first `fr/reference/events: tryon_result_revealed is named in English only`. Green after the French pages were updated. The mutation round then moved it to occurrence counts (message `is named N time(s) in English, M in French`); resetting the three French pages to `main` gives rc 1 with 24 errors. The baseline run first found the French events page missing `network` and `timeout`; that sentence was restored. |
 | Mutation round (scratch copy) | Null: green. Killed: French catalogue row dropped (count 6 vs 5), identifier moved into a French code fence, wrong French anchor, English-only adapter line, French pages reset to `main`, French `/v2` sentence dropped. Check neutered + row dropped: green, so the check is what kills it. Survivor, named: a French numeral word (« quatre ») with all identifiers present; checked by hand with `rg` on the six pages. |
 | Desktop/mobile render | 12/12 cases (6 pages × 1440×1000 and 390×844): HTTP 200, expected new text, 0 horizontal overflow, 0 page errors, new anchors resolve, catalogue table has 5 event rows. 63.4 s at host load 37.95 → 50.26. |
 | `git diff --check` | rc 0. |
+| Refuting reader (fresh agent, mandated to refute) | All six pages read in full: no page promises an invoice match, a replay, or an event from saved try-ons. Its five wording points were applied: « in this embed » removed from the once-per-try-on sentence, the drawer-open aside removed from the handler warning, « FittingMe try-on identifier » in the payload list, month-boundary sentence reworded to « the month of your count can differ from the billed month », French « non accordé » for consent withheld. |
+| Open, needs a founder decision | `reference/protocol.mdx` documents `fittingme/4` for direct hosts, and P36 sends `tryon_result_revealed` under major 4: its Messages table does not list the message. The ticket forbids other page changes. |
 
 ### Dev run of the updated adapter, 2026-10-16 06:09–06:17 UTC
 
