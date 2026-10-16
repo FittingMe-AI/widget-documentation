@@ -20,7 +20,7 @@ Selected sources, read on 2026-10-16 at 06:00–06:20 UTC:
 | Changed claim | Supporting source |
 | --- | --- |
 | Fifth Page Event `tryon_result_revealed` carrying `embed` and `try_on_reference` | `widget/docs/contracts/loader-widget-protocol-v2.md` P36 (line 3042) and P36.1; `widget/loader/fittingme-loader.js:30`, `:174`, `:2371-2376` |
-| Once per try-on at the first display; re-run announces again; already shown renders announce nothing | P36 paragraph 1. The first display after a close during generation is ticket 04 (founder ruling 2026-10-16, ADR-098 D10); the canon's first paragraph is rewritten by that ticket, which must be on dev before this change merges |
+| Once per try-on at the first display; re-run announces again; already shown renders announce nothing | P36 paragraph 1. The first display after a close during generation is ticket 04 (founder ruling 2026-10-16, ADR-098 D10); the canon's first paragraph is rewritten by that ticket, on widget dev at `533e2364` and checked there on 2026-10-16 (local review, close-during-generation run) |
 | Only Try-On embeds; malformed reference dropped | `widget/loader/fittingme-loader.js:2371-2375` (`journey !== 'tryon'`, `TRY_ON_REFERENCE_PATTERN`) |
 | Not replayed; ordering before a later `closed`/`completed`; may follow `closed` only when the digest had not settled | P36 paragraph 3 |
 | Web Crypto refusal: no event, one console line, never an event without its reference | P36 paragraph 2 |
