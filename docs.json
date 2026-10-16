@@ -88,7 +88,8 @@
                   "reference/delivered-events",
                   "reference/errors",
                   "reference/compatibility",
-                  "reference/protocol"
+                  "reference/protocol",
+                  "reference/negative-control"
                 ]
               },
               {
@@ -151,7 +152,8 @@
                   "fr/reference/delivered-events",
                   "fr/reference/errors",
                   "fr/reference/compatibility",
-                  "fr/reference/protocol"
+                  "fr/reference/protocol",
+                  "fr/reference/negative-control"
                 ]
               },
               {
