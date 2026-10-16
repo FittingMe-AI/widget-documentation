@@ -30,6 +30,7 @@ size is not the criterion.
 | --- | --- |
 | Loader configuration/API, direct protocol, public events, lifecycle, browser support or Try-On steps | `widget` |
 | Authentication/domains, entitlement, product/image/session rules, observable errors or service behavior | `b2b/backend`; shared crates, capture, VTON and hosting through `b2b/AGENTS.md` |
+| Delivered Events: event types, `events_v1` columns, access, retention | `b2b/infra/modules/delivered_events/` (`README.md`, `main.tf`); retention and erasure in `b2b/infra/modules/tracking/` |
 | Initial access, roles/authenticator setup, keys, domain configuration, installation snippets or onboarding steps | `retailer-portal` |
 | Shared brand assets/tokens or referenced contact/support links and snippets | `public-site` |
 | React/Next.js or GTM/GA4 changes that invalidate a recipe; Mintlify changes that break rendering/navigation | The relevant official documentation and the affected local example/render |
@@ -67,9 +68,11 @@ documented behavior need no public prose edit if the existing content remains tr
    qualifications/expected results to their actions. Update affected anchor links
    when headings change; keep reference definitions authoritative.
 5. Use Node 24 to run `node scripts/validate-docs.mjs`, run `git diff --check`,
-   and inspect changed pages at desktop and mobile widths. For changed executable
-   examples or behavior, exercise the affected journey against functioning
-   services and record actual dependencies/limitations in `drafts/local-review.md`.
+   and inspect changed pages at desktop and mobile widths. After a loader change,
+   fetch the widget checkout and run `node scripts/check-loader-parity.mjs`: every
+   loader attribute and `window.FittingMe` method must be named on its reference
+   page. For changed executable examples or behavior, exercise the affected
+   journey against functioning services and record actual dependencies/limitations in `drafts/local-review.md`.
    Unchanged examples may retain their existing evidence when source and effective
    dependencies are unchanged; wording-only edits need no product rebuild.
 6. Deliver the functioning local documentation for founder review. Publish only
@@ -91,6 +94,7 @@ Read the relevant source before changing an API or integration claim:
 | Mounted backend routes and middleware | `backend/src/routes/mod.rs` |
 | Retailer API-key authentication | `backend/src/middleware/auth.rs` |
 | Loader URL, attributes, defaults, and browser API | widget: `loader/fittingme-loader.js` and `loader/lib/embed-protocol.js` |
+| Delivered Events (`events_v1`) types and columns | `infra/modules/delivered_events/README.md` and `main.tf` |
 | Direct loader/widget protocol | widget: `docs/contracts/loader-widget-protocol-v2.md` (including the major-3 amendment), `foundation/fil.ts`, and `tests/contract/fixtures/protocole/` |
 | Portal onboarding | retailer-portal: `docs/openapi.yaml` and `spa/src/` |
 | RFC 9457 business-error mapping | `backend/src/error.rs` |
@@ -140,7 +144,7 @@ Presentation follows the FittingMe design system, whose canonical source is `pub
 
 ## Validation
 
-This repository has no automated test suite. For every change:
+CI (`.github/workflows/validate.yml`) runs `scripts/validate-docs.mjs` and `git diff --check` on every pull request to `main`. `scripts/check-loader-parity.mjs` runs locally only, because CI cannot read the widget repository. For every change:
 
 1. Parse `docs.json` as JSON.
 2. Confirm every navigation page exists and every root-relative MDX link resolves.
