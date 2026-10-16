@@ -1,3 +1,50 @@
+## Shown try-on renders — local unpublished review, 2026-10-16
+
+Local documentation: http://localhost:3230/reference/events#shown-try-on-renders
+(Mintlify CLI, detached, log `.review/trpe-03/mint.log`). Read
+`/reference/events`, `/integration/analytics`, `/maintenance/releases` and
+their `/fr/` counterparts.
+
+| Check | Result |
+| --- | --- |
+| `node scripts/validate-docs.mjs` (Node 24.18.0) | PASS, rc 0: 44 pages, 218 links, 90 anchors, 32 locale-identical code blocks, six complete HTML examples, 39 vocabulary identifiers × 22 pages = 858 parity checks, zero errors. |
+| New parity check, red first | With the English pages naming five events and the French pages unchanged: rc 1, 17 errors, the first `fr/reference/events: tryon_result_revealed is named in English only`. Green after the French pages were updated. The baseline run first found the French events page missing `network` and `timeout`; that sentence was restored. |
+| Mutation round (scratch copy) | Null: green. Killed: French catalogue row dropped (count 6 vs 5), identifier moved into a French code fence, wrong French anchor, English-only adapter line, French pages reset to `main`, French `/v2` sentence dropped. Check neutered + row dropped: green, so the check is what kills it. Survivor, named: a French numeral word (« quatre ») with all identifiers present; checked by hand with `rg` on the six pages. |
+| Desktop/mobile render | 12/12 cases (6 pages × 1440×1000 and 390×844): HTTP 200, expected new text, 0 horizontal overflow, 0 page errors, new anchors resolve, catalogue table has 5 event rows. 63.4 s at host load 37.95 → 50.26. |
+| `git diff --check` | rc 0. |
+
+### Dev run of the updated adapter, 2026-10-16 06:09–06:17 UTC
+
+Deployed dev demo `https://fittingme-public-site-2mmu4zhn7a-ew.a.run.app/demo/`,
+Try-On embed `#fittingme-widget-container-2` (retailer test_a), `/v4` loader,
+headless Chromium (Playwright from the widget checkout). The analytics fence was
+read from `integration/analytics.mdx` (1093 bytes) and run with one change:
+the container id, because this demo's `fittingme-widget-container` is its
+Sizing embed. The page CSP blocks inline scripts, so the context used
+`bypassCSP`; consent was set with `setTryOnAnalyticsConsent(true)`. Driver:
+`.review/trpe-03/devcheck/drive.mjs`, log `run.log`. 2 real try-ons, GPU 0.
+
+| Step | Adapter records (`fittingme_*`) |
+| --- | --- |
+| Try-on 1 shown, drawer open | `opened` (tap), `tryon_result_revealed` `53daecf5740e7591de65c62c919b62e1` — before any close record |
+| Close | `closed`, `completed_result_closed` |
+| Reload, resume the same render, close | `opened`, `closed`, `completed_result_closed`; no reveal |
+| Reopen the shown render, close | `opened`, `closed`; no reveal |
+| Re-run (try-on 2) shown | `tryon_result_revealed` `d26d4c3be8b83b08af0b94251a6c66ed`, a different reference |
+| Subscriber registered after try-on 2 was shown, then close and reopen | 0 reveal events |
+
+Each page reference equals the reference computed from the `try_on_id` of
+its reveal POST (2/2). Dev `events_v1` (`delivered_events_test_a`) holds
+exactly 2 `tryon_result_revealed` rows after 06:10 UTC, `06:13:23Z` and
+`06:16:28Z`, with these two references; `delivered_events_test_b` has none.
+
+Not exercised: a render first shown on reopening after a close during
+generation. That behavior is ticket 04, not yet on widget `dev`; today it
+sends no event. This change must not merge before ticket 04 is on dev
+(founder Q11, 2026-10-16), and that case is then checked once on dev. Real
+mobile camera and browser behavior is untested: no device was used.
+Staging and production were not inspected. No publication was made.
+
 ## Analytics adapter records opens — local review, 2026-10-16
 
 `integration/analytics.mdx` and its French mirror mapped `opening_id`, a type

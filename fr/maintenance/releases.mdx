@@ -20,11 +20,20 @@ Le fichier canonique `/v4/` utilise `fittingme/4` pour les images fournies et le
 
 L’URL du loader hébergé est stable et ne contient pas d’empreinte du contenu. Elle ne pointe pas vers une version immuable. Évitez d’ajouter un cache permanent ou une copie embarquée qui pourrait subsister après des changements incompatibles du widget ou de l’API.
 
+## Rendus d’essayage affichés — déploiement dev du 15 octobre 2026
+
+Un ajout annoncé, disponible sur dev. Sa disponibilité en production sera annoncée séparément ; confirmez-la pour votre boutique avant de vous y fier.
+
+- `window.FittingMe.on` gagne un cinquième événement, `tryon_result_revealed`, envoyé une fois par essayage au premier affichage de son rendu, avec `try_on_reference`. Seules les intégrations d’essayage des loaders `/v4` et `/v5` l’envoient ; `/v2` ne l’enverra jamais.
+- `events_v1` gagne une neuvième colonne, `try_on_reference`, ajoutée en dernier et remplie uniquement sur les lignes `tryon_result_revealed`.
+
+Les quatre événements existants, les huit colonnes précédentes et leur ordre restent identiques. Un gestionnaire doit ignorer les types d’événement qu’il ne traite pas. Comptez les essayages affichés selon les règles des [rendus d’essayage affichés](/fr/reference/events#rendus-d’essayage-affichés) ; ce décompte est indicatif et ne rapproche jamais une facture. Mettez à jour votre adaptateur à partir de [Suivre l’engagement et les résultats d’essayage](/fr/integration/analytics).
+
 ## Photo Refusal — déploiement dev du 9 octobre 2026
 
 La lecture, les écrans de refus et de conseils, le transfert téléphone, les refus fournisseur, les exclusions du catalogue et le fait de refus sont déployés sur dev. Dev est en `project` : les acheteurs voient les indications, tandis que les contrôles serveur de lancement et d’enregistrement restent désactivés après deux échecs du critère de latence.
 
-Cette campagne n’a pas promu les services produit sur staging ou en production. Confirmez leur disponibilité pour votre boutique. Aucun nouvel attribut du loader ni événement navigateur n’est requis. Les consommateurs doivent accepter l’ajout annoncé `tryon_photo_refused` dans les [Delivered Events](/fr/reference/events#delivered-events-et-refus-de-photo), avec les huit colonnes existantes et sans cause ni origine.
+Cette campagne n’a pas promu les services produit sur staging ou en production. Confirmez leur disponibilité pour votre boutique. Aucun nouvel attribut du loader ni événement navigateur n’est requis. Les consommateurs doivent accepter l’ajout annoncé `tryon_photo_refused` dans les [Delivered Events](/fr/reference/events#delivered-events-et-refus-de-photo), avec les huit colonnes de cette date et sans cause ni origine.
 
 Consultez les [actions après refus](/fr/troubleshooting/symptoms#une-photo-est-refusée-ou-reçoit-un-conseil), les [exclusions produit](/fr/integration/products#quand-l’essayage-est-indisponible) et les [vérifications d’acceptation](/fr/testing/journey#vérifier-les-conseils-photo-dans-un-environnement-activé).
 

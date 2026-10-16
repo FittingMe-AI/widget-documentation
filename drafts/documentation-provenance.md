@@ -1,3 +1,43 @@
+## Shown try-on renders — local unpublished draft, 2026-10-16
+
+Documentation updated: `reference/events.mdx`, `integration/analytics.mdx`,
+`maintenance/releases.mdx` and their French counterparts. The ticket's
+`tracking/usage` route is a redirect to `/integration/analytics` in
+`docs.json`; its adapter name map is the analytics adapter, updated here. No
+other public page changed. The French events page also regains the
+`transport_code` values sentence (`network`, `timeout`, HTTP status strings)
+that the English page already carried.
+
+Selected sources, read on 2026-10-16 at 06:00–06:20 UTC:
+
+| Repository | Revision | Note |
+| --- | --- | --- |
+| widget | `origin/dev` `35a4380ac24551a639dd24abac575c5b8cc932a8` | contains P36, merged as `c2c00f69` (widget#395) |
+| b2b | `origin/dev` `d416c7bb63f0c41f2d328e50e0b6e99ced2fc6ef` | contains the ninth column, merged as `6a10129d` (b2b#499) |
+| billing | `origin/dev` `efd5941` | Paris month of the reveal |
+
+| Changed claim | Supporting source |
+| --- | --- |
+| Fifth Page Event `tryon_result_revealed` carrying `embed` and `try_on_reference` | `widget/docs/contracts/loader-widget-protocol-v2.md` P36 (line 3042) and P36.1; `widget/loader/fittingme-loader.js:30`, `:174`, `:2371-2376` |
+| Once per try-on at the first display; re-run announces again; already shown renders announce nothing | P36 paragraph 1. The first display after a close during generation is ticket 04 (founder ruling 2026-10-16, ADR-098 D10); the canon's first paragraph is rewritten by that ticket, which must be on dev before this change merges |
+| Only Try-On embeds; malformed reference dropped | `widget/loader/fittingme-loader.js:2371-2375` (`journey !== 'tryon'`, `TRY_ON_REFERENCE_PATTERN`) |
+| Not replayed; ordering before a later `closed`/`completed`; may follow `closed` only when the digest had not settled | P36 paragraph 3 |
+| Web Crypto refusal: no event, one console line, never an event without its reference | P36 paragraph 2 |
+| `/v4` and `/v5` only; `/v2` never; older `/v4` drops it without a console line | P36 paragraph 4 ("English contracts only") |
+| `events_v1` nine columns in order; `try_on_reference` on reveal rows only, `NULL` elsewhere and on reveal rows without a try-on id (prod ≤ 2026-09-11) | `b2b/infra/modules/delivered_events/README.md:16-29`, `:45-46`, `:61-71`; `main.tf:61-66`; `tests/events_v1.tftest.hcl:71` |
+| `occurred_at` is server time at ingest | `b2b/infra/modules/delivered_events/README.md:51` |
+| A billed try-on belongs to the Paris month of its first display | `billing/billing-metering/src/period.rs:46`; `src/db/mod.rs:150-152`. Exception kept out of public prose: a unit assigned after its display month is final is charged in the assignment month and keeps its display month for audit. The pages promise no invoice match, so the display-month statement stays true |
+| Indicative; invoices from FittingMe's records only | ADR-098 (Notion) and P36 paragraph 3; `CONTEXT.md` **Page Event** |
+
+The analytics adapter previously mapped `opening_id`, a type the loader never
+sends, so opens were never recorded. The fence now maps `opened`; the dev run
+below records `fittingme_opened` with `open_origin: tap`.
+
+Deployed availability: dev only. The dev `/v4` loader served 27953 bytes
+containing `tryon_result_revealed`, and the dev Try-On bundle was
+`tryon-D6vPE0PH.js`, the bundle ticket 02 verified. Staging and production
+were not inspected. Production availability is announced separately.
+
 ## Analytics adapter opening key — 2026-10-16
 
 The loader publishes `opened` (`widget/loader/fittingme-loader.js:30`,

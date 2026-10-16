@@ -14,7 +14,7 @@ Use the loader's subscription API. Your integration owns the product context; Fi
 | Did a shopper open try-on? | `opened`. |
 | Did the drawer close? | `closed`. |
 | Did this embed report a completed result when it closed? | `completed`, after `closed`. |
-| How many distinct generations completed? | Not available from public loader events; no deduplication identifier is exposed. |
+| How many try-on renders were shown? | Count distinct `try_on_reference` values of `tryon_result_revealed`. Indicative, never an invoice: see [shown try-on renders](/reference/events#shown-try-on-renders). |
 | Did the shopper add to cart or purchase? | Your storefront's own cart and order events. |
 
 Bootstrap can replay on subscription. Keep it out of shopper event counts unless your analytics explicitly models it as a state observation.
@@ -37,6 +37,7 @@ const eventNames = {
   opened: 'fittingme_opened',
   closed: 'fittingme_closed',
   completed: 'fittingme_completed_result_closed',
+  tryon_result_revealed: 'fittingme_tryon_result_revealed',
 };
 
 const unsubscribe = window.FittingMe.on(event => {
@@ -45,6 +46,7 @@ const unsubscribe = window.FittingMe.on(event => {
   if (!name) return;
   const record = { event: name, product_id: productId };
   if (event.type === 'opened') record.open_origin = event.origin;
+  if (event.type === 'tryon_result_revealed') record.try_on_reference = event.try_on_reference;
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push(record);
 });
@@ -53,7 +55,7 @@ const unsubscribe = window.FittingMe.on(event => {
 // Do not unsubscribe in a closed handler: completed can follow.
 ```
 
-The three English analytics names above are your adapter's names, not additional FittingMe events. A `dataLayer` push does not install Google Tag Manager, configure a destination, or guarantee delivery. Map those custom events in your existing analytics setup and inspect its preview/debug view.
+The four English analytics names above are your adapter's names, not additional FittingMe events. The adapter ignores any event type it does not map, including types FittingMe adds later. A `dataLayer` push does not install Google Tag Manager, configure a destination, or guarantee delivery. Map those custom events in your existing analytics setup and inspect its preview/debug view.
 
 If you use another analytics system, replace the final push with its approved dispatch function. Keep the event mapping and per-container filter.
 
@@ -73,4 +75,9 @@ Do not replay events that occurred before analytics consent by constructing a qu
 2. Enable analytics through your storefront's consent flow and complete a new journey.
 3. Confirm opening uses the correct product identifier. A displayed result alone must not count as completion; close the drawer and check `closed` followed by `completed`. Reopen and close the same result: no second completion is expected from that embed.
 4. Reload and resume a completed result. Closing can produce another completion observation; verify that your report does not label it a distinct generation. Navigate to another product with a full page load and check attribution again.
-5. Compare a purchase with the storefront's order event independently. Completion alone must not register a conversion.
+5. Complete a try-on and keep the drawer open. Expect one `fittingme_tryon_result_revealed` record with a 32-character `try_on_reference`, before any close record.
+6. Re-run the try-on. Expect a second record with a different reference.
+7. Close and reopen the drawer, then reload and resume the same render. Expect no new record.
+8. Start a try-on, close the drawer during generation, and reopen it after the render is ready. Expect one record, at that first display.
+9. Register the subscription only after a render is shown. Expect no record for that render.
+10. Compare a purchase with the storefront's order event independently. Completion alone must not register a conversion.

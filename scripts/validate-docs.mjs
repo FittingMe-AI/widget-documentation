@@ -79,6 +79,25 @@ for (const page of pagesByLanguage.get('en') ?? []) {
   if (!frenchBlocks) errors.push(`${frenchPage}: missing French code blocks.`);
   else if (JSON.stringify(englishBlocks) !== JSON.stringify(frenchBlocks)) errors.push(`${frenchPage}: code blocks differ from the English source.`);
 }
+// Every identifier the English events reference names (event types, fields, columns)
+// must be named the same number of times on each page in both languages, outside code blocks.
+const proseIdentifiers = source => {
+  const counts = new Map();
+  for (const [, code] of source.replace(/^```[^\n]*\n[\s\S]*?\n```/gm, '').matchAll(/`([^`\n]+)`/g)) counts.set(code, (counts.get(code) ?? 0) + 1);
+  return counts;
+};
+const eventVocabulary = [...proseIdentifiers(await readFile(resolve(root, 'reference/events.mdx'), 'utf8')).keys()];
+let vocabularyChecks = 0;
+for (const page of pagesByLanguage.get('en') ?? []) {
+  let english, french;
+  try { [english, french] = await Promise.all([page, `fr/${page}`].map(path => readFile(resolve(root, `${path}.mdx`), 'utf8').then(proseIdentifiers))); }
+  catch { continue; }
+  for (const identifier of eventVocabulary) {
+    vocabularyChecks++;
+    const [inEnglish, inFrench] = [english, french].map(counts => counts.get(identifier) ?? 0);
+    if (inEnglish !== inFrench) errors.push(`fr/${page}: \`${identifier}\` is named ${inEnglish} time(s) in English, ${inFrench} in French.`);
+  }
+}
 if (examples < 6) errors.push(`Expected at least 3 complete HTML examples in each language, found ${examples}.`);
-console.log(JSON.stringify({ pages: pages.length, pagesByLanguage: Object.fromEntries([...pagesByLanguage].map(([language, entries]) => [language, entries.length])), publicFiles: inventory.length, links, anchors, codeBlocks: blocks, completeHtmlExamples: examples, errors }, null, 2));
+console.log(JSON.stringify({ pages: pages.length, pagesByLanguage: Object.fromEntries([...pagesByLanguage].map(([language, entries]) => [language, entries.length])), publicFiles: inventory.length, links, anchors, codeBlocks: blocks, completeHtmlExamples: examples, eventVocabulary: eventVocabulary.length, vocabularyChecks, errors }, null, 2));
 process.exitCode = errors.length ? 1 : 0;

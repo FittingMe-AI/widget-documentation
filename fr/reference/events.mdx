@@ -1,7 +1,7 @@
 ---
 title: "Événements et données transmises"
 sidebarTitle: "Événements et données"
-description: "Les quatre jalons publics, leurs champs exacts et le moment où ils sont transmis aux abonnés."
+description: "Les cinq événements publics, leurs champs exacts et le moment où ils sont transmis aux abonnés."
 ---
 
 <Note>Ces exemples ciblent le contrat anglais v4. Confirmez sa disponibilité dans votre environnement avant le déploiement. Consultez la [migration et compatibilité française temporaire](/fr/reference/compatibility#compatibilité-française-temporaire).</Note>
@@ -16,8 +16,11 @@ Abonnez-vous avec `window.FittingMe.on(handler)`. Chaque événement identifie s
 | `opened` | `origin` : `tap` ou `command` | L’ouverture du panneau a été annoncée et acceptée par le loader. | Non. |
 | `closed` | Aucun | Un panneau dont l’ouverture avait été annoncée s’est fermé. | Non. |
 | `completed` | Aucun | Un résultat terminé a été observé à la fermeture du panneau ; l’événement est envoyé après `closed`. | Non. |
+| `tryon_result_revealed` | `try_on_reference` : 32 caractères hexadécimaux minuscules | Un rendu d’essayage de cette intégration a été affiché pour la première fois. Envoyé une fois par essayage, uniquement par les intégrations d’essayage des loaders `/v4` et `/v5`. | Non. |
 
-Chaque événement contient aussi `type` et `embed`. Cette donnée publique ne comporte ni horodatage, ni identifiant produit ou de session, ni photo de l’acheteur, ni URL du résultat, ni identifiant de commande.
+Chaque événement contient aussi `type` et `embed`. Cette donnée publique ne comporte ni horodatage, ni identifiant produit, de session ou d’essayage, ni photo de l’acheteur, ni URL du résultat, ni identifiant de commande.
+
+Aiguillez sur `type` et ignorez tout type que vous ne traitez pas. FittingMe ajoute des événements par ajout annoncé. Un gestionnaire écrit `if (type === 'opened') … else …` traiterait `tryon_result_revealed`, qui arrive pendant que le panneau est ouvert, comme une fermeture.
 
 ## Résultat de l’amorçage
 
@@ -29,13 +32,15 @@ Chaque événement contient aussi `type` et `embed`. Cette donnée publique ne c
 
 L’éligibilité ne signifie pas qu’une session ou une génération a réussi. L’autorisation de domaine de la clé est vérifiée à l’ouverture d’une session ; l’image de vêtement fournie est téléchargée et décodée ultérieurement.
 
-Dans un événement indéterminé, `transport_code` peut être une chaîne. Utilisez cette donnée à des fins de diagnostic ; ne déduisez pas une cause métier d’un résultat de transport HTTP.
+Dans un événement indéterminé, `transport_code` peut être une chaîne. Ses valeurs incluent `network`, `timeout` et des codes de statut HTTP sous forme de chaîne. Utilisez cette donnée à des fins de diagnostic ; ne déduisez pas une cause métier d’un résultat de transport HTTP.
 
 ## Delivered Events et refus de photo
 
-`tryon_photo_refused` est un fait Delivered Events côté serveur, **pas** un nouvel événement de `window.FittingMe.on`. Les quatre jalons du loader ci-dessus restent identiques. Il couvre les refus à l’acceptation et par le fournisseur de génération sans préciser lequel s’est produit.
+`tryon_photo_refused` est un fait Delivered Events côté serveur, **pas** un événement de `window.FittingMe.on`. Il couvre les refus à l’acceptation et par le fournisseur de génération sans préciser lequel s’est produit.
 
-L’ajout est déployé sur dev au 9 octobre 2026. Confirmez son annonce et son déploiement pour votre dataset avant de l’attendre en production. Si vous lisez déjà `events_v1`, acceptez le nouveau type avec ses huit colonnes existantes, dans cet ordre : `event_type`, `occurred_at`, `journey`, `product_id`, `session_key`, `correlation_id`, `event_id`, `retailer_id`.
+L’ajout est déployé sur dev au 9 octobre 2026. Confirmez son annonce et son déploiement pour votre dataset avant de l’attendre en production. Si vous lisez déjà `events_v1`, acceptez le nouveau type.
+
+`events_v1` compte neuf colonnes, dans cet ordre : `event_type`, `occurred_at`, `journey`, `product_id`, `session_key`, `correlation_id`, `event_id`, `retailer_id`, `try_on_reference`. La neuvième colonne, `try_on_reference`, a été ajoutée le 15 octobre 2026 et est déployée sur dev. Elle n’est remplie que sur les lignes `tryon_result_revealed`, avec la même valeur que l’[événement de page](#rendus-d’essayage-affichés) de cet essayage. Elle vaut `NULL` sur toutes les autres lignes, ainsi que sur les anciennes lignes d’affichage enregistrées sans leur essayage (en production, celles du 11 septembre 2026 et avant). Les colonnes sont seulement ajoutées à la fin, jamais renommées ni réordonnées.
 
 Utilisez `event_id` pour dédupliquer des lectures qui se chevauchent. `session_key` est une clé dérivée, pas une capacité d’accès à l’API ; `correlation_id` contient la valeur du détaillant ou le remplacement préfixé par `FM_`. `retailer_id` identifie le détaillant dans le dataset.
 
@@ -52,7 +57,7 @@ Un bouton personnalisé qui appelle `open(container)` produit la valeur `command
 
 ## Moment de transmission et gestion
 
-Enregistrez le suivi avant de permettre à l’acheteur d’interagir. Un abonnement tardif reçoit l’état d’amorçage, mais ne peut pas récupérer les événements d’ouverture ou de complétion précédents. Ne comptabilisez pas le rejeu de l’amorçage comme une nouvelle visite.
+Enregistrez le suivi avant de permettre à l’acheteur d’interagir. Un abonnement tardif reçoit l’état d’amorçage, mais ne peut pas récupérer les événements d’ouverture, d’affichage de rendu ou de complétion précédents. Ne comptabilisez pas le rejeu de l’amorçage comme une nouvelle visite.
 
 Chaque abonnement reçoit les événements de toutes les intégrations. Filtrez-les par identité de l’élément DOM et associez-y le contexte produit fourni par le composant ou la page qui gère l’intégration. Supprimez l’abonnement lorsque son propriétaire est démonté.
 
@@ -66,6 +71,25 @@ Une nouvelle intégration ou un rechargement de page peut reprendre ce même ré
 
 Détruire une intégration ou se désabonner lors de `closed` peut faire perdre l’événement `completed` qui suit. L’API publique du loader n’indique pas que tous les messages liés à la fermeture ont été transmis. Si vous observez la complétion, gardez l’intégration et l’abonnement de suivi actifs après la fermeture. Ne considérez pas une minuterie arbitraire comme une garantie de transmission.
 
-Traitez cet événement comme l’observation d’un résultat terminé à la fermeture, et non comme un décompte de générations uniques. Il ne prouve pas que l’acheteur a acheté l’article, choisi une taille ou ajouté un produit au panier. Ne créez pas de fausse donnée de téléchargement d’image ou de commande à partir de cet événement.
+Traitez cet événement comme l’observation d’un résultat terminé à la fermeture, et non comme un décompte de générations uniques. Pour compter les essayages affichés, utilisez [`tryon_result_revealed`](#rendus-d’essayage-affichés). Il ne prouve pas que l’acheteur a acheté l’article, choisi une taille ou ajouté un produit au panier. Ne créez pas de fausse donnée de téléchargement d’image ou de commande à partir de cet événement.
+
+## Rendus d’essayage affichés
+
+`tryon_result_revealed` est envoyé une fois par essayage, au premier affichage de son rendu dans cette intégration :
+
+- sur l’étape de résultat, lorsque la génération se termine pendant que le panneau est ouvert ;
+- à la réouverture du panneau, ou au retour sur le produit, lorsque l’acheteur a fermé le panneau pendant la génération.
+
+Afficher à nouveau un rendu déjà affiché n’envoie rien : réouverture du panneau, rechargement de la page ou reprise du même rendu. Un rendu ouvert pour la première fois depuis les essayages enregistrés de l’acheteur n’envoie pas cet événement. Relancer l’essayage crée un nouvel essayage et envoie un nouvel événement avec une autre référence.
+
+`try_on_reference` désigne cet essayage : 32 caractères hexadécimaux minuscules, la même valeur que la colonne `try_on_reference` de sa ligne `tryon_result_revealed` dans les [Delivered Events](#delivered-events-et-refus-de-photo). Cette valeur est dérivée pour vous ; ce n’est pas l’identifiant d’essayage de FittingMe et elle n’ouvre rien sur l’API. Comptez les valeurs distinctes de `try_on_reference` pour compter les essayages affichés.
+
+L’événement parvient à votre page dans l’ordre où le widget l’a annoncé : avant les événements `closed` et `completed` d’une fermeture ultérieure. Il ne peut suivre `closed` que si le navigateur n’avait pas fini de calculer la référence au moment de l’affichage du rendu. Si le navigateur refuse ce calcul, aucun événement n’est envoyé et le widget écrit une ligne dans la console ; un événement n’arrive jamais sans sa référence.
+
+Seuls les loaders `/v4` et `/v5` transmettent cet événement. Le loader `/v2` ne le transmettra jamais. Un ancien loader `/v4` en cache l’ignore sans message dans la console.
+
+### Indicatif, pas une facture
+
+Cet événement est indicatif. Votre facture provient des propres enregistrements de FittingMe, pas des événements de page ni des Delivered Events. Une page peut manquer des événements : consentement analytique refusé, abonnement enregistré après l’affichage, page fermée ou quittée. Un essayage facturé appartient au mois, heure de Paris, de son premier affichage. Dans `events_v1`, `occurred_at` est l’heure du serveur à laquelle le fait a été enregistré : un essayage affiché vers minuit à un changement de mois peut tomber dans l’autre mois de votre décompte.
 
 Pour un adaptateur de suivi complet, consultez [Suivre l’engagement et les résultats d’essayage](/fr/integration/analytics).

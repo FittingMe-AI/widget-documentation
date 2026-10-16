@@ -14,7 +14,7 @@ Utilisez l’API d’abonnement du loader. Votre intégration gère le contexte 
 | Un acheteur a-t-il ouvert l’essayage ? | `opened`. |
 | Le panneau s’est-il fermé ? | `closed`. |
 | Cette intégration a-t-elle signalé un résultat terminé à sa fermeture ? | `completed`, après `closed`. |
-| Combien de générations distinctes ont abouti ? | Les événements publics du loader ne le permettent pas ; aucun identifiant de déduplication n’est exposé. |
+| Combien de rendus d’essayage ont été affichés ? | Comptez les valeurs distinctes de `try_on_reference` des événements `tryon_result_revealed`. Indicatif, jamais une facture : consultez [rendus d’essayage affichés](/fr/reference/events#rendus-d’essayage-affichés). |
 | L’acheteur a-t-il ajouté un article au panier ou acheté ? | Événements de panier et de commande propres à votre boutique. |
 
 L’événement d’amorçage peut être rejoué lors de l’abonnement. Ne l’incluez pas dans le décompte des événements acheteur, sauf si vos outils le traitent explicitement comme une observation d’état.
@@ -37,6 +37,7 @@ const eventNames = {
   opened: 'fittingme_opened',
   closed: 'fittingme_closed',
   completed: 'fittingme_completed_result_closed',
+  tryon_result_revealed: 'fittingme_tryon_result_revealed',
 };
 
 const unsubscribe = window.FittingMe.on(event => {
@@ -45,6 +46,7 @@ const unsubscribe = window.FittingMe.on(event => {
   if (!name) return;
   const record = { event: name, product_id: productId };
   if (event.type === 'opened') record.open_origin = event.origin;
+  if (event.type === 'tryon_result_revealed') record.try_on_reference = event.try_on_reference;
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push(record);
 });
@@ -53,7 +55,7 @@ const unsubscribe = window.FittingMe.on(event => {
 // Do not unsubscribe in a closed handler: completed can follow.
 ```
 
-Les trois noms d’événements analytiques en anglais ci-dessus sont ceux de votre adaptateur ; ils ne désignent pas des événements FittingMe supplémentaires. L’ajout à `dataLayer` n’installe pas Google Tag Manager, ne configure pas de destination et ne garantit pas la transmission. Associez ces événements personnalisés dans la configuration analytique existante et vérifiez-les dans son mode aperçu ou débogage.
+Les quatre noms d’événements analytiques en anglais ci-dessus sont ceux de votre adaptateur ; ils ne désignent pas des événements FittingMe supplémentaires. L’adaptateur ignore tout type d’événement qu’il n’associe pas, y compris les types que FittingMe ajoutera. L’ajout à `dataLayer` n’installe pas Google Tag Manager, ne configure pas de destination et ne garantit pas la transmission. Associez ces événements personnalisés dans la configuration analytique existante et vérifiez-les dans son mode aperçu ou débogage.
 
 Si vous utilisez un autre système analytique, remplacez l’appel final par sa fonction d’envoi approuvée. Conservez la correspondance des événements et le filtre par conteneur.
 
@@ -73,4 +75,9 @@ Ne rejouez pas, à l’aide d’une file d’événements passés, les événeme
 2. Activez le suivi analytique via le mécanisme de consentement de votre boutique et terminez un nouveau parcours.
 3. Vérifiez que l’ouverture utilise le bon identifiant produit. L’affichage d’un résultat ne suffit pas à compter une complétion ; fermez le panneau et vérifiez que `closed` est suivi de `completed`. Rouvrez puis refermez ce même résultat : cette intégration ne doit pas signaler une deuxième complétion.
 4. Rechargez la page et reprenez un résultat terminé. Sa fermeture peut produire une nouvelle observation de complétion ; vérifiez que votre rapport ne la présente pas comme une génération distincte. Accédez ensuite à un autre produit par un rechargement complet et vérifiez de nouveau l’attribution.
-5. Comparez indépendamment un achat avec l’événement de commande de la boutique. La complétion seule ne doit pas être comptabilisée comme une conversion.
+5. Terminez un essayage et gardez le panneau ouvert. Attendez un enregistrement `fittingme_tryon_result_revealed` avec une référence `try_on_reference` de 32 caractères, avant tout enregistrement de fermeture.
+6. Relancez l’essayage. Attendez un deuxième enregistrement avec une autre référence.
+7. Fermez puis rouvrez le panneau, puis rechargez la page et reprenez le même rendu. N’attendez aucun nouvel enregistrement.
+8. Lancez un essayage, fermez le panneau pendant la génération et rouvrez-le une fois le rendu prêt. Attendez un enregistrement, à ce premier affichage.
+9. N’enregistrez l’abonnement qu’après l’affichage d’un rendu. N’attendez aucun enregistrement pour ce rendu.
+10. Comparez indépendamment un achat avec l’événement de commande de la boutique. La complétion seule ne doit pas être comptabilisée comme une conversion.
