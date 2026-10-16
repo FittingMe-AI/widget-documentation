@@ -13,7 +13,7 @@ const groupsByLanguage = new Map((languages ?? []).map(language => [
 const pagesByLanguage = new Map([...groupsByLanguage].map(([language, groups]) => [language, groups.flatMap(group => group.pages)]));
 const pages = [...pagesByLanguage.values()].flat();
 const errors = [];
-let links = 0, examples = 0, blocks = 0, anchors = 0;
+let links = 0, examples = 0, blocks = 0, anchors = 0, samePageAnchors = 0;
 const languageCodes = (languages ?? []).map(language => language.language);
 if (languageCodes.length !== 2 || !languageCodes.includes('en') || !languageCodes.includes('fr')) {
   errors.push(`Expected exactly one English and one French navigation, found: ${languageCodes.join(', ') || 'none'}.`);
@@ -70,25 +70,30 @@ for (const page of pages) {
   try { source = await readFile(resolve(root, `${page}.mdx`), 'utf8'); }
   catch { errors.push(`Missing page: ${page}`); continue; }
   if (!/^---\n[\s\S]*?title: .+\n[\s\S]*?description: .+\n---/.test(source)) errors.push(`${page}: missing metadata`);
-  for (const match of source.matchAll(/(?:\]\(|href=["'])(\/[\w/.-]+)(?:#([^\s"')]+))?["')]/g)) {
-    links++;
-    const path = match[1].slice(1);
-    try {
+  // Root-relative links (`/page`, `/page#anchor`) and same-page anchors (`#anchor`).
+  for (const [, link, anchor] of source.matchAll(/(?:\]\(|href=["'])(\/[\w/.-]+)?(?:#([^\s"')]+))?["')]/g)) {
+    if (!link && !anchor) continue;
+    let targetSource = source;
+    if (link) {
+      links++;
+      const path = link.slice(1);
       const target = resolve(root, path.includes('.') ? path : `${path}.mdx`);
-      await access(target);
-      if (match[2]) {
-        anchors++;
-        const targetSource = await readFile(target, 'utf8');
-        const ids = [...targetSource.matchAll(/^#{1,6} (.+)$/gm)].flatMap(([, text]) => {
-          const heading = text.trim().toLowerCase();
-          const mintlifyId = heading.replace(/\s+/g, '-');
-          const plainId = heading.replace(/[^\p{L}\p{N} _-]/gu, '').replace(/ /g, '-');
-          return [mintlifyId, plainId];
-        });
-        if (!ids.includes(match[2])) errors.push(`${page}: missing anchor ${match[1]}#${match[2]}`);
+      try {
+        await access(target);
+        if (anchor) targetSource = await readFile(target, 'utf8');
       }
+      catch { errors.push(`${page}: broken link ${link}`); continue; }
     }
-    catch { errors.push(`${page}: broken link ${match[1]}`); }
+    else samePageAnchors++;
+    if (!anchor) continue;
+    anchors++;
+    const ids = [...targetSource.matchAll(/^#{1,6} (.+)$/gm)].flatMap(([, text]) => {
+      const heading = text.trim().toLowerCase();
+      const mintlifyId = heading.replace(/\s+/g, '-');
+      const plainId = heading.replace(/[^\p{L}\p{N} _-]/gu, '').replace(/ /g, '-');
+      return [mintlifyId, plainId];
+    });
+    if (!ids.includes(anchor)) errors.push(`${page}: missing anchor ${link ?? ''}#${anchor}`);
   }
   const fences = [...source.matchAll(/^```/gm)].length;
   if (fences % 2) errors.push(`${page}: unclosed code fence`);
@@ -129,5 +134,5 @@ for (const page of pagesByLanguage.get('en') ?? []) {
   }
 }
 if (examples < 6) errors.push(`Expected at least 3 complete HTML examples in each language, found ${examples}.`);
-console.log(JSON.stringify({ approvedPages: approved.length, pages: pages.length, pagesByLanguage: Object.fromEntries([...pagesByLanguage].map(([language, entries]) => [language, entries.length])), publicFiles: inventory.length, links, anchors, codeBlocks: blocks, completeHtmlExamples: examples, eventsPageIdentifiers: eventsPageIdentifiers.length, vocabularyChecks, errors }, null, 2));
+console.log(JSON.stringify({ approvedPages: approved.length, pages: pages.length, pagesByLanguage: Object.fromEntries([...pagesByLanguage].map(([language, entries]) => [language, entries.length])), publicFiles: inventory.length, links, anchors, samePageAnchors, codeBlocks: blocks, completeHtmlExamples: examples, eventsPageIdentifiers: eventsPageIdentifiers.length, vocabularyChecks, errors }, null, 2));
 process.exitCode = errors.length ? 1 : 0;
