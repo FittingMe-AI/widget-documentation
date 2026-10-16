@@ -14,39 +14,41 @@ const pagesByLanguage = new Map([...groupsByLanguage].map(([language, groups]) =
 const pages = [...pagesByLanguage.values()].flat();
 const errors = [];
 let links = 0, examples = 0, blocks = 0, anchors = 0;
-if (!pagesByLanguage.has('en') || !pagesByLanguage.has('fr')) errors.push('Expected English and French navigation.');
+const languageCodes = (languages ?? []).map(language => language.language);
+if (languageCodes.length !== 2 || !languageCodes.includes('en') || !languageCodes.includes('fr')) {
+  errors.push(`Expected exactly one English and one French navigation, found: ${languageCodes.join(', ') || 'none'}.`);
+}
 if (!languages?.find(language => language.language === 'en')?.default) errors.push('English must remain the default language.');
 // The founder-approved pages are the `### Group` / `- \`route\`` list under `## Navigation` in the
-// design record. English navigation must equal it in order and groups, and French must mirror it
-// under `fr/`: approving a page is one edit to that list, and a page missing from it is an error.
+// design record. English navigation must equal it group by group (names and pages, in order), and
+// French must mirror it under `fr/`: approving a page is one edit to that list.
 const designRecord = 'drafts/documentation-design.md';
-const approved = [];
-let approvedGroup;
+const approvedGroups = [];
 for (const line of (await readFile(resolve(root, designRecord), 'utf8')).split(/^## /m).find(section => section.startsWith('Navigation\n'))?.split('\n') ?? []) {
-  approvedGroup = line.match(/^### (.+)$/)?.[1].trim() ?? approvedGroup;
+  const heading = line.match(/^### (.+)$/)?.[1].trim();
   const route = line.match(/^- `([^`]+)`/)?.[1];
-  if (route) approved.push({ group: approvedGroup, page: route });
+  if (heading || (route && !approvedGroups.length)) approvedGroups.push({ group: heading, pages: [] });
+  if (route) approvedGroups.at(-1).pages.push(route);
 }
-const approvedGroupNames = [...new Set(approved.map(entry => entry.group))];
+const approved = approvedGroups.flatMap(group => group.pages);
 function compareWithApproved(language, found, expected) {
-  const [foundPages, expectedPages] = [found, expected].map(entries => entries.map(entry => entry.page));
+  const [foundPages, expectedPages] = [found, expected].map(groups => groups.flatMap(group => group.pages));
   const unapproved = foundPages.filter(page => !expectedPages.includes(page));
   const missing = expectedPages.filter(page => !foundPages.includes(page));
   for (const page of unapproved) errors.push(`docs.json (${language}) lists ${page}, which is not on the approved list in ${designRecord}; a new page needs founder approval there first.`);
   for (const page of missing) errors.push(`docs.json (${language}) is missing the approved page ${page}.`);
   if (unapproved.length || missing.length) return;
-  const describe = entry => (entry ? `${entry.page} in group ${entry.group}` : 'absent');
+  // French group labels are translated, so only English group names are compared.
+  const describe = group => (group ? `${language === 'en' ? `"${group.group ?? 'no heading'}"` : 'a group'} with ${group.pages.join(', ') || 'no pages'}` : 'absent');
   for (let index = 0; index < Math.max(found.length, expected.length); index++) {
-    if (found[index]?.page === expected[index]?.page && found[index]?.group === expected[index]?.group) continue;
-    errors.push(`docs.json (${language}) navigation entry ${index + 1} is ${describe(found[index])}; the approved list expects ${describe(expected[index])}.`);
+    const [actual, approvedGroup] = [found[index], expected[index]];
+    if (actual && approvedGroup && (language !== 'en' || actual.group === approvedGroup.group) && actual.pages.join() === approvedGroup.pages.join()) continue;
+    errors.push(`docs.json (${language}) group ${index + 1} is ${describe(actual)}; the approved list expects ${describe(approvedGroup)}.`);
     return;
   }
 }
-compareWithApproved('en', (groupsByLanguage.get('en') ?? []).flatMap(group => group.pages.map(page => ({ group: group.group, page }))), approved);
-// French group labels are translated, so French groups are compared by position.
-compareWithApproved('fr',
-  (groupsByLanguage.get('fr') ?? []).flatMap((group, index) => group.pages.map(page => ({ group: index + 1, page }))),
-  approved.map(entry => ({ group: approvedGroupNames.indexOf(entry.group) + 1, page: `fr/${entry.page}` })));
+compareWithApproved('en', groupsByLanguage.get('en') ?? [], approvedGroups);
+compareWithApproved('fr', groupsByLanguage.get('fr') ?? [], approvedGroups.map(group => ({ ...group, pages: group.pages.map(page => `fr/${page}`) })));
 async function publicMdx(directory = root) {
   const found = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
