@@ -40,11 +40,25 @@ its reveal POST (2/2). Dev `events_v1` (`delivered_events_test_a`) holds
 exactly 2 `tryon_result_revealed` rows after 06:10 UTC, `06:13:23Z` and
 `06:16:28Z`, with these two references; `delivered_events_test_b` has none.
 
-Not exercised: a render first shown on reopening after a close during
-generation. That behavior is ticket 04, not yet on widget `dev`; today it
-sends no event. This change must not merge before ticket 04 is on dev
-(founder Q11, 2026-10-16), and that case is then checked once on dev. Real
-mobile camera and browser behavior is untested: no device was used.
+### Dev run, close during generation, 2026-10-16 08:37–08:39 UTC
+
+Ticket 04 is on widget `origin/dev` (`533e2364` is an ancestor, rc 0; head
+`0a6a1ce0`). Same demo, embed, driver and snippet (sha256 prefix
+`e7b60090e43a752e`), phase `closegen`. 1 real try-on, GPU 0.
+
+| Step | Adapter records (`fittingme_*`) |
+| --- | --- |
+| Launch, close the drawer 1 s later (screen `t2-attente`), wait 30 s | `opened`, `closed`; no reveal |
+| Reopen: the render is shown for the first time | `opened`, `tryon_result_revealed` `47374e49c943993f0268f423f96a2204` |
+| Close, reopen, close | `closed`, `completed_result_closed`, `opened`, `closed`; no reveal |
+| Reload, resume the same render, close | `opened`, `closed`, `completed_result_closed`; no reveal |
+
+The reveal POST left at reopen (08:38:33Z), not at the end of generation, and
+its `try_on_id` gives the same reference (1/1). Dev `events_v1`
+(`delivered_events_test_a`) holds exactly 1 `tryon_result_revealed` row after
+08:30 UTC: `08:38:33`, `47374e49c943993f0268f423f96a2204`.
+
+Real mobile camera and browser behavior is untested: no device was used.
 Staging and production were not inspected. No publication was made.
 
 ## Analytics adapter records opens — local review, 2026-10-16
