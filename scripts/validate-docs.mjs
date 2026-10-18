@@ -99,6 +99,19 @@ for (const page of pages) {
   if (fences % 2) errors.push(`${page}: unclosed code fence`);
   blocks += fences / 2;
   codeBlocksByPage.set(page, [...source.matchAll(codeFences)].map(([, language, code]) => `${language}\n${code}`));
+  // Every product page supplies its page photos (catalog-simplification ticket 03, ADR-102).
+  for (const [, , code] of source.matchAll(codeFences)) {
+    if (!code.includes('/v5/fittingme-loader.js')) continue;
+    const loaders = (code.match(/<script\b[^>]*>/g) ?? []).filter(tag => tag.includes('/v5/fittingme-loader.js'));
+    if (loaders.some(tag => !/\sdata-garment-image-urls\s*=/.test(tag))) errors.push(`${page}: a /v5/ loader example omits data-garment-image-urls.`);
+  }
+  if (page === 'reference/configuration' || page === 'fr/reference/configuration') {
+    const fr = page.startsWith('fr/'), row = /^\|\s*`data-garment-image-urls`\s*\|/gm;
+    const part = heading => source.split(/^## /m).find(section => section.startsWith(`${heading}\n`)) ?? '';
+    if (!part(fr ? 'Attributs obligatoires' : 'Required attributes').match(row)) errors.push(`${page}: data-garment-image-urls is not a required attribute.`);
+    const listed = source.match(row)?.length ?? 0;
+    if (listed !== 1) errors.push(`${page}: data-garment-image-urls is in ${listed} table rows; list it once, in the required table.`);
+  }
   const identifiers = new Map();
   for (const [, code] of source.replace(codeFences, '').matchAll(/`([^`\n]+)`/g)) identifiers.set(code, (identifiers.get(code) ?? 0) + 1);
   proseIdentifiersByPage.set(page, identifiers);

@@ -4,7 +4,7 @@ sidebarTitle: "Prerequisites and access"
 description: "Gather the access, domains, and product inputs you need before writing integration code."
 ---
 
-You are ready for the quickstart when you have retailer access, a publishable key, approval to embed on your storefront, matching environment addresses, a product identifier, and a usable garment image URL or confirmed catalogue imagery. Access is invitation-based; there is no anonymous self-service key in this guide.
+You are ready for the quickstart when you have retailer access, a publishable key, approval to embed on your storefront, matching environment addresses, a product identifier, and at least one usable garment image URL for each product you embed. Access is invitation-based; there is no anonymous self-service key in this guide.
 
 ## Gather these inputs
 
@@ -19,7 +19,7 @@ You are ready for the quickstart when you have retailer access, a publishable ke
 | A product identifier | Your storefront's product data | You can supply a stable identifier for the displayed product. |
 | A garment image | Your storefront's product media | You have a publicly retrievable JPEG or PNG, no larger than 20 MiB, matching the garment. |
 
-If you will use an existing FittingMe catalogue instead of supplying the image, obtain confirmation that your product is ready and its identifier matches the catalogue. Catalogue onboarding is assisted by FittingMe; it is not a prerequisite for the image-based quickstart. See [product inputs](/integration/products).
+Every product page supplies its garment images, also when FittingMe holds catalogue imagery for the product. Catalogue onboarding is assisted by FittingMe; it is not a prerequisite for the quickstart. See [product inputs](/integration/products).
 
 ## Obtain portal access
 
@@ -59,7 +59,7 @@ The browser checks framing before bootstrap. The API checks the key's domain per
 
 ## Use the portal installation snippet
 
-Treat the portal snippet as the starting configuration for its selected key and environment. Once the v5 loader, widget, and API are available together in your assigned environment, the supplied-view quickstart adds `data-garment-image-urls`; a snippet without it uses catalogue lookup and requires a prepared product. Set `data-journey="tryon"` and choose `data-trigger-mode="widget"` for the widget-provided button. A snippet using `host` needs your own button and has the [current Back limitation](/integration/appearance#complete-custom-button-example).
+Treat the portal snippet as the starting configuration for its selected key and environment. Once the v5 loader, widget, and API are available together in your assigned environment, add `data-garment-image-urls` to the snippet, as in the quickstart: every product page supplies it. Without any image attribute, the embed still mounts but sends no page photo, so Try-On can use only catalogue imagery. Set `data-journey="tryon"` and choose `data-trigger-mode="widget"` for the widget-provided button. A snippet using `host` needs your own button and has the [current Back limitation](/integration/appearance#complete-custom-button-example).
 
 Use one installation per container. Replace the portal snippet with your adapted example rather than running both.
 

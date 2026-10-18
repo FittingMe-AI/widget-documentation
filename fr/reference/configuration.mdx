@@ -14,17 +14,17 @@ Chargez `https://widget.fittingme.ai/v5/fittingme-loader.js` une seule fois **pa
 | --- | --- | --- |
 | `data-api-base` | URL de base de l’API, généralement `https://api.fittingme.ai` | Doit correspondre à l’environnement de la clé. |
 | `data-retailer-key` | Clé d’enseigne publiable | Obligatoire ; utilisez la clé autorisée pour le nom d’hôte de la boutique. |
-| `data-product-id` | Identifiant produit de l’enseigne | Obligatoire même si vous fournissez une image de vêtement. |
+| `data-product-id` | Identifiant produit de l’enseigne | Obligatoire. |
+| `data-garment-image-urls` | Une URL d’image HTTPS ou un tableau JSON d’URL montrant des vues du même produit et de la même couleur | Obligatoire sur chaque page produit. FittingMe utilise d’abord ses propres photos du produit et de la couleur, puis celles-ci lorsqu’il n’en a aucune. |
 | `data-journey` | `tryon` | Obligatoire pour l’intégration décrite dans ce guide. |
 
-Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n’est sélectionné implicitement.
+Une entrée de ce tableau manquante ou vide empêche le montage, sauf `data-garment-image-urls` : le loader ne l’exige pas. Une intégration sans aucun attribut d’image se monte quand même mais n’envoie aucune photo de page. Aucun parcours n’est sélectionné implicitement.
 
 ## Attributs facultatifs
 
 | Attribut | Valeur par défaut si omis | Comportement |
 | --- | --- | --- |
-| `data-garment-image-urls` | Recherche dans le catalogue | Une URL d’image HTTPS ou un tableau JSON d’URL montrant des vues du même produit et de la même couleur. Les images du catalogue sont prioritaires. |
-| `data-garment-image-url` | Recherche dans le catalogue | Ancien alias à une photo, désormais déconseillé. Il reste pris en charge jusqu’à une décision distincte de suppression. |
+| `data-garment-image-url` | Aucune | Ancien alias à une photo, désormais déconseillé. Il reste pris en charge jusqu’à une décision distincte de suppression. |
 | `data-container` | `#fittingme-widget-container` | Sélecteur CSS correspondant au conteneur existant. Son contenu est géré par FittingMe. |
 | `data-trigger-mode` | Déclencheur géré par la page hôte | `widget` pour le point d’accès FittingMe ; `host` pour un bouton contrôlé par votre page. |
 | `data-locale` | Français par défaut | Langue du widget : `en` ou `fr` ; les variantes régionales prises en charge reviennent à leur langue de base. La page de capture sur téléphone utilise la langue de son navigateur. |
@@ -36,7 +36,7 @@ Une entrée obligatoire manquante ou vide empêche le montage. Aucun parcours n�
 ## Validation et transmission
 
 - Le loader n’accepte qu’une liste définie d’attributs `data-*`. N’ajoutez pas à ce script de métadonnées analytiques ou propres à votre framework ; placez-les plutôt sur un élément qui vous appartient.
-- La valeur plurielle accepte une URL simple ou un tableau JSON de chaînes URL. Une chaîne encodée en JSON, un objet, un scalaire, `null` ou un JSON mal formé est invalide. Une valeur plurielle vide, composée d’espaces ou égale à `[]` utilise le catalogue.
+- La valeur plurielle accepte une URL simple ou un tableau JSON de chaînes URL. Une chaîne encodée en JSON, un objet, un scalaire, `null` ou un JSON mal formé est invalide. Une valeur plurielle vide, composée d’espaces ou égale à `[]` n’envoie aucune photo de page et ne respecte pas l’exigence.
 - Chaque URL est nettoyée de ses espaces périphériques avant validation et déduplication dans l’ordre. Les espaces internes, identifiants intégrés, fragments, URL non HTTPS et URL de plus de 1 024 caractères Unicode avant ou après sérialisation restent invalides. Les éléments invalides d’un tableau sont ignorés sans conversion.
 - Si les deux attributs d’image sont présents, le loader signale une erreur de configuration et utilise seulement la valeur plurielle, même vide ou invalide. Il ne fusionne ni ne récupère l’ancienne valeur.
 - Les images utilisables du catalogue sont prioritaires. Les vues fournies ne servent que de repli et ne complètent jamais un ensemble du catalogue. Une configuration fournie inutilisable permet toujours d’employer des images éligibles du catalogue ; sans image éligible, l’état d’indisponibilité habituel s’applique.
