@@ -1,15 +1,10 @@
 ---
 title: "Connect products and garment images"
 sidebarTitle: "Products and images"
-description: "Choose an image source and make each embed refer to the garment actually displayed."
+description: "Supply the garment images and make each embed refer to the garment actually displayed."
 ---
 
-Each embed needs `data-product-id`. FittingMe first uses usable imagery for the authorized product and colour in its catalogue. Supply image URLs as a fallback for a product whose catalogue imagery is unavailable. All supplied views must show the same garment and colour, never several garments in one outfit.
-
-| Approach | Supply | Use when |
-| --- | --- | --- |
-| Supplied views | Product identifier and `data-garment-image-urls` | You can provide one URL or an ordered JSON array of views of the same garment and colour. These are used only when catalogue imagery is unavailable. |
-| Prepared catalogue | Product identifier; omit image attributes | FittingMe has onboarded the product and confirmed try-on availability. |
+Each embed needs `data-product-id` and `data-garment-image-urls`: one URL or an ordered JSON array of views of the same garment and colour. FittingMe first uses usable imagery for the authorized product and colour in its catalogue. When it has none, it uses the views that your page supplies, so every product page supplies them. All supplied views must show the same garment and colour, never several garments in one outfit.
 
 ## Accepted garment categories
 
@@ -65,15 +60,17 @@ These are garment-image requirements, separate from the shopper-photo formats ac
 
 An eligible bootstrap does not download and validate the garment. An unsupported image can fail only after **Start**, currently with a generic temporary-unavailability message and no dedicated public loader error event. Check the actual response bytes, size, and redirects before retrying; eligibility is not proof that generation will succeed.
 
-The plural attribute accepts a plain URL or a JSON array of URL strings. FittingMe trims and deduplicates the URLs in order. Invalid array members are skipped, and failed downloads do not occupy the model's supported reference slots. A malformed JSON value or unsupported top-level JSON shape reports a developer error; FittingMe ignores it and uses eligible catalogue imagery. Blank, whitespace-only, and `[]` values also use catalogue lookup. If neither source provides an image, the existing unavailable state applies.
+The plural attribute accepts a plain URL or a JSON array of URL strings. FittingMe trims and deduplicates the URLs in order. Invalid array members are skipped, and failed downloads do not occupy the model's supported reference slots. A malformed JSON value or unsupported top-level JSON shape reports a developer error; FittingMe ignores it and uses eligible catalogue imagery. Blank, whitespace-only, and `[]` values also leave only catalogue imagery: they send no page photo and do not meet the requirement. If neither source provides an image, the existing unavailable state applies.
 
 The older `data-garment-image-url` one-photo attribute remains a deprecated alias. If both names are present, a developer error names the conflict and only the plural value is considered, even when empty or invalid. The migration target is **1 December 2026**, with no automatic cutoff; the alias continues until a separate removal decision.
 
-## Use a prepared catalogue
+## Prepare catalogue imagery
+
+FittingMe can also hold its own photos of your products. They take priority when usable; every product page still supplies `data-garment-image-urls`.
 
 1. Arrange catalogue onboarding with your FittingMe contact. Agree the product identifiers and source images using your storefront's product data.
 2. Obtain confirmation that the intended products are ready for try-on in the environment you will use.
-3. Pass the exact agreed identifier in `data-product-id` and omit both garment-image attributes.
+3. Pass the exact agreed identifier in `data-product-id`, and keep `data-garment-image-urls` on the page.
 4. Test both a confirmed eligible product and a product that should not offer try-on.
 
 You do not need to implement catalogue administration endpoints in the browser. Read the embed's [bootstrap outcome](/reference/events#bootstrap-outcome) to determine whether it can open. A temporary failure is different from a product being ineligible.

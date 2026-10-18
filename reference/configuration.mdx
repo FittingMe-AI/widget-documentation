@@ -14,17 +14,17 @@ Load `https://widget.fittingme.ai/v5/fittingme-loader.js` once **per embed**, wi
 | --- | --- | --- |
 | `data-api-base` | API base URL, normally `https://api.fittingme.ai` | Must match the key's environment. |
 | `data-retailer-key` | Publishable retailer key | Required; use the key authorised for the storefront hostname. |
-| `data-product-id` | Merchant product identifier | Required even when supplying a garment image. |
+| `data-product-id` | Merchant product identifier | Required. |
+| `data-garment-image-urls` | One HTTPS image URL or a JSON array of URLs showing views of the same product and colour | Required on every product page. FittingMe uses its own photos of the product and colour first, and these when it has none. |
 | `data-journey` | `tryon` | Required for the integration in this guide. |
 
-Missing or blank required inputs prevent mounting. There is no implicit journey choice.
+A missing or blank input in this table prevents mounting, except `data-garment-image-urls`: the loader does not require it. An embed with neither image attribute still mounts but sends no page photo. There is no implicit journey choice.
 
 ## Optional attributes
 
 | Attribute | Default when omitted | Behaviour |
 | --- | --- | --- |
-| `data-garment-image-urls` | Catalogue lookup | One HTTPS image URL or a JSON array of URLs showing views of the same product and colour. Catalogue imagery takes priority. |
-| `data-garment-image-url` | Catalogue lookup | Deprecated one-photo alias. Supported until removal is separately announced; do not use it for new integrations. |
+| `data-garment-image-url` | None | Deprecated one-photo alias. Supported until removal is separately announced; do not use it for new integrations. |
 | `data-container` | `#fittingme-widget-container` | CSS selector resolving to the existing container. Its contents belong to FittingMe. |
 | `data-trigger-mode` | Host-owned trigger | `widget` for the FittingMe entry point; `host` for a button controlled by your page. |
 | `data-locale` | French fallback | Widget language: `en` or `fr`; supported regional forms fall back to their base language. The separate phone capture page uses its browser’s language. |
@@ -36,7 +36,7 @@ Missing or blank required inputs prevent mounting. There is no implicit journey 
 ## Validation and forwarding
 
 - The loader accepts a closed list of `data-*` attributes. Do not attach analytics or framework metadata to this script; put it on your own element instead.
-- The plural value may be one plain URL or a JSON array of URL strings. A JSON-encoded string, object, scalar, `null`, or malformed JSON is invalid. An empty, blank, or `[]` plural value uses catalogue lookup.
+- The plural value may be one plain URL or a JSON array of URL strings. A JSON-encoded string, object, scalar, `null`, or malformed JSON is invalid. An empty, blank, or `[]` plural value sends no page photo and does not meet the requirement.
 - Each candidate is trimmed before validation and ordered deduplication. Internal whitespace, credentials, fragments, non-HTTPS URLs, and URLs over 1,024 Unicode characters before or after serialization remain invalid. Invalid array members are skipped without coercion.
 - If both image attributes are present, the loader reports a developer error and uses only the plural value, even when that value is empty or invalid. It never merges or recovers the singular value.
 - Catalogue images are preferred when usable. Supplied views are a fallback, never additional views in a catalogue set. Unusable supplied configuration still permits eligible catalogue imagery; if no eligible image is available, the existing unavailable state applies.

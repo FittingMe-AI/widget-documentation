@@ -4,7 +4,7 @@ sidebarTitle: "Prérequis et accès"
 description: "Rassemblez les accès, domaines et données produit nécessaires avant d’écrire le code d’intégration."
 ---
 
-Vous pouvez suivre le démarrage rapide lorsque vous disposez d’un accès à l’enseigne, d’une clé publiable, de l’autorisation d’intégrer le widget à votre boutique, d’adresses correspondant au même environnement, d’un identifiant produit et d’une URL d’image de vêtement utilisable ou d’images de catalogue confirmées. L’accès se fait sur invitation ; ce guide ne permet pas de créer une clé sans compte.
+Vous pouvez suivre le démarrage rapide lorsque vous disposez d’un accès à l’enseigne, d’une clé publiable, de l’autorisation d’intégrer le widget à votre boutique, d’adresses correspondant au même environnement, d’un identifiant produit et d’au moins une URL d’image de vêtement utilisable pour chaque produit intégré. L’accès se fait sur invitation ; ce guide ne permet pas de créer une clé sans compte.
 
 ## Rassemblez ces éléments
 
@@ -19,7 +19,7 @@ Vous pouvez suivre le démarrage rapide lorsque vous disposez d’un accès à l
 | Identifiant produit | Données produit de votre boutique | Vous pouvez fournir un identifiant stable pour le produit affiché. |
 | Image du vêtement | Médias produit de votre boutique | Vous disposez d’une image JPEG ou PNG accessible publiquement, de 20 Mio maximum, correspondant au vêtement. |
 
-Si vous comptez utiliser un catalogue FittingMe existant au lieu de fournir l’image, demandez confirmation que votre produit est prêt et que son identifiant correspond à celui du catalogue. FittingMe vous accompagne dans l’intégration du catalogue ; celle-ci n’est pas nécessaire pour suivre le démarrage rapide avec une image. Consultez [les données produit](/fr/integration/products).
+Chaque page produit fournit les images de son vêtement, y compris lorsque FittingMe dispose d’images de catalogue pour ce produit. FittingMe vous accompagne dans l’intégration du catalogue ; celle-ci n’est pas nécessaire pour suivre le démarrage rapide. Consultez [les données produit](/fr/integration/products).
 
 ## Obtenir l’accès au portail
 
@@ -59,7 +59,7 @@ Le navigateur vérifie l’autorisation d’encadrement avant l’amorçage. L�
 
 ## Utiliser l’extrait d’installation du portail
 
-Utilisez l’extrait du portail comme configuration de départ pour la clé et l’environnement sélectionnés. Lorsque le loader, le widget et l’API v5 seront disponibles ensemble dans votre environnement, le démarrage rapide avec plusieurs vues ajoutera `data-garment-image-urls` ; sans cet attribut, l’extrait recherchera les images du catalogue et nécessitera un produit préparé. Définissez `data-journey="tryon"` et choisissez `data-trigger-mode="widget"` pour utiliser le bouton du widget. Avec `host`, vous devez fournir votre bouton et tenir compte de la [limitation actuelle de la commande Back](/fr/integration/appearance#exemple-complet-avec-un-bouton-personnalisé).
+Utilisez l’extrait du portail comme configuration de départ pour la clé et l’environnement sélectionnés. Lorsque le loader, le widget et l’API v5 seront disponibles ensemble dans votre environnement, ajoutez `data-garment-image-urls` à l’extrait, comme dans le démarrage rapide : chaque page produit le fournit. Sans aucun attribut d’image, l’intégration se monte quand même mais n’envoie aucune photo de page ; l’essayage ne peut alors utiliser que les images du catalogue. Définissez `data-journey="tryon"` et choisissez `data-trigger-mode="widget"` pour utiliser le bouton du widget. Avec `host`, vous devez fournir votre bouton et tenir compte de la [limitation actuelle de la commande Back](/fr/integration/appearance#exemple-complet-avec-un-bouton-personnalisé).
 
 Utilisez une seule installation par conteneur. Remplacez l’extrait du portail par votre exemple adapté ; n’exécutez pas les deux en parallèle.
 

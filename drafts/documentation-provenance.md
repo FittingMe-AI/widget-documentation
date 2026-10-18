@@ -378,3 +378,24 @@ French pages. Sources read at widget `origin/main` `d536cdcd`.
 | A refusal leaves no value in force; same value twice changes nothing; never throws | widget `loader/fittingme-loader.js:358-384` |
 | Page method, no element, no verdict; `""`, `null`, `undefined` clear; exists after the first accepted tag | widget `loader/fittingme-loader.js:1691-1701`, `:405-425` |
 | Value taken at drawer opening; a value set while open applies to the next opening | widget `foundation/correlation.ts:1-15` |
+
+## Required page photos (2026-10-18)
+
+Change: every product page supplies `data-garment-image-urls` (catalog-simplification ticket 03,
+ADR-102); the pages no longer offer an embed without page photos. English and French:
+`start/prerequisites`, `integration/products`, `reference/configuration`, `reference/protocol`,
+`testing/security`, `troubleshooting/support`, `troubleshooting/symptoms`.
+
+Selected revisions: widget `5ee50eaa` (origin/dev), b2b `1d711aa9` (origin/dev),
+widget-documentation `135bf093` (origin/main).
+
+Anchors: the v5 loader still mounts without either image attribute and then forwards an empty list; the deprecated singular alias alone becomes a one-item list
+(widget `loader/fittingme-loader.js:537`, `:564`, `:573`; `loader/test/protocol-host-list.test.mjs:541`;
+`loader/AGENTS.md:63`); b2b uses catalogue imagery first and the page list when it has none
+(`backend/src/services/bootstrap.rs:177`; `vton-service/src/garment_images/resolver.rs:226`,
+`:300`). `scripts/validate-docs.mjs` now refuses a configuration reference that does not list the
+attribute exactly once, as a code-formatted row of its required table, and a code-example
+`<script>` element that loads `/v5/fittingme-loader.js` without it. It does not check wording,
+attribute values or a loader created in JavaScript.
+
+No claim of deployed v5 availability or of b2b reading Product Service in production.
