@@ -1,73 +1,62 @@
 ---
 title: "Errors and recovery"
 sidebarTitle: "Errors and recovery"
-description: "Distinguish loader validation, command refusal, and service responses before choosing a fix."
+description: "Find the layer of an error, then fix it."
 ---
-
-Errors can arise before an iframe exists, while commanding it, or during a shopper journey. Identify that layer first.
 
 | Layer | Where to look | Reference |
 | --- | --- | --- |
-| Loader configuration | Browser console; no mounted embed | [Configuration](/reference/configuration) |
-| Loader command | Synchronous return value and console | [Command verdicts](/reference/javascript#command-verdicts) |
-| Bootstrap availability | `bootstrap` event or `resolve()` | [Bootstrap outcomes](/reference/events#bootstrap-outcome) |
-| Service request | Network response and widget error state | Problem Details below |
+| Loader configuration | Browser console; no embed | [Configuration](/reference/configuration) |
+| Loader command | Return value and console | [Command verdicts](/reference/javascript#command-verdicts) |
+| Bootstrap availability | `bootstrap` event or `resolve()` | [Bootstrap outcome](/reference/events#bootstrap-outcome) |
+| Service request | Network response | Problem Details below |
 
 ## Problem Details responses
 
-FittingMe service errors use `application/problem+json`. A response can contain:
+Service errors use `application/problem+json`. A proxy, a browser block or a transport failure can give no JSON body and no `code`.
 
 | Field | Meaning |
 | --- | --- |
-| `type` | Stable error identifier under `https://fittingme.ai/problems/`. It is not a browsable help page. |
-| `title` | Short description of the error class. |
+| `type` | Stable identifier under `https://fittingme.ai/problems/`, not a link. |
+| `title` | Error class. |
 | `status` | HTTP status. |
-| `detail` | Explanation for the occurrence. Do not parse this human-readable text as an enum. |
-| `code` | Machine-readable final segment of `type`. |
-| `instance` | Request path identifying the occurrence context; it excludes the query string. |
-| `field` | Relevant input field, when applicable. |
-| `capability` | Relevant capability, when applicable. |
-
-A proxy, browser block, or transport failure may not produce a JSON response. Record that distinction rather than assuming every failed request has a `code`.
+| `detail` | Text for humans. Do not parse it. |
+| `code` | Last segment of `type`. |
+| `instance` | Request path, without the query string. |
+| `field` | Input field, if applicable. |
+| `capability` | Capability, if applicable. |
 
 ## Common journey errors
 
-| Code or status | What to check | Recovery |
+| Code or status | Cause | Recovery |
 | --- | --- | --- |
-| HTTP 401 | Key missing, invalid, wrong environment, or revoked. | Correct the key configuration and start a new attempt. |
-| HTTP 403 | Domain access, consent, or entitlement; read the specific code. | Correct the identified cause. Repeating the same request will not grant access. |
-| `origin_not_allowed` / HTTP 403 | The session-opening origin is outside the key’s permitted domains. | Correct the key domain list for the actual storefront hostname, then reopen. |
-| `origin_underivable` / HTTP 403 | The service could not derive the embedding origin. | Use an HTTP(S) storefront page and the supported loader/protocol. Check proxies or embedding policies with FittingMe; do not forge origin headers. |
-| `validation_error` | Input named by `field`, if present. | Correct the input; do not retry unchanged. |
-| `consent_required` | Generation consent was not recorded for the active session. | Return through the widget's consent step. |
-| `capability_not_entitled` | Retailer access to try-on. | Ask FittingMe to confirm the account's capability. |
-| `not_found` | Resource or active journey context no longer available. | Start a fresh journey; check product/context configuration if repeated. |
-| `conflict` | Another generation is already in progress. | Follow the existing attempt instead of submitting another. |
-| `payload_too_large` | Uploaded photo exceeds the accepted size. | Follow the photo input guidance; use a smaller supported photo. |
-| `unsupported_media_type` | Unsupported photo type. | Choose a supported photo through the widget. |
-| `rate_limited` / HTTP 429 | Too many requests. | Honour `Retry-After` when supplied; avoid parallel retries. |
-| `service_unavailable` | A required service cannot complete the request. | Use bounded retry through the widget; escalate persistent failures. |
-| `maintenance_shutoff` | The journey has been disabled by the service. | Keep shopping available and seek service status from your FittingMe contact. |
-| `internal_error` / HTTP 500 | Unexpected service failure. | Retry through a fresh controlled attempt; report recurrence. |
+| HTTP 401 | Key missing, invalid, wrong environment or revoked. | Correct the key. |
+| HTTP 403 | Domain, consent or entitlement. Read the code. | Correct the cause. Do not repeat the request. |
+| `origin_not_allowed` / HTTP 403 | The page origin is not in the key's domains. | Add the storefront hostname to the key, then reopen. |
+| `origin_underivable` / HTTP 403 | The service cannot find the page origin. | Use an HTTP(S) page and the loader. Never forge origin headers. |
+| `validation_error` | The input named by `field`. | Correct the input. |
+| `consent_required` | No generation consent for this session. | Go back through the consent step. |
+| `capability_not_entitled` | No Try-On access for the Retailer. | Ask FittingMe to check the account. |
+| `not_found` | The resource or journey is gone. | Start a new journey. |
+| `conflict` | A generation is already in progress. | Wait for it. |
+| `payload_too_large` | The photo is too large. | Use a smaller photo. |
+| `unsupported_media_type` | The photo type is not supported. | Use a supported photo. |
+| `image_invalid` / HTTP 422 | This image cannot be used for Try-On. | Use another image. |
+| `rate_limited` / HTTP 429 | Too many requests. | Obey `Retry-After`. Do not retry in parallel. |
+| `service_unavailable` | A required service failed. | Retry a few times. Report persistent failures. |
+| `maintenance_shutoff` | The service disabled the journey. | Keep shopping available. Ask your FittingMe contact. |
+| `internal_error` / HTTP 500 | Unexpected failure. | Start a new attempt. Report repeats. |
 
-This table covers integration-relevant failures. An unfamiliar code should be reported with its safe diagnostic context; do not turn it into an eligible or ineligible product state by guesswork.
+Report an unknown code with its context. Never read it as an eligible or ineligible product.
 
 ## Photo refusal and service failure
 
-A refusal before generation asks for another photo. Advice lets the shopper continue; a late or unavailable reading keeps the normal journey available. A provider refusal uses a dedicated screen with change-photo and return-to-product actions. Provider codes and raw messages are not public diagnostics. Garment download or decoding failures use service recovery without blaming the shopper's photo.
-
-Server enforcement is implemented but disabled on dev as of 9 October 2026. When enabled, a launch selecting a refused current photo returns HTTP 422 `image_invalid` before generation admission. This code also covers other unusable-image conditions; it does not disclose a refusal cause. Do not retry the rejected launch in a loop or infer a child or nudity finding from this code.
-
-The loader has no dedicated photo-refusal event. See [photo recovery](/troubleshooting/symptoms#a-photo-is-refused-or-receives-advice) and [Delivered Events](/reference/delivered-events).
+The provider can refuse a photo after Start. The widget then offers to change the photo or return to the product. Provider codes are not public diagnostics. A garment download or decoding failure uses service recovery and does not blame the photo. See [troubleshooting](/troubleshooting/symptoms).
 
 ## Failures without a public error event
 
-A browser `frame-ancestors` refusal blocks the iframe before bootstrap and has no API error body. Request [FittingMe framing approval](/start/prerequisites#confirm-storefront-framing-approval). Key-domain refusal happens later, when the journey session opens, even if bootstrap was eligible.
-
-Invalid garment bytes, including WebP, can currently surface after Start as generic temporary unavailability, without a dedicated public loader error event. Verify [garment requirements](/integration/products#image-url-requirements) before retrying. Inspect the failing request in browser developer tools; do not assume the host subscription receives every service error.
+A `frame-ancestors` refusal blocks the iframe before bootstrap, with no API body. Get [framing approval](/start/prerequisites#confirm-storefront-framing-approval). An invalid garment image fails after Start: check the [image URL requirements](/integration/products#image-url-requirements).
 
 ## Avoid retry loops
 
-The widget owns the shopper journey and its request handling. Your host page should not inspect its private session, poll generation endpoints, or replay captured requests to force progress. Provide a clear unavailable state when bootstrap remains indeterminate, and preserve the rest of the storefront.
-
-See [troubleshooting](/troubleshooting/symptoms) for symptom-specific checks and [support](/troubleshooting/support) for escalation.
+The widget owns the journey and its requests: do not poll or replay them. If bootstrap stays indeterminate, show an unavailable state and keep your storefront working.

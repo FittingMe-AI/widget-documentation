@@ -1,83 +1,51 @@
 ---
 title: "Events and payloads"
 sidebarTitle: "Events and payloads"
-description: "The five public events, their exact fields, and when subscribers receive them."
+description: "The five Page Events and their fields."
 ---
 
-Subscribe with `window.FittingMe.on(handler)`. Each event identifies its embed with `embed`, the container DOM element. The canonical contract uses English identifiers regardless of shopper language.
+Subscribe with `window.FittingMe.on(handler)`. Server-side facts are [Delivered Events](/reference/delivered-events), not Page Events.
 
 ## Event catalogue
 
 | `type` | Additional fields | Meaning | Replayed to a new subscriber? |
 | --- | --- | --- | --- |
-| `bootstrap` | `outcome`; optional `transport_code` | Latest bootstrap outcome. | Yes, for each live embed with a known outcome. |
-| `opened` | `origin`: `tap` or `command` | Drawer opening was announced and accepted by the loader. | No. |
-| `closed` | None | A previously announced open drawer closed. | No. |
-| `completed` | None | A completed result was observed when the drawer closed; sent after `closed`. | No. |
-| `tryon_result_revealed` | `try_on_reference`: 32 lowercase hexadecimal characters | A try-on render of this embed was displayed for the first time. Sent once per try-on, from Try-On embeds on the `/v4` and `/v5` loaders only. | No. |
+| `bootstrap` | `outcome`; optional `transport_code` | Latest bootstrap outcome. | Yes, for each embed with a known outcome. |
+| `opened` | `origin`: `tap` or `command` | The drawer opened. | No. |
+| `closed` | None | The drawer closed. | No. |
+| `completed` | None | The drawer closed on a completed result. | No. |
+| `tryon_result_revealed` | `try_on_reference` | First display of a try-on render. `/v4` and `/v5` loaders only. | No. |
 
-Every event also has `type` and `embed`. There is no timestamp, product identifier, session identifier, FittingMe try-on identifier, shopper photo, result URL, or order identifier in this public payload.
-
-Switch on `type` and ignore any type you do not handle. FittingMe adds events by announced addition. A handler written as `if (type === 'opened') … else …` would treat `tryon_result_revealed` as a closure.
+Every event has `type` and `embed`, the container element. No event has a timestamp, product, session or order identifier. Switch on `type` and ignore unknown types.
 
 ## Bootstrap outcome
 
-| `outcome` | Interpretation |
+| `outcome` | Meaning |
 | --- | --- |
-| `eligible` | The embed can offer its journey. You may enable a custom trigger. |
-| `ineligible` | This embed has no journey to open for the current product context. |
-| `indeterminate` | Bootstrap did not establish eligibility. Treat this as a failure to determine availability, not an ineligible product. |
+| `eligible` | The embed can offer its journey. |
+| `ineligible` | The embed has no journey for this product. |
+| `indeterminate` | Bootstrap could not decide. The product is not ineligible. |
 
-Eligibility is not a successful session or generation. Key-domain permission is checked when a session opens, and a supplied garment image is downloaded and decoded later.
-
-`transport_code` may be a string on an indeterminate event. Its values include `network`, `timeout`, and HTTP status strings. Use it as diagnostic information; do not infer a business reason from an HTTP transport outcome.
-
-## Delivered Events
-
-`tryon_photo_refused` and the other server-side facts are [Delivered Events](/reference/delivered-events), which you read in BigQuery. They are not `window.FittingMe.on` events: adding their names to a loader handler subscribes it to nothing.
+On `indeterminate`, `transport_code` is `network`, `timeout` or an HTTP status string. Use it for diagnosis only.
 
 ## Opening origin
 
-- `tap`: the shopper used the widget-provided entry point.
-- `command`: the host page requested opening through the loader.
-
-A custom button that calls `open(container)` produces `command`, even though a shopper clicked that button.
+`origin` is `tap` for the widget's entry point and `command` when your page calls the loader. A custom button that calls `open(container)` gives `command`.
 
 ## Timing and ownership
 
-Register tracking before enabling the shopper to interact. A late subscription receives bootstrap state but cannot recover previous opens, shown renders or completions. Bootstrap replay must not be counted as a new shopper visit.
-
-Each subscription sees all embeds. Filter using DOM element identity and attach your own product context from the component or page that owns that embed. Remove the subscription when its owner is disposed.
-
-A close event follows an opening that was actually announced. Calling `close()` on an already-closed embed need not produce an event. Likewise, an accepted command is not itself an analytics event.
+Subscribe before the shopper can interact, and filter on `embed`. A late subscription receives only the bootstrap state.
 
 ## Completion is not conversion
 
-`completed` is emitted **on drawer closure, after `closed`**, when the journey has a completed result that this embed has not already announced. Displaying the result alone emits no completion. Closing and reopening the same completed result in the same embed does not repeat it; a later incomplete journey can rearm the event.
-
-A fresh embed or page reload can resume that same result and emit completion again when closed. This is a new emission, despite the event not being replayed to late subscribers. There is no public session or event ID to deduplicate it across embeds or reloads.
-
-Destroying an embed or unsubscribing inside `closed` can drop the following `completed`. The public loader API has no notification that all close-related messages have been delivered. Keep the embed and tracking subscription alive after closure when observing completion. Do not use arbitrary timers as a delivery guarantee.
-
-Treat this as an observation of a completed result at close, not a count of unique generations. To count shown try-ons, use [`tryon_result_revealed`](#shown-try-on-renders). It does not establish that the shopper bought the item, selected a size, or added anything to a cart. Do not fabricate an image-download or order payload from this event.
+The widget sends `completed` when the drawer closes on a completed result, after `closed`. A displayed result alone sends nothing. A reload can send it again for the same result. If you remove the embed or unsubscribe on `closed`, you can lose `completed`.
 
 ## Shown try-on renders
 
-The widget sends `tryon_result_revealed` once per try-on, at the first display of its render:
+The widget sends `tryon_result_revealed` at the first display of a render only. A render opened from saved try-ons sends nothing. A render that finishes while the drawer is closed counts when the drawer opens again. A re-run is a new try-on with a new reference.
 
-- on the result step, when generation finishes while the drawer is open;
-- on reopening the drawer, or coming back to the product, after the shopper closed the drawer during generation.
-
-Showing a render that was already displayed sends nothing: reopening the drawer, reloading the page or resuming the same render. A render opened for the first time from the shopper's saved try-ons does not send this event. A re-run is a new try-on and sends a new event with a different reference.
-
-`try_on_reference` names that try-on: 32 lowercase hexadecimal characters, the same value as the `try_on_reference` column of its `tryon_result_revealed` row in [Delivered Events](/reference/delivered-events) once that column reaches your dataset. It is derived for you, is not FittingMe's try-on identifier and opens nothing on the API. Count distinct `try_on_reference` values to count shown try-ons.
-
-The event reaches your page in the order the widget announced it: before the `closed` and `completed` of a later closure. It can follow `closed` only when the browser had not finished computing the reference when the render was displayed. If the browser refuses that computation, the widget sends no event and writes one console line; an event never arrives without its reference.
-
-Only the `/v4` and `/v5` loaders deliver this event. The `/v2` loader never will. An older cached `/v4` loader drops it without a console line.
+`try_on_reference` is 32 lowercase hexadecimal characters. It matches the `try_on_reference` column of Delivered Events. Production datasets do not have that column yet. FittingMe tells you when it reaches your dataset. If Web Crypto refuses to compute the reference, the widget writes one console line and sends no event.
 
 ### Indicative, not an invoice
 
-This event is indicative. Your invoice comes from FittingMe's own records, not from page events or Delivered Events. A page can miss events: analytics consent withheld, a subscription registered after the display, or a page closed or left. A billed try-on belongs to the month, in Paris time, of its first display. `occurred_at` in `events_v1` is the server time at which the fact was recorded, so near a month boundary the month of your count can differ from the billed month.
-
-For a complete tracking adapter, see [track engagement and try-on results](/integration/analytics).
+This event is indicative, never an invoice. A page misses events when consent is refused, when it subscribes late or when the shopper leaves.
