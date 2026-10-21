@@ -1,71 +1,50 @@
 ---
 title: "Test the complete shopper journey"
 sidebarTitle: "Test the journey"
-description: "Verify the integration on your storefront with observable expected results."
+description: "Expected results for each test."
 ---
 
-Test the actual product template and functioning FittingMe services. Use an authorised test environment, a known usable garment image, and test photos you have permission to use.
-
-Record the storefront build, hostname, browser, device, product identifier, image source, and time of each run. Keep keys, private photo data, and capture links out of shared reports.
+Record the build, hostname, browser, device, product, image source and time of each run. Keep keys, photos and capture links out of shared reports.
 
 ## Complete the normal journey
 
 | Action | Expected result |
 | --- | --- |
-| Open a supported product page | The correct product image is shown; one intended embed mounts. |
-| Open try-on | The drawer is visible and usable; the page behind it does not scroll unexpectedly. |
-| Read and accept the required consent | The photo step becomes available through the normal journey. |
-| Provide a test photo | The journey acknowledges the photo or gives an actionable validation error. |
-| Start generation | Progress is visible, followed by a usable result or a recoverable failure. |
-| Inspect the result | It corresponds to the garment selected on the product page. |
-| Close | The product page is usable, scrolling is restored, and focus returns appropriately. |
-| Reopen | The journey resumes or restarts consistently with the state shown to the shopper. |
-
-Repeat using both the widget-provided entry point and any custom button you ship.
+| Open a product page | One embed mounts. |
+| Open try-on | The drawer opens; the page stays still. |
+| Accept the consent | The photo step opens. |
+| Add a test photo | The journey accepts it or shows an error. |
+| Start generation | A result or a recoverable failure shows. |
+| Inspect the result | It shows the selected garment. |
+| Close | Scrolling and focus return. |
+| Reopen | The journey resumes or restarts. |
 
 ## Verify the desktop-to-phone handoff
 
-1. Open the desktop journey and display the QR handoff.
-2. Scan it on a phone, or decode it locally and open the URL in a separate browser context for a desktop handoff check.
-3. Complete the linked photo step and observe the original desktop page resume.
-4. Close or cancel the handoff and confirm the shopper can retry without mixing old and new attempts.
+1. Show the QR code on desktop.
+2. Scan it with a phone, or open its URL in another browser context.
+3. Complete the photo step. The desktop resumes.
+4. Cancel and retry. Old and new attempts do not mix.
 
-A separate context on the same computer verifies the linked-session handoff. It does **not** verify a physical phone's camera, permissions, browser, or operating-system behaviour. Record those separately and test real devices for your supported audience.
+A separate browser context does not test a physical phone.
 
 ## Exercise failures deliberately
 
 | Case | Expected result |
 | --- | --- |
-| Wrong or revoked test key | Inspect HTTP 401 in Network; the widget can remain invisible without a parent-console error. The rest of the product page stays usable. |
-| Origin missing FittingMe framing approval | Browser blocks the frame before bootstrap. Ask FittingMe to approve it. |
-| Framing-approved origin missing from the key domains | Session opening is refused, possibly after eligible bootstrap. Inspect `origin_not_allowed` and fix the key domain list. |
-| Invalid or unavailable supplied image | Another catalogue image is not substituted. Unsupported bytes can produce generic temporary unavailability after Start; check format, size, and redirects. |
-| Product not enabled in a prepared catalogue | Your custom trigger remains unavailable after an ineligible outcome. |
-| Blocked script or failed network request | Your page does not wait forever or block cart and checkout. |
-| Cancel during photo capture or generation | The UI offers a valid next step; reopening does not revive obsolete work. |
-| Rapid double click | No duplicate drawers or duplicate host handlers. |
-| Product or colour change | Replacement follows the documented lifecycle and uses the new garment. |
+| Revoked key | HTTP 401. The widget can stay invisible. |
+| Origin not approved for framing | The browser blocks the frame. |
+| Origin not in key domains | Opening fails with `origin_not_allowed`. |
+| Unusable garment image | No catalogue image replaces it. |
+| Product not enabled | Your trigger stays unavailable. |
+| Blocked script | Cart and checkout work. |
+| Cancel during generation | The drawer offers a next step. |
+| Double click | One drawer opens. |
+| Colour change | The new garment shows. |
+| Provider refusal after Start | Change-photo and return-to-product actions show. |
 
-Use disposable test keys for revocation tests. Do not revoke a key used by a live storefront to create a failure scenario.
-
-## Verify photo guidance in an enabled environment
-
-As of 9 October 2026, guidance is deployed to dev in `project`; this release does not establish server enforcement or production availability. Confirm the environment first.
-
-1. Upload a permitted clothed-adult test photo; confirm a usable preview.
-2. Use a permitted empty-scene photo; confirm another-photo guidance and no Start. Do not bypass the preview by replaying requests.
-3. Check permitted group, cropped, blurred or dark photos; advice must offer both continuing and choosing another photo.
-4. Repeat refusal through handoff: the phone offers another-photo selection and the desktop reconciles. Advice belongs in the drawer.
-5. If a provider refusal occurs during ordinary testing, check change-photo and return-to-product recovery. A saved photo remains available later. Do not manufacture unsafe content to trigger a refusal.
-
-These project-mode checks do not prove the enforce-only server launch or saved-collection gates are live. See [photo recovery](/troubleshooting/symptoms#a-photo-is-refused-or-receives-advice).
+Use disposable keys for revocation tests. Do not create unsafe content to cause a refusal.
 
 ## Check layout and accessibility
 
-Test phone and desktop widths, orientation changes, keyboard navigation, browser Back, Escape, 200% text zoom, and the site's sticky headers or overlays. Verify long translated labels and both drawer-open and drawer-closed states.
-
-Check each opening path separately: native widget trigger, loader `open()`, and direct protocol have different history ownership. Loader-command openings have a known Back failure; do not count that path as passing.
-
-For React, unmount the status component while the page-owned drawer is open, then close it and verify scrolling. Confirm product links perform a full document load. For a custom SPA implementation, add delayed script loading, quick route changes, and component remounts. For multiple embeds, open each in turn and verify attribution and cleanup.
-
-**Next:** complete the [production launch checklist](/testing/launch). Keep any untested device or scenario visible in your release decision.
+Test phone and desktop widths, keyboard, Escape and 200% zoom. Check that Back closes the drawer for each opening method you ship. For product changes, see [single-page and dynamic storefronts](/integration/react).

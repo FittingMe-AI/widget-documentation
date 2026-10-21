@@ -1,3 +1,49 @@
+## Client-only rewrite — 2026-10-21
+
+Documentation updated: the 18 pages of `drafts/documentation-design.md` § Navigation, English and
+`fr/`. Deleted `integration/direct-embed`, `reference/protocol`, `reference/compatibility` (browser and
+layout limits moved to `start/prerequisites`) and `maintenance/releases` (stable loader URL moved to
+`maintenance/updates`); merged `integration/product-changes` into `integration/react`; `docs.json`
+redirects every removed route and its `fr/` twin. The symptoms heading « A photo is refused or
+receives advice » became « A photo is refused » (fr « Une photo est refusée »). Founder rulings
+2026-10-21 (ticket retailer-docs-rewrite 01).
+
+Selected revisions: widget `origin/main` `8c8e9c84`; b2b `origin/main` `805ae61e` (production),
+measured 2026-10-21T08:35Z. Claims read with `git show <sha>:<path>`.
+
+Corrections against production:
+- `/v5/` is served; "unpublished v5" and "confirm availability" notes removed: widget
+  `tools/artifacts.ts:29` (`LOADER_DIRS = ['v2', 'v4', 'v5']`), `infra/image/default.conf.template:124`;
+  b2b `backend/src/routes/bootstrap.rs:34-43`; `curl` of `/v5/` and `/v4/` loaders on
+  `https://widget.fittingme.ai`: 200 at 2026-10-21T08:47Z.
+- The "`open()` does not close on Back" limitation removed; the testing pages ask the reader to check
+  Back for each opening method they ship: widget `loader/fittingme-loader.js:920-925`
+  ("On a host COMMAND, the pusher is the loader"), `loader/test/protocol-command-loader.test.mjs:1565`
+  (C14), `tests/browser/retailer-contract.spec.ts:242`; fix `2c0d019d` (#280) is an ancestor of
+  `8c8e9c84`. Source and test evidence; browser check: not run.
+- Photo refusal before generation, photo advice, `project` mode and the launch HTTP 422 for a refused
+  photo removed (photo reading is off outside dev): b2b `.github/workflows/_deploy-env.yml:574-578`,
+  `infra/envs/dev/terraform.tfvars:319`, `backend/src/config.rs:659-663`,
+  `backend/src/services/try_on_photo.rs:399-407`, `backend/src/services/anchor_lifecycle.rs:1772`.
+  Provider refusal after Start kept: `backend/src/services/try_on_collection/dispatch.rs:636-642`,
+  `backend/src/models/journey_session.rs:238`.
+- `data-trigger-mode="embed"` corrected to `"widget"` on `integration/react`: widget
+  `foundation/embed-bootstrap.ts:17` (only `widget`/`encart` give the built-in trigger).
+- Category exclusions stated as production behaviour: b2b `backend/src/services/try_on_exclusion.rs:4-9`,
+  `backend/src/services/bootstrap.rs:187-193`.
+- The singular `data-garment-image-url` stays "deprecated, the plural wins" (widget
+  `loader/fittingme-loader.js:526-537`); the "1 December 2026" target removed: no source states it.
+- An unknown `data-*` attribute, or the plural attribute on a `/v2/` or `/v4/` loader, stops the mount:
+  widget `loader/fittingme-loader.js:505-509`, `:530-532`, `:579`.
+- The four `try_on_reference` qualifiers kept, shortened: b2b `infra/modules/delivered_events/README.md:17`
+  ("Eight columns, in this order").
+- The loader URL is stable and unhashed: widget `tools/build-loader.ts:1-2`.
+- Unchanged and not re-verified here: portal labels, the contact address, key-rotation rules.
+
+Measurements: `node scripts/check-loader-parity.mjs --ref 8c8e9c84` rc 0, 36 names compared;
+English words (`wc -w` over the navigation pages, lead probe) 19,115 over 23 pages before,
+7,068 over 18 after.
+
 ## Shown try-on renders — production state, 2026-10-21
 
 Documentation updated: maintenance/releases.mdx and fr/maintenance/releases.mdx
