@@ -1,27 +1,21 @@
 ---
 title: "Customise appearance and language"
 sidebarTitle: "Appearance and language"
-description: "Choose the entry point, style your own button, and select the widget language."
+description: "Choose the trigger and the widget language."
 ---
-
-Keep the widget-provided entry point for the first installation. Switch to a host-controlled button when your storefront needs its own text, styling, placement, or interaction.
-
-<Note>The v5 loader used in the example below is an unpublished plural-image contract. Confirm loader, widget, and API availability together in your assigned environment before using it.</Note>
 
 ## Choose the trigger
 
-| Mode | Configuration | Your responsibility |
+| Mode | Configuration | You |
 | --- | --- | --- |
-| FittingMe entry point | `data-trigger-mode="widget"` | Place the container in the page. FittingMe renders the trigger. |
-| Your button | `data-trigger-mode="host"` | Render an accessible button, wait for eligibility, and call `open(container)`. |
+| FittingMe button | `data-trigger-mode="widget"` | Place the container. |
+| Your button | `data-trigger-mode="host"` | Render a button, wait for eligibility, then call `open(container)`. |
 
-The container is still required in host-button mode, even when its closed height is zero. Do not hide or remove the iframe container to hide your button.
+Host mode also needs the container, even at zero closed height.
 
 ## Complete custom-button example
 
-**Current limitation:** a drawer opened with `FittingMe.open(container)` does not reliably close on browser Back. The first Back can leave the drawer open and the page scroll-locked; a further Back can leave the product page. This affects this custom-button example. Use the widget-provided entry point for the default integration. If Back must work with your own button, the [direct-embed example](/integration/direct-embed) implements its own history handling for a normal page; it is not a SPA router adapter.
-
-Replace the same three placeholders as in the [quickstart](/start/quickstart). This example keeps the button disabled until the embed is eligible and gives the shopper an explicit unavailable state when bootstrap cannot complete.
+Replace the three [quickstart](/start/quickstart) values.
 
 ```html
 <!doctype html>
@@ -30,13 +24,6 @@ Replace the same three placeholders as in the [quickstart](/start/quickstart). T
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Try on this garment</title>
-  <style>
-    body { margin: 0; padding: 24px; font: 16px/1.6 system-ui, sans-serif; }
-    main { max-width: 480px; margin: auto; }
-    img { display: block; width: 100%; height: auto; }
-    button { padding: 12px 24px; font: inherit; cursor: pointer; }
-    button:disabled { cursor: wait; }
-  </style>
 </head>
 <body>
   <main>
@@ -93,18 +80,16 @@ Replace the same three placeholders as in the [quickstart](/start/quickstart). T
 </html>
 ```
 
-The 15-second message is an example UI deadline, not a service-level promise. Keep normal browsing and purchasing available when try-on cannot load.
+The 15-second message is an example, not a service promise.
 
 ## Set the language
 
-Use `data-locale="en"` or `data-locale="fr"`. Locale negotiation is case-insensitive; a regional form such as `en-GB` can fall back to `en`. Missing or unsupported values fall back to French. Specify the language rather than relying on the shopper's browser to choose it. This configures the embedded widget. The separate phone capture page currently uses the phone browser’s language and does not inherit `data-locale`; test that page separately.
+Set `data-locale="en"` or `data-locale="fr"`. The value is case-insensitive, and `en-GB` falls back to `en`. An unknown value gives French, so always set it.
 
-Changing language requires a newly configured embed. Translate your own button and status messages separately.
+A new language needs a new embed. Translate your own button text. The phone capture page uses the language of the phone.
 
-## Understand the styling boundary
+## Styling boundary
 
-Your CSS can style the product page, the surrounding section, and your custom button. The widget lives in its own iframe; storefront CSS does not restyle its internal screens. Retailer branding is resolved by FittingMe for the retailer. Arrange supported brand settings with your FittingMe contact or authorised portal workflow; do not invent theme attributes on the loader script.
+Storefront CSS does not restyle the iframe. Arrange branding with FittingMe. Keep the container out of [transformed ancestors](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open).
 
-Place the container outside transformed or contained ancestors that would prevent a fullscreen drawer. See [layout troubleshooting](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open).
-
-**Verify:** keyboard activation, focus after closing, a failed bootstrap, both supported languages, and mobile layout. The custom button must never call `open()` before eligibility is known.
+**Verify:** keyboard use, focus after close, a failed bootstrap, both languages and the mobile layout.

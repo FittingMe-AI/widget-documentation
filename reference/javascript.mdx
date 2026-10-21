@@ -1,16 +1,10 @@
 ---
 title: "JavaScript API"
 sidebarTitle: "JavaScript API"
-description: "Address an embed, control its drawer, read its state, and release it safely."
+description: "Address an embed, control its drawer and read its state."
 ---
 
-<Note>These examples target the English v4 contract. Confirm v4 availability in your assigned environment before rollout. See [migration and temporary French compatibility](/reference/compatibility#temporary-french-compatibility).</Note>
-
-The loader creates `window.FittingMe`. Wait for the script to load before accessing it. Script loading and embed eligibility are separate: opening requires an eligible [bootstrap outcome](/reference/events#bootstrap-outcome).
-
-## Address an embed
-
-Pass the actual container or iframe DOM element. Container references are usually easiest to own in application code.
+`window.FittingMe` exists after the loader accepts its first script tag. Before that, use the loader attributes. Pass the container or iframe element, not a selector.
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
@@ -18,35 +12,27 @@ const fm = window.FittingMe;
 const state = fm.resolve(container);
 ```
 
-Do not pass a selector string to the command methods. Do not use generated iframe IDs as your application identifiers.
-
 ## Methods
 
 | Method | Returns | Behaviour |
 | --- | --- | --- |
-| `resolve(element)` | State snapshot or `undefined` | Reads a live embed. Unknown or destroyed references return `undefined` without an error. |
-| `open(element)` | Verdict string | Requests opening. Requires completed, eligible bootstrap. An already-open drawer is accepted without reopening. |
-| `close(element)` | Verdict string | Requests closure and withdraws pending opening. Closing an already-closed embed is accepted. |
-| `destroy(element)` | Verdict string | Removes the closed embed and its loader-owned resources. Refuses while its drawer is open. |
-| `on(handler)` | Unsubscribe function | Subscribes to all embeds on the page. Filter each event by `embed`. |
+| `resolve(element)` | Snapshot or `undefined` | Reads a live embed. |
+| `open(element)` | Verdict | Opens the drawer after an eligible bootstrap. |
+| `close(element)` | Verdict | Closes the drawer. |
+| `destroy(element)` | Verdict | Removes a closed embed. |
+| `on(handler)` | Unsubscribe function | Subscribes to all embeds. Filter on `event.embed`. |
 
-**Current Back limitation:** openings requested with `open(element)` do not reliably close on browser Back, including when called from a custom button or a React handler. Prefer the widget-provided entry point, or implement and test history ownership through the [direct protocol](/integration/direct-embed).
-
-Calling `close(element)` followed immediately by `destroy(element)` is unsafe while open: destruction returns `drawer_open`. Removing the container anyway can leave the page scroll-locked. `closed` confirms closure, but does not guarantee that a following `completed` has been delivered. See [replacement limits](/integration/product-changes#close-before-replacing).
-
-Commands return synchronously. `accepted` means the command was accepted; observe events for the resulting state. An open request made before bootstrap completes is refused, not queued for later.
+Commands return synchronously. `accepted` is not the result: watch the events. An `open` before bootstrap is refused, not queued. While the drawer is open, `close` then `destroy` at once returns `drawer_open` ([close before replacing](/integration/react#close-before-replacing)). `get()` is an older call form: use the element commands.
 
 ## Correlation identifier
 
-`window.FittingMe.setCorrelationId(id)` sets your page's correlation identifier, the join value of [Delivered Events](/reference/delivered-events#join-your-own-analytics). It is a page method, not an embed command: it takes no element, applies to every embed on the page and returns nothing.
+`window.FittingMe.setCorrelationId(id)` sets the [Delivered Events](/reference/delivered-events#join-your-own-analytics) join value for all embeds on the page.
 
-- Pass 1 to 128 characters of text that do not start with `FM_`. Pass `""`, `null` or `undefined` to clear the value.
-- The last value wins, whether it comes from this method or from the [`data-correlation-id`](/reference/configuration#optional-attributes) attribute. Setting the same value again changes nothing.
-- An embed takes the value in force when its drawer opens. A value set while the drawer is open applies from the next opening.
-- A refused value (not text, over 128 characters, or starting with `FM_`) logs one console warning, never throws, and leaves no correlation identifier in force, not even the previous one.
-- The method exists once the first loader script tag has been accepted. Before that, use the attribute.
-
-Never put a direct personal identifier, such as an email address, in this value.
+- Pass 1 to 128 characters that do not start with `FM_`. Pass `""`, `null` or `undefined` to clear it.
+- The last value wins, from this method or [`data-correlation-id`](/reference/configuration#optional-attributes).
+- An embed takes the value when its drawer opens.
+- A refused value logs one warning and clears the identifier.
+- Never put a personal identifier, such as an email address, in it.
 
 ## State snapshot
 
@@ -60,23 +46,21 @@ Never put a direct personal identifier, such as an email address, in this value.
 });
 ```
 
-`outcome` is `undefined` until bootstrap has an outcome. Afterwards it is `eligible`, `ineligible`, or `indeterminate`. `drawer_open` is a boolean. Each call returns a fresh, read-only snapshot; retaining one does not give you a live state object.
+`outcome` is `undefined` until bootstrap ends.
 
 ## Command verdicts
 
-| Exact value | Meaning | Next action |
-| --- | --- | --- |
-| `accepted` | Accepted, possibly with no change because the requested state already holds. | Observe the event or reread state. |
-| `unknown_embed` | The element identifies no known embed. | Check the element and mount sequence. |
-| `embed_destroyed` | The referenced embed was destroyed. | Stop using the old reference or mount a new embed. |
-| `bootstrap_incomplete` | Bootstrap is pending or indeterminate. | Wait for a new outcome or diagnose the bootstrap failure. |
-| `embed_ineligible` | The embed is not eligible to open. | Check product inputs and retailer availability. |
-| `fullscreen_unavailable` | An ancestor prevents correct fullscreen layout. | Correct the containing-block problem reported in the console. |
-| `drawer_open` | Destruction was requested while the drawer was open. | Close, wait for closure, then destroy. |
+| Value | Meaning |
+| --- | --- |
+| `accepted` | The loader took the command. |
+| `unknown_embed` | The element is not a known embed. |
+| `embed_destroyed` | The embed was destroyed. |
+| `bootstrap_incomplete` | Bootstrap is pending or indeterminate. |
+| `embed_ineligible` | The embed cannot open. |
+| `fullscreen_unavailable` | A parent element blocks fullscreen layout. |
+| `drawer_open` | Destroy was called while the drawer was open. |
 
-Compare the English values exactly as written. Refused commands report an error in the console and do not carry out the requested action.
-
-## Subscribe and clean up
+## Subscribe
 
 ```javascript
 const unsubscribe = fm.on(event => {
@@ -91,10 +75,4 @@ const unsubscribe = fm.on(event => {
 unsubscribe();
 ```
 
-The last known bootstrap outcome is delivered synchronously during subscription for each live embed. Opening, closing, and completion events are not replayed. Initialise values used by the handler before calling `on()`; do not call a not-yet-assigned unsubscribe variable from a replayed bootstrap handler.
-
-Unsubscribing more than once is safe. Destroying an embed does not unsubscribe your global handler. Follow [replacement and cleanup](/integration/product-changes) for the full sequence.
-
-## Older call forms
-
-Compatibility methods such as bare `open()`, `get()`, and handle methods target embeds differently and do not share the explicit command-verdict contract above. Use element-addressed commands for new integrations, especially pages with more than one embed.
+On subscribe, the loader replays the last bootstrap outcome. It does not replay other events. The replay runs inside `on()`. Initialise your values before you call `on()`. Do not call the returned function from the replayed handler.

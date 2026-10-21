@@ -57,11 +57,9 @@
                 "group": "Integration guides",
                 "pages": [
                   "integration/products",
-                  "integration/product-changes",
                   "integration/react",
                   "integration/appearance",
-                  "integration/analytics",
-                  "integration/direct-embed"
+                  "integration/analytics"
                 ]
               },
               {
@@ -86,15 +84,12 @@
                   "reference/javascript",
                   "reference/events",
                   "reference/delivered-events",
-                  "reference/errors",
-                  "reference/compatibility",
-                  "reference/protocol"
+                  "reference/errors"
                 ]
               },
               {
                 "group": "Maintenance",
                 "pages": [
-                  "maintenance/releases",
                   "maintenance/updates"
                 ]
               }
@@ -120,11 +115,9 @@
                 "group": "Guides d’intégration",
                 "pages": [
                   "fr/integration/products",
-                  "fr/integration/product-changes",
                   "fr/integration/react",
                   "fr/integration/appearance",
-                  "fr/integration/analytics",
-                  "fr/integration/direct-embed"
+                  "fr/integration/analytics"
                 ]
               },
               {
@@ -149,15 +142,12 @@
                   "fr/reference/javascript",
                   "fr/reference/events",
                   "fr/reference/delivered-events",
-                  "fr/reference/errors",
-                  "fr/reference/compatibility",
-                  "fr/reference/protocol"
+                  "fr/reference/errors"
                 ]
               },
               {
                 "group": "Maintenance",
                 "pages": [
-                  "fr/maintenance/releases",
                   "fr/maintenance/updates"
                 ]
               }
@@ -193,7 +183,7 @@
     },
     {
       "source": "/quickstarts/direct-protocol",
-      "destination": "/integration/direct-embed"
+      "destination": "/start/quickstart"
     },
     {
       "source": "/start/access-keys-domains",
@@ -205,11 +195,11 @@
     },
     {
       "source": "/guides/product-changes",
-      "destination": "/integration/product-changes"
+      "destination": "/integration/react"
     },
     {
       "source": "/guides/multiple-embeds",
-      "destination": "/integration/product-changes"
+      "destination": "/integration/react"
     },
     {
       "source": "/guides/react-nextjs",
@@ -225,7 +215,7 @@
     },
     {
       "source": "/reference/fittingme-3",
-      "destination": "/reference/protocol"
+      "destination": "/start/quickstart"
     },
     {
       "source": "/tracking/usage",
@@ -250,6 +240,46 @@
     {
       "source": "/guides/integration",
       "destination": "/start/prerequisites"
+    },
+    {
+      "source": "/integration/direct-embed",
+      "destination": "/start/quickstart"
+    },
+    {
+      "source": "/fr/integration/direct-embed",
+      "destination": "/fr/start/quickstart"
+    },
+    {
+      "source": "/reference/protocol",
+      "destination": "/start/quickstart"
+    },
+    {
+      "source": "/fr/reference/protocol",
+      "destination": "/fr/start/quickstart"
+    },
+    {
+      "source": "/reference/compatibility",
+      "destination": "/start/prerequisites"
+    },
+    {
+      "source": "/fr/reference/compatibility",
+      "destination": "/fr/start/prerequisites"
+    },
+    {
+      "source": "/integration/product-changes",
+      "destination": "/integration/react"
+    },
+    {
+      "source": "/fr/integration/product-changes",
+      "destination": "/fr/integration/react"
+    },
+    {
+      "source": "/maintenance/releases",
+      "destination": "/maintenance/updates"
+    },
+    {
+      "source": "/fr/maintenance/releases",
+      "destination": "/fr/maintenance/updates"
     }
   ]
 }

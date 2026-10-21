@@ -1,51 +1,30 @@
 ---
 title: "What you will build"
 sidebarTitle: "What you will build"
-description: "Add virtual try-on to your storefront's product pages, from first installation to production."
+description: "Add virtual try-on to your product pages."
 ---
 
-This guide is for developers integrating FittingMe into a retailer's storefront, whether you work in-house or as an external integrator.
+The web team of the retailer installs, configures, tests, launches and troubleshoots the integration, and contacts support. The data team reads [Page Events](/reference/events) and [Delivered Events](/reference/delivered-events).
 
-FittingMe lets a shopper see a garment on a photo of themselves without leaving your storefront's product page. You add an entry point to the storefront; FittingMe provides the try-on drawer, photo and consent steps, generation, and result.
-
-**Start with one product and the FittingMe loader.** The loader is a JavaScript file that creates and manages an isolated iframe. You do not need to build the try-on screens or call the generation API yourself.
-
-<CardGroup cols={2}>
-  <Card title="Build your first integration" icon="code" href="/start/prerequisites">Prepare access, then add a working try-on to one product page.</Card>
-  <Card title="Fix an integration" icon="wrench" href="/troubleshooting/symptoms">Start with what you see: a missing button, a rejected command, or a failed journey.</Card>
-  <Card title="Look up an interface" icon="book-open" href="/reference/configuration">Find configuration, JavaScript methods, events, and errors.</Card>
-  <Card title="Update an installation" icon="arrows-rotate" href="/maintenance/updates">Change keys, test updates, or remove the integration safely.</Card>
-</CardGroup>
+FittingMe provides the try-on drawer, consent, photo, generation and result. Start with one product and the loader, a JavaScript file that creates an isolated iframe.
 
 ## The shopper experience
 
 1. The shopper opens try-on from a product page.
-2. FittingMe asks for the required consent and photo. On desktop, the shopper can use the phone handoff; the available photo options depend on the device and session.
-3. FittingMe generates and displays the try-on result.
-4. The shopper closes the drawer and continues shopping on your site.
-
-An eligible product, an opened drawer, and a completed try-on are different milestones. Your integration can observe availability and opening through [public events](/reference/events); completion is reported only when a completed-result drawer closes, and is not a unique-generation count.
+2. FittingMe asks for consent and a photo. On a computer, the shopper can use the phone handoff.
+3. FittingMe generates and shows the try-on result.
+4. The shopper closes the drawer and keeps shopping.
 
 ## Who owns what
 
-| Your storefront team | FittingMe |
+| Your team | FittingMe |
 | --- | --- |
-| Storefront access, installation, and page layout | Hosted loader, widget, and try-on services |
-| Correct product identifier and garment image | Photo capture and try-on generation |
-| Product and variant selection, cart, and checkout | Consent screens and journey state |
-| Storefront security policy and analytics consent | Public integration events and error responses |
-| Testing on your actual storefront | Access provisioning and assisted catalogue onboarding |
-
-The widget does not own your product selector, cart, or checkout. A try-on completion is not an order or a size recommendation. This guide covers virtual try-on.
-
-## Does this fit your storefront?
-
-The recommended integration needs a page where you can add an HTML container and load an external script. Your security policy must allow the FittingMe iframe. Server-rendered pages and browser-rendered applications can use the loader; dynamic applications also need explicit cleanup when the product changes.
-
-Use [direct embedding](/integration/direct-embed) only when you need to own the iframe integration yourself. That approach also makes you responsible for message validation, layout, scrolling, focus, and browser history.
+| Storefront and layout | Loader, widget and services |
+| Product identifier and garment image | Photo capture and generation |
+| Product, cart and checkout | Consent and journey state |
+| Security policy and analytics consent | Page Events and errors |
+| Tests on your storefront | Access and catalogue onboarding |
 
 ## Your route to production
 
 [Prepare access](/start/prerequisites) → [Add one product](/start/quickstart) → [Adapt the integration](/integration/products) → [Test the journey](/testing/journey) → [Launch](/testing/launch).
-
-Keep the first installation small. Add a custom button, tracking, and application-specific behaviour after that product works.

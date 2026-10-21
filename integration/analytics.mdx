@@ -1,10 +1,8 @@
 ---
-title: "Track engagement and try-on results"
+title: "Track engagement and try-on renders"
 sidebarTitle: "Analytics"
-description: "Map public milestones to your analytics without confusing availability, completion, and purchases."
+description: "Send Page Events to your analytics."
 ---
-
-Use the loader's subscription API. Your integration owns the product context; FittingMe events identify the embed with its container element.
 
 ## Decide what to measure
 
@@ -13,15 +11,15 @@ Use the loader's subscription API. Your integration owns the product context; Fi
 | Can this product offer try-on? | `bootstrap` with `outcome: 'eligible'`. |
 | Did a shopper open try-on? | `opened`. |
 | Did the drawer close? | `closed`. |
-| Did this embed report a completed result when it closed? | `completed`, after `closed`. |
-| How many try-on renders were shown? | Count distinct `try_on_reference` values of `tryon_result_revealed`. Indicative, never an invoice: see [shown try-on renders](/reference/events#shown-try-on-renders). |
-| Did the shopper add to cart or purchase? | Your storefront's own cart and order events. |
+| Did it close on a completed result? | [`completed`](/reference/events#completion-is-not-conversion), after `closed`. |
+| How many renders were shown? | Distinct `try_on_reference` values of `tryon_result_revealed`. [Indicative, never an invoice](/reference/events#shown-try-on-renders). |
+| Did the shopper buy? | Your own cart and order events. |
 
-Bootstrap can replay on subscription. Keep it out of shopper event counts unless your analytics explicitly models it as a state observation.
+A replayed `bootstrap` is not a shopper visit.
 
 ## Add a tracking adapter
 
-Run this after the loader loads and before enabling a custom trigger. Replace the product placeholder with the same product context used to create the embed.
+Run this code after the loader loads, before you enable a custom trigger.
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
@@ -55,29 +53,17 @@ const unsubscribe = window.FittingMe.on(event => {
 // Do not unsubscribe in a closed handler: completed can follow.
 ```
 
-The four English analytics names above are your adapter's names, not additional FittingMe events. The adapter ignores any event type it does not map, including types FittingMe adds later. A `dataLayer` push does not install Google Tag Manager, configure a destination, or guarantee delivery. Map those custom events in your existing analytics setup and inspect its preview/debug view.
+The four names are yours, and the `dataLayer` push configures no destination.
 
-If you use another analytics system, replace the final push with its approved dispatch function. Keep the event mapping and per-container filter.
-
-## Keep the data useful and limited
-
-Send only the fields you need. Do not send the DOM element, retailer key, full iframe URL, capture link, session capability, shopper photo, or result URL to analytics.
-
-Use one subscription per owning integration component. If analytics reports duplicates, inspect duplicate subscriptions before adding deduplication that could hide legitimate repeated try-ons. A newly mounted embed or a page reload can report the same resumed result again. The completion event carries no unique event or session ID for deduplication. It cannot provide an accurate unique-generation, billing, or conversion count.
-
-Subscribe for the lifetime of the embed. Immediate teardown on `closed` can lose `completed`; a late subscription cannot recover it. Even with correct subscription handling, page closure or navigation can prevent delivery. See [completion timing](/reference/events#completion-is-not-conversion).
-
-Do not replay events that occurred before analytics consent by constructing a queue of past shopper activity. Apply your storefront's consent rules at dispatch time.
+Never send the DOM element, retailer key, full iframe URL, capture link, session capability, shopper photo or result URL. Keep one subscription per owner for the embed's lifetime. Check consent at dispatch time.
 
 ## Verify the measurements
 
-1. With analytics disabled, complete a journey and confirm your analytics receives no adapter events.
-2. Enable analytics through your storefront's consent flow and complete a new journey.
-3. Confirm opening uses the correct product identifier. A displayed result alone must not count as completion; close the drawer and check `closed` followed by `completed`. Reopen and close the same result: no second completion is expected from that embed.
-4. Reload and resume a completed result. Closing can produce another completion observation; verify that your report does not label it a distinct generation. Navigate to another product with a full page load and check attribution again.
-5. Complete a try-on and keep the drawer open. Expect one `fittingme_tryon_result_revealed` record with a 32-character `try_on_reference`, before any close record.
-6. Re-run the try-on. Expect a second record with a different reference.
-7. Close and reopen the drawer, then reload and resume the same render. Expect no new record.
-8. Start a try-on, close the drawer during generation, and reopen it after the render is ready. Expect one record, at that first display.
-9. Register the subscription only after a render is shown. Expect no record for that render.
-10. Compare a purchase with the storefront's order event independently. Completion alone must not register a conversion.
+1. Refuse consent and complete a journey. Expect no record.
+2. Give consent and complete a new journey.
+3. Close the drawer: expect `closed`, then `completed`, with your product. Reopen and close: expect nothing.
+4. Keep the drawer open on a render. Expect one `fittingme_tryon_result_revealed` with a 32-character `try_on_reference`.
+5. Re-run the try-on. Expect a new reference.
+6. Reopen, then reload on that render. Expect no record.
+7. Reload and close a completed result: expect a completion, not a new try-on. Close during generation, then reopen: expect one record. Subscribe late: expect none.
+8. Compare purchases with your order events. A completion is never a conversion.

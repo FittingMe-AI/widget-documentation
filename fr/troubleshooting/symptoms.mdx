@@ -1,18 +1,19 @@
 ---
 title: "Résoudre un problème à partir de son symptôme"
 sidebarTitle: "Dépannage"
-description: "Repérez la défaillance, identifiez la couche concernée et choisissez la prochaine action utile."
+description: "Corrigez les problèmes d’intégration à partir de leur symptôme."
 ---
 
-Laissez la fiche produit ouverte avec les outils de développement du navigateur. Inspectez la requête du loader, l’iframe du widget et les requêtes réseau en échec. Ne collez dans vos messages à l’assistance ni URL de requête complète, ni clé, ni photo, ni lien de capture.
+Ne partagez ni clés, ni photos, ni liens de capture.
 
 ## Rien ne s’affiche
 
-1. Dans l’onglet Réseau, recherchez `fittingme-loader.js`. S’il ne s’est pas chargé, vérifiez l’URL, la CSP, le gestionnaire de consentement et les extensions qui bloquent les scripts.
-2. Vérifiez que le conteneur configuré existe avant l’exécution du script et qu’il ne se trouve pas dans un composant masqué ou démonté.
-3. Dans la console, recherchez une entrée obligatoire manquante, un attribut `data-*` inconnu, une valeur `data-garment-image-urls` mal formée ou un conflit entre les deux attributs d’image. Corrigez le script avant de recharger la page. Certains diagnostics des anciens loaders sont en français. L’absence de conteneur peut échouer sans message ; vérifiez donc le sélecteur même si la console est vide.
-4. Si le loader a monté une iframe, mais que l’amorçage n’arrive jamais, recherchez dans la console un refus lié à `frame-ancestors`. Demandez à FittingMe d’autoriser l’origine de la boutique dans l’environnement du widget ; ni votre CSP ni la liste des domaines de la clé dans le portail ne peuvent modifier la politique d’encadrement du widget.
-5. Après le chargement du script, inspectez l’état sans exposer d’identifiants :
+1. Dans l’onglet Réseau, recherchez `fittingme-loader.js`. S’il manque, vérifiez l’URL et la CSP.
+2. Créez le conteneur avant le script, hors de tout composant masqué ou démonté.
+3. Recherchez dans la console un attribut `data-*` inconnu ou une valeur `data-garment-image-urls` mal formée. Certains messages de la console sont en français.
+4. Si les deux attributs d’image sont présents, l’attribut pluriel l’emporte. Il exige le loader `/v5/`.
+5. Si la console affiche un refus `frame-ancestors`, demandez à FittingMe d’autoriser votre origine.
+6. Inspectez l’état :
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
@@ -26,85 +27,55 @@ console.table({
 });
 ```
 
-Un état `undefined` indique qu’aucune intégration active ne correspond à cet élément. Le résultat `ineligible` signifie que le parcours ne peut pas être proposé. `indeterminate` signifie que la disponibilité n’a pas pu être établie ; examinez la requête en échec au lieu de conclure que le produit n’est pas pris en charge.
+`undefined` signifie aucune intégration active, `ineligible` aucun parcours et `indeterminate` une disponibilité inconnue. Certaines catégories ne proposent jamais l’essayage ; consultez [Quand l’essayage est indisponible](/fr/integration/products#quand-l’essayage-est-indisponible).
 
-L’essayage n’est jamais proposé lorsque la catégorie du catalogue identifie des **maillots de bain (y compris les shorts de bain), de la lingerie, des sous-vêtements, des vêtements de nuit ou des produits pour enfants**, même avec une image de vêtement fournie. L’événement public ne précise pas la cause de l’indisponibilité. Vérifiez la catégorie du produit avec FittingMe et consultez les [conditions de disponibilité du produit](/fr/integration/products#quand-l’essayage-est-indisponible). Une catégorie absente ou non reconnue ne rend pas à elle seule le produit inéligible ; d’autres conditions de disponibilité peuvent encore empêcher l’essayage.
-
-En mode déclencheur `host`, vous devez afficher votre propre bouton. Dans ce mode, il est normal que l’iframe fermée ait une hauteur nulle.
+En mode déclencheur `host`, FittingMe n’affiche aucun bouton : affichez le vôtre.
 
 ## Échec de l’authentification ou de l’accès au domaine
 
-1. Vérifiez que la clé correspond à l’enseigne et à l’environnement d’API prévus.
-2. Vérifiez qu’elle est active ou encore valide pendant une rotation et qu’elle n’a pas été révoquée.
-3. Comparez le nom d’hôte du navigateur avec les domaines autorisés de la clé, y compris `www` et les sous-domaines de prévisualisation.
-4. Pour les tests locaux, utilisez une clé `localhost` dédiée et ouvrez une URL HTTP sur `localhost`, et non une URL de fichier ou `127.0.0.1`.
-5. Si la requête est interdite alors que la clé et le domaine sont valides, faites confirmer par FittingMe les droits d’essayage de l’enseigne.
+1. Vérifiez que la clé correspond à l’enseigne et à l’environnement.
+2. Vérifiez que la clé n’est pas révoquée.
+3. Comparez le nom d’hôte avec les domaines de la clé, `www` compris.
+4. Pour les tests locaux, utilisez une clé `localhost` sur une URL HTTP `localhost`.
+5. Si l’accès est refusé avec une clé valide, demandez à FittingMe de vérifier les droits.
 
-Un amorçage éligible ne prouve pas que le domaine est autorisé pour la clé : ce contrôle a lieu à l’ouverture de la session. `origin_not_allowed` signifie que le nom d’hôte n’est pas autorisé ; `origin_underivable` signifie que le service n’a pas pu déterminer l’origine de l’intégration. Consultez les [codes d’erreur](/fr/reference/errors).
-
-Consultez la page [Configuration des accès](/fr/start/prerequisites). N’ajoutez pas d’identifiants d’administration au navigateur et ne modifiez pas le widget pour utiliser un autre mode d’authentification.
+Le contrôle du domaine a lieu à l’ouverture de la session. Consultez les [codes d’erreur](/fr/reference/errors).
 
 ## L’image s’affiche, mais la génération échoue
 
-Votre navigateur peut disposer de cookies ou d’un accès que les serveurs FittingMe n’ont pas. Vérifiez que l’URL renvoie bien une image sans connexion, qu’elle n’a pas expiré et que le CDN de votre boutique autorise sa récupération côté serveur. Le simple affichage de l’image dans la page ne suffit pas à le prouver.
-
-Vérifiez les octets réellement téléchargés : le vêtement doit être au format JPEG ou PNG, peser au plus 20 Mio et ne pas dépasser trois redirections. Une image WebP peut sembler éligible, puis échouer après Start avec une indisponibilité temporaire générique et sans événement public dédié pour la page hôte. Réessayer avec les mêmes octets non pris en charge ne résoudra pas le problème.
-
-Vérifiez les [règles de validation](/fr/integration/products#exigences-pour-l’url-de-l’image) de `data-garment-image-urls`. Confirmez que toutes les vues montrent le même produit et la même couleur. Les éléments invalides et les téléchargements échoués sont ignorés ; si aucune vue fournie n’est utilisable, les images éligibles du catalogue peuvent encore être utilisées. Une erreur de console pour un JSON mal formé ou les deux attributs d’image signale une configuration incorrecte sans prouver à elle seule que le produit n’est pas éligible.
+Les serveurs FittingMe récupèrent l’image sans cookies ni connexion. Elle doit être en JPEG ou PNG, peser au plus 20 Mio et suivre au plus trois redirections ; consultez les [exigences pour l’URL de l’image](/fr/integration/products#exigences-pour-l’url-de-l’image).
 
 ## Le mauvais vêtement apparaît
 
-Comparez le produit affiché avec l’identifiant et l’image utilisés à la création de l’intégration. Modifier les attributs du script après son exécution ne met pas à jour l’iframe. En cas de changement de produit ou de couleur, fermez et [remplacez l’intégration](/fr/integration/product-changes).
-
-Pour une recherche dans le catalogue, demandez à FittingMe de vérifier la correspondance convenue entre le produit et son image. Ne masquez pas un décalage en affichant un autre titre de produit autour de l’ancienne intégration.
+Modifier un attribut après l’exécution du script ne met pas à jour l’iframe. En cas de changement de produit ou de couleur, fermez et [remplacez l’intégration](/fr/integration/react). Si les attributs de la page sont corrects, demandez à FittingMe de vérifier la correspondance entre le produit et son image.
 
 ## Le panneau est tronqué ou refuse de s’ouvrir
 
-Inspectez les éléments parents du conteneur. `transform`, `filter`, certaines valeurs de `will-change` et la propriété `contain` peuvent modifier la mise en page d’une iframe à position fixe. Le loader peut refuser l’ouverture avec `fullscreen_unavailable` ; le message de la console indique l’élément parent et la propriété en cause.
-
-Déplacez le conteneur vers un emplacement approprié dans la mise en page ou supprimez la propriété superflue qui crée le bloc conteneur. Augmenter seulement le `z-index` de l’iframe ne corrige pas le bloc conteneur. Après la modification, revérifiez les en-têtes fixes, le défilement, les largeurs mobiles et la fermeture.
+Un ancêtre avec `transform` ou `filter` casse l’iframe à position fixe. Un `will-change` de transform, filter, perspective ou contain, ou un `contain` de paint, layout, strict ou content, la casse aussi. Le loader refuse alors l’ouverture avec `fullscreen_unavailable`. Son message de console, en français, nomme l’ancêtre et la propriété. Déplacez le conteneur, ou supprimez la propriété.
 
 ## Le bouton personnalisé ne fait rien
 
-- Avant d’activer le bouton, attendez `bootstrap` avec `outcome === 'eligible'`.
-- Transmettez l’élément conteneur à `open()`, pas son identifiant ni une chaîne sélecteur.
-- Examinez le [verdict de commande](/fr/reference/javascript#verdicts-des-commandes) renvoyé.
-- Observez `opened` pour confirmer l’ouverture. La valeur `accepted` seule ne prouve pas que le panneau s’est affiché.
-- Vérifiez que le loader, le widget et l’API appartiennent à des environnements compatibles, surtout pour une intégration avec image fournie.
+- Activez le bouton après `bootstrap` avec `outcome === 'eligible'`.
+- Transmettez l’élément conteneur à `open()`, pas son identifiant.
+- Lisez le [verdict de commande](/fr/reference/javascript#verdicts-des-commandes) renvoyé.
+- Attendez `opened`. `accepted` seul ne prouve pas que le panneau s’est affiché.
 
 ## La navigation produit crée des doublons ou bloque le défilement
 
-Ne supprimez pas un conteneur si `destroy()` renvoie `drawer_open`. Une commande `close()` acceptée n’a pas nécessairement fini de s’exécuter ; React supprime son DOM avant la fin du nettoyage asynchrone. Si la page est déjà bloquée, un rechargement complet rétablit un document sain. Utilisez le [modèle React où la page gère l’intégration](/fr/integration/react) et respectez les [contraintes de remplacement](/fr/integration/product-changes#fermer-avant-de-remplacer).
+Ne supprimez pas un conteneur après que `destroy()` a renvoyé `drawer_open`. Un rechargement complet rétablit une page bloquée. Consultez [Fermer avant de remplacer](/fr/integration/react#fermer-avant-de-remplacer).
 
-## Le bouton de retour laisse le panneau ouvert
+## Le bouton Précédent du navigateur laisse le panneau ouvert
 
-Si l’ouverture provient de `FittingMe.open(container)`, notamment d’un bouton personnalisé, il s’agit d’une limitation connue du loader. Un nouvel appui sur le bouton de retour peut quitter la fiche produit. Pour l’intégration par défaut, conservez le point d’accès du widget ; l’[exemple direct sur page classique](/fr/integration/direct-embed) gère explicitement son historique. Ne considérez pas le bouton de retour comme validé avec un bouton personnalisé simplement parce qu’il fonctionne avec le déclencheur natif du widget.
+Reproduisez le problème avec un réseau lent et une navigation rapide, puis consultez [Boutiques monopages et dynamiques](/fr/integration/react).
 
-Consultez la page [Gestion des boutiques dynamiques](/fr/integration/react) et reproduisez le problème avec un chargement réseau lent et une navigation rapide.
+## Une photo est refusée
 
-## Une photo est refusée ou reçoit un conseil
-
-Les conseils photo sont disponibles sur dev. Le 9 octobre 2026, dev utilise `project` : le widget affiche les refus et les conseils, tandis que le blocage serveur reste désactivé en attendant la validation de la latence. Confirmez leur disponibilité dans votre environnement avant les tests de production.
-
-| Ce que voit l’acheteur | Signification et prochaine action |
-| --- | --- |
-| Refus avant la génération | Aucune personne, un jeune enfant clairement identifié, une nudité explicite ou une lecture bloquée par le modèle. Choisir une autre photo ; l’aperçu ne propose pas Lancer. |
-| Conseil sur plusieurs personnes, le cadrage, le flou ou l’obscurité | Essayer avec cette photo ou en choisir une autre. Le conseil ne promet pas quelle personne sera habillée. |
-| Aucun conseil après une lecture trop lente ou indisponible | Le parcours normal reste disponible ; le fournisseur garde son rôle de dernier contrôle. Cela ne certifie pas la photo. |
-| Refus après le lancement | Cet article n’a pas pu être essayé sur cette photo. Choisir une autre photo ou revenir au produit ; l’écran de refus ne propose pas Réessayer. |
-
-Lors du transfert, le refus apparaît sur le téléphone avec une action pour changer de photo, puis se retrouve dans le panneau sur ordinateur. Les conseils apparaissent dans le panneau où l’acheteur décide de lancer l’essayage.
-
-Une photo enregistrée ne réaffiche pas ses conseils. Un refus du fournisseur ne la marque ni ne la bloque définitivement ; une nouvelle tentative avec le même article reste possible. Une image de vêtement invalide suit le rétablissement du service et ne doit pas demander de changer une photo valide.
-
-Le widget gère ces contrôles. Ne recréez pas la classification dans votre boutique et ne collectez pas les causes de refus dans vos analyses de la page hôte. En project, un aperçu refusé peut encore correspondre à un stockage temporaire ; masquer Lancer ne prouve ni le blocage serveur ni l’absence de conservation. Consultez les [erreurs et le rétablissement](/fr/reference/errors#refus-de-photo-et-défaillance-du-service).
+Si le fournisseur refuse la photo après Lancer l’essayage, le panneau propose de changer de photo ou de revenir au produit. Consultez les [erreurs et le rétablissement](/fr/reference/errors#refus-de-photo-et-défaillance-du-service).
 
 ## Le transfert de photo ou la génération n’aboutit pas
 
-Laissez ouverte la fiche produit d’origine et vérifiez que le lien de capture correspond à la tentative active. Recommencez avec les commandes disponibles dans le widget au lieu de réutiliser l’URL d’un ancien QR code enregistré.
-
-Inspectez le statut de la réponse en échec et son code d’erreur expurgé des données sensibles. Le consentement, la validation de la capture, une défaillance temporaire du service et une limitation du débit nécessitent des mesures différentes, décrites dans [Erreurs et rétablissement](/fr/reference/errors). Si le problème persiste après une nouvelle tentative, rassemblez les [informations pour l’assistance](/fr/troubleshooting/support).
+Laissez la fiche produit ouverte. Recommencez avec un nouveau QR code. Si l’échec continue, rassemblez les [informations pour l’assistance](/fr/troubleshooting/support).
 
 ## Les événements analytiques manquent ou sont dupliqués
 
-Abonnez-vous avant toute interaction, filtrez par `event.embed` et supprimez les anciens abonnements lors de la navigation. L’amorçage est rejoué aux abonnés tardifs, contrairement à la complétion. Celle-ci n’est envoyée qu’après la fermeture d’un résultat terminé, et après `closed`. Un démontage immédiat peut la faire perdre ; une nouvelle intégration peut l’émettre à nouveau pour un résultat repris après rechargement. Ces observations ne permettent pas de compter les générations uniques. Vérifiez séparément le consentement analytique et la configuration de destination. Consultez le [guide de suivi](/fr/integration/analytics).
+Abonnez-vous avant toute interaction et filtrez par `event.embed` ; consultez le [guide de suivi](/fr/integration/analytics).

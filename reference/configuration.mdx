@@ -1,57 +1,47 @@
 ---
 title: "Loader configuration"
 sidebarTitle: "Loader configuration"
-description: "Required inputs, optional attributes, defaults, and validation rules for the script embed."
+description: "Attributes of the script embed and their validation rules."
 ---
 
-Load `https://widget.fittingme.ai/v5/fittingme-loader.js` once **per embed**, with its configuration on that script element. Each script mounts one iframe into an existing container.
-
-<Note>The multiple-view contract below is a draft for a compatible loader, widget, and API release. Confirm availability in your assigned environment before using it. The current published `/v4/` contract remains available for existing integrations.</Note>
+Load `https://widget.fittingme.ai/v5/fittingme-loader.js` once per embed, with its attributes on that script.
 
 ## Required attributes
 
-| Attribute | Value | Requirement |
-| --- | --- | --- |
-| `data-api-base` | API base URL, normally `https://api.fittingme.ai` | Must match the key's environment. |
-| `data-retailer-key` | Publishable retailer key | Required; use the key authorised for the storefront hostname. |
-| `data-product-id` | Merchant product identifier | Required. |
-| `data-garment-image-urls` | One HTTPS image URL or a JSON array of URLs showing views of the same product and colour | Required on every product page. FittingMe uses its own photos of the product and colour first, and these when it has none. |
-| `data-journey` | `tryon` | Required for the integration in this guide. |
+| Attribute | Value |
+| --- | --- |
+| `data-api-base` | Normally `https://api.fittingme.ai`. |
+| `data-retailer-key` | Publishable key authorised for your hostname. |
+| `data-product-id` | Your product identifier. |
+| `data-garment-image-urls` | One HTTPS URL or a JSON array of URLs of the same product and colour. |
+| `data-journey` | `tryon`. |
 
-A missing or blank input in this table prevents mounting, except `data-garment-image-urls`: the loader does not require it. An embed with neither image attribute still mounts but sends no page photo. There is no implicit journey choice.
+A missing or blank value prevents mounting, except for `data-garment-image-urls`. Without an image attribute, the embed sends no page photo.
 
 ## Optional attributes
 
-| Attribute | Default when omitted | Behaviour |
+| Attribute | Default | Use |
 | --- | --- | --- |
-| `data-garment-image-url` | None | Deprecated one-photo alias. Supported until removal is separately announced; do not use it for new integrations. |
-| `data-container` | `#fittingme-widget-container` | CSS selector resolving to the existing container. Its contents belong to FittingMe. |
-| `data-trigger-mode` | Host-owned trigger | `widget` for the FittingMe entry point; `host` for a button controlled by your page. |
-| `data-locale` | French fallback | Widget language: `en` or `fr`; supported regional forms fall back to their base language. The separate phone capture page uses its browser’s language. |
-| `data-correlation-id` | No correlation identifier | Your own join value for [Delivered Events](/reference/delivered-events#join-your-own-analytics), such as a visit number: 1 to 128 characters of text, not starting with `FM_`. Never a direct personal identifier. |
-| `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Explicit widget document override for an assigned environment. Keep loader, widget, and API compatible. |
+| `data-garment-image-url` | None | Deprecated one-photo alias. |
+| `data-container` | `#fittingme-widget-container` | Selector of the existing container. |
+| `data-trigger-mode` | `host` | `widget` shows the FittingMe entry point. |
+| `data-locale` | French | The widget language, for example `en` or `fr`. An unknown value gives French. |
+| `data-correlation-id` | None | Your join value for [Delivered Events](/reference/delivered-events#join-your-own-analytics). |
+| `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Widget document override. |
 
-`data-sizing-domain` belongs to the separate Sizing integration and is unnecessary for try-on.
+## Validation
 
-## Validation and forwarding
+- An unknown `data-*` attribute logs an error, and the embed does not mount.
+- `data-garment-image-urls` needs the `/v5/` loader. On an older loader, the embed does not mount.
+- The plural value is a plain URL or a JSON array. The loader trims it, removes duplicates in order and skips invalid members.
+- Each URL uses HTTPS and has at most 1,024 characters.
+- If both image attributes are present, the loader logs a developer error. The plural wins, even when it is empty or invalid.
+- Catalogue photos come first. Page photos are the fallback.
+- An unknown locale falls back to French. Set `data-locale` explicitly.
+- `data-correlation-id` has 1 to 128 characters and does not start with `FM_`. The loader reads it as written. A refused value logs one warning, and the embed still mounts. To change it, call [`setCorrelationId(id)`](/reference/javascript#correlation-identifier).
 
-- The loader accepts a closed list of `data-*` attributes. Do not attach analytics or framework metadata to this script; put it on your own element instead.
-- The plural value may be one plain URL or a JSON array of URL strings. A JSON-encoded string, object, scalar, `null`, or malformed JSON is invalid. An empty, blank, or `[]` plural value sends no page photo and does not meet the requirement.
-- Each candidate is trimmed before validation and ordered deduplication. Internal whitespace, credentials, fragments, non-HTTPS URLs, and URLs over 1,024 Unicode characters before or after serialization remain invalid. Invalid array members are skipped without coercion.
-- If both image attributes are present, the loader reports a developer error and uses only the plural value, even when that value is empty or invalid. It never merges or recovers the singular value.
-- Catalogue images are preferred when usable. Supplied views are a fallback, never additional views in a catalogue set. Unusable supplied configuration still permits eligible catalogue imagery; if no eligible image is available, the existing unavailable state applies.
-- Unknown `data-*` attributes and unsupported journeys are rejected in the console.
-- An unknown locale falls back; it does not create a new translation. Set `data-locale="en"` explicitly for an English storefront.
-- `data-container` and `data-widget-url` configure the loader; they are not forwarded as widget query parameters.
-- `data-correlation-id` is read exactly as written, without trimming, and never travels in a URL. A refused value (over 128 characters or starting with `FM_`) logs one console warning and leaves no correlation identifier in force; the embed still mounts. To change the value later, call [`setCorrelationId(id)`](/reference/javascript#correlation-identifier).
-- The loader derives `host_origin` from the page and chooses the message protocol major. Do not add `data-host-origin` or `data-loader-major`.
-
-The `/v5/` loader uses `fittingme/5` English messages and requires an explicit plural capability acknowledgement from the widget and API. Older peers cannot silently accept one view. Artifact paths and wire majors are separate contracts. Set `data-trigger-mode="widget"` explicitly to show the widget trigger. Omission, empty and unknown values retain host mode. Deprecated French trigger aliases are described in [migration guidance](/reference/compatibility#temporary-french-compatibility).
+Do not add `data-host-origin` or `data-loader-major`. Set `data-trigger-mode="widget"` explicitly. An omitted, empty or unknown value gives host mode.
 
 ## Lifetime
 
-All inputs are read when that script executes. Changing the script's attributes afterwards has no effect. See [product changes](/integration/product-changes) for replacement.
-
-If the selector does not find a container, nothing is mounted. If another live embed already owns the element, the duplicate is ignored. Use one unique container per embed and insert it before the script.
-
-See [the complete quickstart](/start/quickstart) for copyable HTML, [image requirements](/integration/products#image-url-requirements), and [JavaScript methods](/reference/javascript).
+The loader reads the attributes once, when the script executes. Use one unique container per embed, before the script. To change products, see [single-page and dynamic storefronts](/integration/react).

@@ -1,90 +1,50 @@
 ---
 title: "Associer les produits et leurs images"
 sidebarTitle: "Produits et images"
-description: "Fournissez les images du vêtement et associez chaque intégration au vêtement réellement affiché."
+description: "Fournissez les images du vêtement pour chaque page produit."
 ---
 
-Chaque intégration nécessite `data-product-id` et `data-garment-image-urls` : une URL ou un tableau JSON ordonné de vues du même vêtement et de la même couleur. FittingMe utilise d’abord les images utilisables du produit et de la couleur autorisés dans son catalogue. Lorsqu’il n’en a aucune, il utilise les vues fournies par votre page ; chaque page produit les fournit donc. Toutes les vues fournies doivent montrer le même vêtement et la même couleur, jamais plusieurs vêtements d’une tenue.
+Chaque intégration nécessite `data-product-id` et `data-garment-image-urls`. FittingMe utilise d’abord les images du catalogue, avec les photos de votre page en solution de repli. Toutes les vues montrent le même vêtement dans la même couleur. `data-garment-image-url` est un alias déconseillé pour une seule photo : si les deux attributs sont présents, l’attribut pluriel l’emporte.
 
 ## Catégories de vêtements acceptées
 
-L’essayage accepte les produits des catégories suivantes. Consultez votre contact FittingMe avant d’intégrer un produit hors de ces catégories.
+**Vêtements :** sweat-shirts, vestes, manteaux, polos, chemises, pulls, gilets, pantalons, jeans, T-shirts, débardeurs, shorts, joggings, survêtements, vêtements de sport, costumes et ensembles.
 
-### Vêtements
+**Chaussures :** baskets, chaussures habillées, bottes, chaussures de sport, sandales, mules, espadrilles, tongs et chaussons.
 
-- Sweats
-- Vestes et manteaux
-- Polos
-- Chemises
-- Pulls et gilets
-- Pantalons
-- Jeans
-- Tee-shirts et débardeurs
-- Shorts et bermudas
-- Joggings et survêtements
-- Vêtements de sport
-- Costumes et ensembles
-
-### Chaussures
-
-- Baskets
-- Chaussures de ville
-- Bottines et bottes
-- Chaussures de sport
-- Sandales et mules
-- Espadrilles
-- Tongs
-- Chaussons
+Contactez FittingMe avant d’ajouter un produit hors de ces catégories.
 
 ## Fournir des vues du vêtement
 
-1. Choisissez un identifiant produit stable dans votre boutique. Utilisez le même pour le produit affiché, l’intégration et votre propre suivi analytique.
-2. Sélectionnez une ou plusieurs vues de ce produit et de cette couleur exacts. Placez une vue de face nette en premier si elle existe.
-3. Vérifiez que chaque URL respecte les exigences ci-dessous et que les services FittingMe peuvent récupérer les images.
-4. Définissez `data-product-id` et `data-garment-image-urls` avant de charger le script v5 compatible. Consultez le [démarrage rapide](/fr/start/quickstart) pour un exemple complet.
-5. Générez un résultat et vérifiez visuellement le vêtement. Le chargement de l’image source dans votre navigateur ne prouve pas qu’elle est accessible côté serveur.
+1. Utilisez un même identifiant produit stable sur la page, dans l’intégration et dans vos analyses.
+2. Sélectionnez des vues de ce produit et de cette couleur exacts, avec une vue de face en premier.
+3. Vérifiez chaque URL avec les exigences ci-dessous.
+4. Définissez `data-product-id` et `data-garment-image-urls` avant le chargement du script v5. Consultez le [démarrage rapide](/fr/start/quickstart).
+5. Générez un résultat et vérifiez le vêtement.
 
 ### Exigences pour l’URL de l’image
 
-- L’image téléchargée doit être décodable au format **JPEG ou PNG** et peser au maximum **20 Mio (20 971 520 octets)**. Les formats WebP, AVIF, GIF et SVG ne sont pas acceptés pour les vêtements. Renommer le fichier ne change pas son format.
-- La largeur et la hauteur ne doivent pas dépasser **8 192 pixels** chacune. Les images mal formées ou dépassant les limites de décodage sont rejetées, même si leur téléchargement fait moins de 20 Mio.
-- FittingMe suit au maximum **trois redirections**. Préférez une réponse contenant directement l’image ; chaque redirection et destination doit rester accessible publiquement et respecter les contrôles d’URL du service.
-- URL HTTPS absolue avec un nom d’hôte.
-- 1 024 caractères Unicode maximum, avant comme après la normalisation de l’URL.
-- Aucun nom d’utilisateur ni mot de passe intégré, fragment (`#...`), espace interne ou caractère de contrôle. Les espaces périphériques sont supprimés avant validation.
-- Accessible sans cookies ni connexion de l’acheteur et sans accès à un réseau privé.
+- URL HTTPS absolue avec un nom d’hôte, de 1 024 caractères au maximum.
+- JPEG ou PNG, de 20 Mio et 8 192 pixels par côté au maximum.
+- 3 redirections au maximum.
+- Aucun nom d’utilisateur, mot de passe, fragment `#`, espace ou caractère de contrôle.
+- Accessible sans cookies ni connexion.
+- Sur un hôte public. Le loader ignore les adresses privées, `localhost` et les hôtes qui se terminent par `.local` ou `.internal`.
+- La liste encodée compte 6 144 caractères au maximum. Une liste plus longue n’envoie aucune photo de page.
 
-Utilisez une URL média stable. Si elle expire pendant le parcours de l’acheteur, la génération peut être interrompue. N’incluez dans les paramètres de l’URL ni identifiants d’accès à l’image ni données client privées.
+Configurez votre CDN d’images pour qu’il renvoie toujours du JPEG ou du PNG : la livraison automatique en WebP échoue. Si le produit n’a pas d’image du catalogue utilisable, une photo de page incorrecte échoue après que l’acheteur a sélectionné **Lancer l’essayage**.
 
-Ces exigences concernent l’image du vêtement, et non les formats de photo de l’acheteur acceptés par l’écran d’importation. Configurez votre CDN d’images pour qu’il renvoie systématiquement du JPEG ou du PNG ; la négociation automatique WebP/AVIF peut rendre inutilisable pour la génération une image qui s’affiche dans le navigateur.
-
-Un amorçage éligible ne télécharge ni ne valide le vêtement. Une image non prise en charge peut échouer seulement après **Start** ; le message actuel indique alors une indisponibilité temporaire générique, sans événement d’erreur public dédié du loader. Avant de réessayer, vérifiez les octets réellement renvoyés, la taille et les redirections : l’éligibilité ne garantit pas la réussite de la génération.
-
-L’attribut pluriel accepte une URL simple ou un tableau JSON de chaînes URL. FittingMe supprime les espaces périphériques et les doublons d’URL en conservant l’ordre. Les éléments invalides sont ignorés et les téléchargements échoués n’occupent pas les places prises en charge par le modèle. Une valeur JSON mal formée ou d’une forme racine non prise en charge signale une erreur de configuration ; FittingMe l’ignore et utilise les images éligibles du catalogue. Les valeurs vides, composées d’espaces ou égales à `[]` ne laissent elles aussi que les images du catalogue : elles n’envoient aucune photo de page et ne respectent pas l’exigence. Si aucune source ne fournit d’image, l’état d’indisponibilité habituel s’applique.
-
-L’ancien attribut à une photo `data-garment-image-url` reste un alias déconseillé. Si les deux noms sont présents, une erreur de configuration indique le conflit et seule la valeur plurielle est prise en compte, même vide ou invalide. Le **1er décembre 2026** est une cible de migration sans coupure automatique ; l’alias reste pris en charge jusqu’à une décision distincte de suppression.
+L’attribut accepte une URL simple ou un tableau JSON d’URL. FittingMe supprime les espaces autour des URL, retire les doublons en conservant l’ordre et ignore les éléments invalides. Un JSON mal formé affiche une erreur dans la console et n’envoie aucune photo de page, mais les images du catalogue restent utilisées.
 
 ## Préparer les images du catalogue
 
-FittingMe peut aussi conserver ses propres photos de vos produits. Elles sont prioritaires lorsqu’elles sont utilisables ; chaque page produit fournit tout de même `data-garment-image-urls`.
-
-1. Organisez l’intégration du catalogue avec votre contact FittingMe. Convenez des identifiants produit et des images sources à partir des données de votre boutique.
-2. Faites confirmer que les produits concernés sont prêts pour l’essayage dans l’environnement que vous utiliserez.
-3. Indiquez l’identifiant convenu exact dans `data-product-id` et conservez `data-garment-image-urls` sur la page.
-4. Testez un produit dont l’éligibilité a été confirmée ainsi qu’un produit qui ne doit pas proposer l’essayage.
-
-Vous n’avez pas à implémenter de points de terminaison d’administration du catalogue dans le navigateur. Consultez le [résultat d’amorçage](/fr/reference/events#résultat-de-l’amorçage) de l’intégration pour savoir si elle peut s’ouvrir. Une défaillance temporaire ne signifie pas que le produit est inéligible.
+1. Organisez l’intégration du catalogue avec FittingMe. Convenez des identifiants produit et des images sources.
+2. Obtenez la confirmation que les produits sont prêts pour l’essayage.
+3. Indiquez l’identifiant convenu dans `data-product-id`.
+4. Testez un produit éligible et un produit exclu.
 
 ## Quand l’essayage est indisponible
 
-Les exclusions ci-dessous sont déployées sur dev au 9 octobre 2026. Cette campagne n’a pas promu les services produit sur staging ou en production ; confirmez la politique dans votre environnement avant le déploiement.
+FittingMe ne propose jamais l’essayage pour ces produits : maillots de bain, lingerie, sous-vêtements, vêtements de nuit et produits pour enfants. Les images de votre page n’y changent rien. Un produit sans catégorie ou avec une catégorie inconnue reste éligible. Pour un produit exclu, le [résultat de l’amorçage](/fr/reference/events#résultat-de-l’amorçage) est `ineligible` : masquez votre déclencheur.
 
-L’essayage n’est jamais proposé pour les produits dont la catégorie du catalogue FittingMe correspond aux **maillots de bain (y compris les shorts de bain), à la lingerie, aux sous-vêtements, aux vêtements de nuit ou aux produits pour enfants**. Cette règle s’applique aux images du catalogue comme aux images de vêtement fournies ; fournir une image ne lève pas l’exclusion.
-
-Pendant l’intégration du catalogue, demandez à FittingMe de confirmer la catégorie de ces produits. Une catégorie absente ou non reconnue ne rend pas à elle seule un produit inéligible ; les autres conditions de disponibilité restent applicables.
-
-L’événement public `bootstrap` signale `ineligible` sans en préciser la cause. Utilisez le [résultat d’amorçage](/fr/reference/events#résultat-de-l’amorçage) pour masquer le déclencheur et contactez FittingMe si un produit censé être éligible reste indisponible.
-
-## Gérer les changements de produit
-
-Les données du produit et de son image restent associées à une intégration pendant toute sa durée de vie. Modifier les attributs d’un script déjà exécuté ne le reconfigure pas. Consultez [Changements de produit et de variante](/fr/integration/product-changes) lorsque la navigation ou le choix d’une couleur change le vêtement.
+Pour changer de produit sur une page, consultez [Boutiques monopages et dynamiques](/fr/integration/react).

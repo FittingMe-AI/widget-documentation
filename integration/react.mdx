@@ -1,31 +1,42 @@
 ---
-title: "Integrate with React and dynamic storefronts"
-sidebarTitle: "React and dynamic pages"
-description: "Keep the embed connected across React remounts and choose an explicit product-navigation policy."
+title: "Integrate single-page and dynamic storefronts"
+sidebarTitle: "Single-page and dynamic storefronts"
+description: "Keep the embed connected on a React page."
 ---
 
-For the first React integration, keep the Journey Embed in a stable page template **outside the React root**, and use full page navigation when the product or garment image changes. React can observe its state without owning or removing the iframe. The widget-provided button remains available if a React component unmounts.
+## Place the embed outside React
 
-This pattern requires control of the page shell. It does not provide in-place SPA product switching. If your framework controls the entire document, use a stable layout with an explicitly tested lifecycle or ask FittingMe to review your integration before adopting it.
-
-## 1. Place the embed outside React ownership
-
-Start from the complete [quickstart HTML](/start/quickstart). Keep its product image, widget container, and configured loader script in the page template. Add a separate React mount point alongside the container:
+Keep the embed in the page template. Add a React mount point beside the widget container:
 
 ```html
-<!-- Render these siblings in the page template, outside React. -->
-<div id="try-on-react-root"></div>
-<div id="fittingme-widget-container"></div>
-<!-- Put the configured loader script from the quickstart after the container. -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Example product page</title>
+</head>
+<body>
+  <!-- Render these siblings in the page template, outside React. -->
+  <div id="try-on-react-root"></div>
+  <div id="fittingme-widget-container"></div>
+  <script src="https://widget.fittingme.ai/v5/fittingme-loader.js"
+    data-api-base="https://api.fittingme.ai"
+    data-retailer-key="YOUR_PUBLISHABLE_KEY"
+    data-product-id="YOUR_PRODUCT_ID"
+    data-garment-image-urls="https://images.example.com/YOUR_GARMENT.jpg"
+    data-journey="tryon"
+    data-locale="en"
+    data-trigger-mode="widget"
+    data-container="#fittingme-widget-container"></script>
+</body>
+</html>
 ```
 
-Mount your existing React application or status component into `try-on-react-root`. The loader uses `data-container="#fittingme-widget-container"` and `data-trigger-mode="embed"`. Do not render the widget container inside that React root, clear its parent, or use a route transition that removes it.
+Mount React into `try-on-react-root`. Never let React render or remove the widget container.
 
-The product template owns the container and script until the document unloads. A React effect owns only its subscription and timers. No `close()` or `destroy()` belongs in this effect's cleanup.
+## Observe state from React
 
-## 2. Observe state from React
-
-This component works whether React mounts before or after the loader. Its 15-second deadline is an application choice, not a service guarantee. Bootstrap replay supplies the outcome when the subscription is registered after bootstrap.
+The effect owns only its subscription and timers. Do not call `close()` or `destroy()` in its cleanup. The 15-second deadline is your choice.
 
 ```jsx
 'use client';
@@ -78,29 +89,43 @@ export function TryOnStatus() {
 }
 ```
 
-Use your application's existing `createRoot` entry point to render `<TryOnStatus />`. The component reports availability; it does not install the widget or track completion. Keep [analytics](/integration/analytics) subscribed for the lifetime of the page-owned embed.
+## Change products with a full page load
 
-React may run setup and cleanup an extra time in development. This example removes only its own subscription and timers, so remounting cannot remove an open widget. See React's [effect lifecycle reference](https://react.dev/reference/react/useEffect).
+- Another product or colour image: load its page.
+- Another size, same image: keep the embed.
+- Other page content: keep the embed.
 
-## 3. Change products with a full page load
+Disable router interception on product links. The loader has no product or size setter. Editing script attributes or passing a variant to `open()` does not change the garment.
 
-Use normal document navigation, such as an `<a href="https://store.example.com/products/next-product">`, for product and colour changes that need another garment image. Disable router interception for those links. Render the new product's inputs into the new page template. Unrelated React updates can leave the embed in place.
+## Close before replacing
 
-A full page unload is not an analytics-delivery guarantee. In particular, navigating away from an open result may prevent a completion observation. Read the [completion limits](/reference/events#completion-is-not-conversion) before deciding what to count.
+To replace an embed without a page load, keep its container until step 4 succeeds:
 
-## In-place SPA integration limits
+1. Subscribe to the `closed` event of the embed.
+2. Call `FittingMe.close(container)` and check the verdict.
+3. Wait for `closed` with a time limit. If the limit expires, keep the embed and offer a page reload.
+4. Call `destroy(container)`. Remove the container only after it returns `accepted`.
 
-React does not await asynchronous effect cleanup before removing its DOM. Calling `close()` then immediately `destroy()` on an open embed returns `drawer_open`; removing the container anyway can leave the next page unscrollable. Waiting asynchronously inside the cleanup does not keep a React-owned container connected.
+While the drawer is open, calling `close()` then `destroy()` at once returns `drawer_open`. Removing the container then can lock page scrolling. `closed` and `completed` are separate messages. A `destroy` or unsubscribe in the `closed` handler, or right after a promise that handler resolves, can lose `completed`. No close-and-destroy sequence is sure to keep it. See the [completion limits](/reference/events#completion-is-not-conversion).
 
-An in-place integration needs an owner that retains the connected container, prevents new opens, and confirms closure **before** permitting removal or route replacement. It must also account for completion messages arriving after closure; the public loader exposes no “all close messages delivered” signal. See [product replacement](/integration/product-changes#close-before-replacing). This page does not supply a general safe SPA teardown adapter.
+## Multiple embeds on one page
 
-Calling `open()` from React also has the loader's [browser Back limitation](/integration/appearance#complete-custom-button-example). The page-level pattern above uses the widget's own button.
+Give each embed its own container and script. Filter events on the container element:
 
-## Verify application behaviour
+```javascript
+const jacket = document.getElementById('jacket-tryon');
+const unsubscribe = window.FittingMe.on(event => {
+  if (event.embed !== jacket) return;
+  // Handle this embed's milestone using your own product context.
+});
+```
 
-- Delay the loader; mount, unmount, and remount the status component before it arrives.
-- In development Strict Mode and the production build, confirm there is still only one intended widget.
-- Open the drawer, unmount the React status component, and close the drawer. The widget must remain connected and restore page scrolling normally.
-- Remount the status component; confirm it receives the current bootstrap outcome.
-- Follow a product link; confirm it causes a full page load with the correct product and image.
-- Block the loader request and verify that the status stops waiting after its deadline while normal shopping remains usable.
+Only one drawer opens at a time. The loader ignores a second script in the same live container.
+
+## Verify
+
+- Mount, unmount and remount the status component before the loader arrives.
+- Check that Strict Mode and the production build show one widget.
+- Open the drawer, unmount the component and close the drawer. Page scrolling returns.
+- Follow a product link. A full page load shows the correct product.
+- Block the loader. The status stops waiting after its deadline.

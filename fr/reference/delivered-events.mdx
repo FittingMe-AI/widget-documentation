@@ -1,82 +1,76 @@
 ---
 title: "Événements Livrés (BigQuery)"
 sidebarTitle: "Événements Livrés"
-description: "Les faits de l’entonnoir Try-On que FittingMe transmet à votre projet BigQuery : types d’événements, colonnes, règles de lecture et exemples de requêtes."
+description: "Les faits Try-On que vous lisez dans BigQuery."
 ---
 
-Les Événements Livrés sont les faits de l’entonnoir Try-On que FittingMe enregistre sur ses serveurs et vous permet de lire dans BigQuery. Ce ne sont pas des événements navigateur : les [événements de page](/fr/reference/events) parviennent à votre page par `window.FittingMe.on`, et ajouter le nom d’un Événement Livré à ce gestionnaire ne l’abonne à rien.
+Vous lisez ces faits Try-On côté serveur dans BigQuery. Ce ne sont pas des [événements de page](/fr/reference/events).
 
 ## Obtenir l’accès
 
-FittingMe met à disposition de votre entreprise un dataset BigQuery, nommé `delivered_events_YOUR_KEY`, qui contient une vue en lecture seule, `events_v1`. Une entreprise qui exploite une enseigne par pays peut toutes les lire dans la même vue ; chaque ligne nomme son enseigne.
+FittingMe met à disposition un dataset par entreprise, `delivered_events_YOUR_KEY`, avec une vue en lecture seule, `events_v1`.
 
-1. Envoyez à FittingMe les identités Google qui liront la vue : un groupe Google pour vos analystes et les comptes de service de vos pipelines.
-2. FittingMe accorde à chaque identité un accès en lecture à ce seul dataset et vous envoie le chemin complet de la vue.
-3. Exécutez vos requêtes depuis votre propre projet Google Cloud, qui les paie. La vue se trouve dans la région `europe-west1` ; une table dans laquelle vous copiez des lignes doit se trouver dans la même région.
-
-Demandez l’accès à FittingMe si votre dataset n’a pas été provisionné.
+1. Envoyez à FittingMe le groupe Google et les comptes de service qui lisent la vue.
+2. Obtenez auprès de FittingMe le chemin complet de la vue. L’accès couvre ce seul dataset.
+3. Exécutez vos requêtes depuis votre propre projet Google Cloud, qui les paie. Gardez les tables copiées dans `europe-west1`.
 
 ## Colonnes
 
-Le contrat `events_v1` comporte neuf colonnes, dans cet ordre. Une ligne correspond à un fait. La neuvième, `try_on_reference`, arrive en production avec la prochaine version de production de l’API FittingMe ; d’ici là, un dataset de production compte les huit premières.
+En production, `events_v1` comporte les huit premières colonnes ci-dessous, dans cet ordre. La neuvième, `try_on_reference`, n’est pas encore dans les datasets de production. FittingMe vous prévient lorsqu’elle arrive dans votre dataset.
 
 | Colonne | Type | Signification |
 | --- | --- | --- |
-| `event_type` | STRING | Le fait, l’un des [types d’événements](#types-d’événements). |
-| `occurred_at` | TIMESTAMP | Le moment où les serveurs de FittingMe ont enregistré le fait, en UTC. Jamais l’horloge de l’acheteur. |
-| `journey` | STRING | Toujours `tryon`. Les faits de taille ne sont pas encore transmis. |
-| `product_id` | STRING | Votre identifiant produit, tel que votre page l’a fourni. Jamais vide. |
-| `session_key` | STRING | 32 caractères hexadécimaux minuscules, identiques pour tous les faits d’une même session. |
-| `correlation_id` | STRING | La valeur de jointure : votre [identifiant de corrélation](#joindre-vos-propres-analyses) en vigueur au moment du fait, ou `FM_` suivi de la `session_key` lorsque votre page n’en a fourni aucun. Jamais vide. |
-| `event_id` | STRING | L’identifiant propre du fait, un UUID. Unique par ligne et jamais vide. |
-| `retailer_id` | STRING | L’enseigne à laquelle appartient le fait, un UUID en minuscules. |
-| `try_on_reference` | STRING | Sur les lignes `tryon_result_revealed`, la référence de l’essayage : 32 caractères hexadécimaux minuscules. `NULL` sur toutes les autres lignes. |
+| `event_type` | STRING | L’un des [types d’événements](#types-d’événements). |
+| `occurred_at` | TIMESTAMP | Heure serveur du fait, en UTC. |
+| `journey` | STRING | Toujours `tryon`. |
+| `product_id` | STRING | Votre identifiant produit. |
+| `session_key` | STRING | 32 caractères hexadécimaux minuscules par session. |
+| `correlation_id` | STRING | Votre [identifiant de corrélation](#joindre-vos-propres-analyses), sinon `FM_` suivi de la `session_key`. |
+| `event_id` | STRING | UUID unique. |
+| `retailer_id` | STRING | UUID de l’enseigne, en minuscules. |
+| `try_on_reference` | STRING | 32 caractères hexadécimaux minuscules sur les lignes `tryon_result_revealed`, sinon `NULL`. Les lignes d’affichage du 11 septembre 2026 et avant restent à `NULL`. |
 
-Une session est le parcours Try-On d’un acheteur sur un produit. Elle dure au plus 48 heures : un acheteur qui revient sur le même produit dans le même navigateur pendant ce délai la reprend, et ses faits gardent la même `session_key`. `session_key` est dérivée de la session FittingMe et n’ouvre rien sur l’API.
+Lorsque `try_on_reference` arrive dans votre dataset, elle porte la valeur de l’[événement de page `tryon_result_revealed`](/fr/reference/events#rendus-d’essayage-affichés).
 
-`try_on_reference` est la colonne la plus récente et n’est pas encore présente dans tous les datasets. FittingMe vous prévient lorsqu’elle arrive dans votre dataset. Elle porte la même valeur que l’[événement de page `tryon_result_revealed`](/fr/reference/events#rendus-d’essayage-affichés) de cet essayage, ce qui vous permet de joindre les deux. Elle vaut aussi `NULL` sur les lignes d’affichage enregistrées avant son existence (celles du 11 septembre 2026 et avant).
+Une session est le parcours Try-On d’un acheteur sur un produit. Elle dure au plus 48 heures. Un retour sur le même produit dans le même navigateur pendant ce délai reprend la session, avec la même `session_key`.
 
 ## Types d’événements
 
-Chaque type peut se produire plusieurs fois dans une session.
-
 | `event_type` | Ce qui s’est passé | Fréquence |
 | --- | --- | --- |
-| `session_created` | L’acheteur a ouvert le parcours Try-On sur un produit, ce qui démarre une nouvelle session. | Une fois par session. Reprendre une session ne le répète pas. |
-| `tryon_photo_ingested` | FittingMe a accepté une photo de l’acheteur, envoyée depuis l’ordinateur ou le téléphone. | Une fois par photo acceptée. Réutiliser une photo mémorisée n’ajoute aucune ligne. |
-| `tryon_launch` | FittingMe a accepté une demande d’essayage. | Une fois par demande, relances comprises. |
-| `tryon_result_revealed` | Un rendu d’essayage a été affiché à l’acheteur pour la première fois. | Une fois par essayage. Afficher de nouveau le même rendu n’ajoute aucune ligne. |
-| `cart_intent_expressed` | L’acheteur a appuyé sur le bouton principal de l’écran de résultat, **Retour au produit**, qui ferme le panneau pour qu’il choisisse une taille et ajoute l’article au panier sur votre page. | Une fois par appui. Une ligne `journey_exited` la suit. |
-| `journey_exited` | L’acheteur a quitté le parcours : il a fermé le panneau par n’importe quel moyen, **Retour au produit** compris, ou a quitté la page panneau ouvert. | Au plus une fois par ouverture du panneau. |
-| `tryon_photo_refused` | Une photo de l’acheteur a été refusée, à l’acceptation ou pendant la génération. | Une fois par refus. |
+| `session_created` | L’acheteur a ouvert le parcours Try-On. | Une fois par session. Reprendre une session ne le répète pas. |
+| `tryon_photo_ingested` | FittingMe a accepté une photo de l’acheteur. | Une fois par nouvelle photo. |
+| `tryon_launch` | FittingMe a accepté une demande d’essayage. | Une fois par demande ou relance. |
+| `tryon_result_revealed` | Premier affichage d’un rendu d’essayage. | Une fois par essayage. |
+| `cart_intent_expressed` | L’acheteur a appuyé sur **Retour au produit** dans le résultat. | Une fois par appui, avant `journey_exited`. |
+| `journey_exited` | L’acheteur a fermé le panneau ou a quitté la page panneau ouvert. | Au plus une fois par ouverture. |
+| `tryon_photo_refused` | Une photo de l’acheteur a été refusée. | Une fois par refus. |
 
-Lisez ces faits comme des observations, pas comme des conversions :
+Ces faits sont des observations, pas des conversions :
 
-- `cart_intent_expressed` est le dernier geste d’achat que voit le widget. Ce n’est pas un ajout au panier : il ne porte ni taille ni variante, et FittingMe ne sait jamais si l’acheteur a acheté l’article. Utilisez pour cela vos propres événements de panier et de commande.
-- `journey_exited` n’est pas un abandon : un acheteur qui rouvre le panneau reprend là où il s’était arrêté.
-- `tryon_photo_refused` ne porte ni cause, ni origine, ni photo. Un fait manquant ne prouve pas que l’acheteur est parti.
+- `cart_intent_expressed` n’est pas un ajout au panier : il ne porte ni taille ni variante.
+- `journey_exited` n’est pas un abandon : l’acheteur peut rouvrir et continuer.
+- `tryon_photo_refused` ne porte ni cause, ni origine, ni photo.
 
-Pour compter les essayages affichés, comptez les valeurs distinctes de `try_on_reference` dès que cette colonne arrive dans votre dataset. Votre facture provient des propres enregistrements de FittingMe, pas de ces lignes.
+Lorsque `try_on_reference` arrive dans votre dataset, comptez ses valeurs distinctes pour les rendus affichés. Les lignes sont des observations, pas une facture.
 
 ## Règles de lecture
 
-- **Fraîcheur.** Les lignes apparaissent généralement en quelques minutes. Aucun délai n’est garanti : relisez une fenêtre qui chevauche la précédente et dédupliquez sur `event_id`.
-- **Contrat stable.** Une colonne n’est jamais renommée, supprimée ni réordonnée, et un type d’événement n’est jamais renommé ni supprimé. Les nouvelles colonnes sont ajoutées en dernier, et les nouveaux types sont annoncés avant d’arriver dans votre dataset. Ignorez les types que vous ne traitez pas.
-- **Trafic de test.** Chaque session est transmise. Pour distinguer votre trafic de test, demandez à FittingMe de configurer vos domaines de test comme une enseigne distincte : ses lignes portent son propre `retailer_id`.
-- **Conservation.** Les faits restent lisibles pendant 13 mois, puis quittent la vue.
-- **Effacement.** Lorsque vous demandez à FittingMe d’effacer des identifiants de corrélation, les lignes concernées restent et leur `correlation_id` devient le remplacement `FM_` : vos décomptes ne changent pas. L’effacement des lignes copiées dans vos propres tables vous incombe.
+- **Fraîcheur.** Aucun délai n’est garanti. Relisez des fenêtres qui se chevauchent et dédupliquez sur `event_id`.
+- **Contrat stable.** Rien n’est renommé ni supprimé, et les nouvelles colonnes arrivent en dernier.
+- **Trafic de test.** Demandez à FittingMe une enseigne de test distincte.
+- **Conservation.** Les faits restent 13 mois.
+- **Effacement.** Un identifiant de corrélation effacé devient le remplacement `FM_`. L’effacement des lignes copiées dans vos propres tables vous incombe.
 
 ## Joindre vos propres analyses
 
-Fournissez votre propre identifiant de corrélation, par exemple un numéro de visite, pour joindre ces faits à vos analyses. Placez l’attribut `data-correlation-id` sur la balise script du loader, ou appelez [`window.FittingMe.setCorrelationId(id)`](/fr/reference/javascript#identifiant-de-corrélation). La valeur appartient à la page, le dernier appel l’emporte, et elle s’applique à partir de la prochaine ouverture du panneau. Elle compte de 1 à 128 caractères de texte et ne doit pas commencer par `FM_` ; le loader refuse toute autre valeur et en écrit la raison dans la console. N’y placez jamais d’identifiant personnel direct, comme une adresse e-mail.
-
-La valeur est enregistrée sur chaque fait telle qu’elle est à ce moment-là : elle peut donc changer au cours d’une session. Une valeur qui commence par `FM_` est le remplacement de FittingMe, jamais la vôtre.
+Fournissez un identifiant de corrélation, par exemple un numéro de visite, avec `data-correlation-id` ou [`window.FittingMe.setCorrelationId(id)`](/fr/reference/javascript#identifiant-de-corrélation). N’utilisez jamais d’identifiant personnel, comme une adresse e-mail.
 
 ## Exemples de requêtes
 
-Remplacez `FITTINGME_PROJECT.delivered_events_YOUR_KEY` par le chemin que FittingMe vous a envoyé.
+Remplacez `FITTINGME_PROJECT.delivered_events_YOUR_KEY` par votre chemin.
 
-Entonnoir quotidien, heure de Paris, qui compte les sessions ayant atteint chaque étape ce jour-là :
+Entonnoir quotidien, heure de Paris :
 
 ```sql
 SELECT
@@ -94,7 +88,7 @@ ORDER BY day
 
 Une session qui commence un jour et continue le lendemain compte pour les deux jours.
 
-Copie incrémentale dans votre propre table, qui relit les deux derniers jours et garde chaque fait une seule fois :
+Copie incrémentale sans doublons :
 
 ```sql
 MERGE `YOUR_PROJECT.YOUR_DATASET.fittingme_events` AS target
@@ -110,7 +104,7 @@ WHEN NOT MATCHED THEN
 
 Lorsque FittingMe annonce une nouvelle colonne, ajoutez-la à votre table avant l’exécution suivante.
 
-Rendus affichés et intentions panier par visite, joints à votre propre table des visites :
+Rendus affichés et intentions d’ajout au panier par visite :
 
 ```sql
 SELECT

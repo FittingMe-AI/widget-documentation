@@ -9,7 +9,7 @@ Scope: developers integrating virtual try-on for a retailer, whether they work i
 | # | Approved goal | Implemented location |
 | --- | --- | --- |
 | 1 | [x] Understand what they are integrating | introduction |
-| 2 | [x] Determine whether it fits their storefront | introduction; reference/compatibility |
+| 2 | [x] Determine whether it fits their storefront | introduction; start/prerequisites |
 | 3 | [x] Know everything needed before starting | start/prerequisites |
 | 4 | [x] Reach a first working integration through one clear path | start/quickstart |
 | 5 | [x] Adapt the integration to the actual storefront | integration/* |
@@ -53,11 +53,9 @@ This list is the approved page list. `scripts/validate-docs.mjs` requires `docs.
 ### Integration guides
 
 - `integration/products`
-- `integration/product-changes`
 - `integration/react`
 - `integration/appearance`
 - `integration/analytics`
-- `integration/direct-embed`
 
 ### Test and launch
 
@@ -77,18 +75,17 @@ This list is the approved page list. `scripts/validate-docs.mjs` requires `docs.
 - `reference/events`
 - `reference/delivered-events` (founder-approved 2026-10-16)
 - `reference/errors`
-- `reference/compatibility`
-- `reference/protocol`
 
 ### Maintenance
 
-- `maintenance/releases`
 - `maintenance/updates`
+
+Founder ruling 2026-10-21: client-only scope; direct-embed, protocol, compatibility and release-notes pages removed; product-changes merged into React.
 
 
 ## Page ownership
 
-Guides own procedures and expected results. Reference pages own exact inputs, outputs, identifiers, and constraints. The quickstart is complete after prerequisites, with one recommended image-based loader path. Catalogue and direct embedding explain their distinct prerequisites. Troubleshooting is indexed by symptoms, then linked to exact error definitions.
+Guides own procedures and expected results. Reference pages own exact inputs, outputs, identifiers, and constraints. The quickstart is complete after prerequisites, with one recommended image-based loader path. Catalogue onboarding explains its own prerequisites. Troubleshooting is indexed by symptoms, then linked to exact error definitions.
 
 ## Publication boundary
 

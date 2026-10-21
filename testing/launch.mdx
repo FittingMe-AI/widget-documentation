@@ -1,54 +1,45 @@
 ---
 title: "Complete the production launch checklist"
 sidebarTitle: "Launch checklist"
-description: "Make a release decision using verified configuration, complete journeys, and a recovery path."
+description: "Decide on release with a recovery path."
 ---
 
-Run this checklist against your actual product-page template. Assign an owner to each unfinished item before enabling the integration for shoppers.
+Give each open item an owner.
 
 ## Configuration
 
-- [ ] Production retailer access includes try-on.
-- [ ] The key belongs to the intended retailer and environment.
-- [ ] All production hostnames are authorised on the key, including required apex and `www` hosts.
-- [ ] FittingMe has separately confirmed framing approval for every production storefront origin and any frame ancestors.
-- [ ] Widget, API, and key use the same intended environment; loading the frame and opening the session both work.
-- [ ] No localhost key, placeholder, preview URL, or administrative credential remains in the storefront build.
-- [ ] Product identifiers and garment images match the displayed items; actual garment responses are JPEG/PNG, at most 20 MiB, with at most three redirects.
-- [ ] Catalogue-based products have confirmed readiness.
-- [ ] The production security policy allows the loader and iframe.
+- [ ] Production access includes try-on.
+- [ ] The key matches the retailer and environment.
+- [ ] The key authorises every production hostname, `www` included.
+- [ ] FittingMe approved framing for every production origin.
+- [ ] No `localhost` key or placeholder remains.
+- [ ] Garment images meet the [image URL requirements](/integration/products#image-url-requirements).
+- [ ] The production CSP allows the loader and iframe.
 
 ## Shopper experience
 
-- [ ] A complete try-on has succeeded on representative production-template products.
-- [ ] Desktop-to-phone handoff has been checked; real-device camera/browser coverage is recorded separately.
-- [ ] Required mobile and desktop browsers have been exercised.
-- [ ] Closing and reopening work; scrolling and focus restore correctly.
-- [ ] Back is verified for the actual opening method. The known loader `open()` gap is not marked as passed; use the native trigger or the tested normal-page direct integration when Back is required.
-- [ ] Product/colour changes, multiple embeds, and SPA navigation are tested where used.
-- [ ] Failed script loading, unavailable images, cancellation, and retry leave normal shopping usable.
-- [ ] Widget language and the separate phone page’s browser-selected language are checked, along with long text, keyboard interaction, and zoom.
+- [ ] A complete try-on works on representative products.
+- [ ] The phone handoff works on real devices.
+- [ ] Close and reopen restore scrolling and focus.
+- [ ] Back closes the drawer for each opening method you ship.
+- [ ] Product changes and SPA navigation work.
+- [ ] Failures and retries leave shopping usable.
 
 ## Data and measurement
 
-- [ ] Privacy and consent configuration have been reviewed with the retailer's privacy owner.
-- [ ] Analytics respects the storefront's consent decision.
-- [ ] Events are attributed to the right product without duplicate subscriptions.
-- [ ] Completion is treated as a result-at-close observation; reload duplication and teardown loss are understood. It is not used as a unique-generation or purchase count.
-- [ ] Logging and support exports exclude keys, photo data, and private capabilities.
+- [ ] The privacy owner reviewed consent, and analytics respects it.
+- [ ] Reports do not count completion as unique generations.
+- [ ] Logs exclude keys and photos.
 
 ## Release and recovery
 
-- [ ] The working integration has been reviewed and accepted through your storefront's release approval process.
-- [ ] You can disable the entry point or remove the integration through a known storefront release/configuration change.
-- [ ] The previous storefront build or configuration is recoverable.
-- [ ] An owner will check real traffic immediately after enabling it.
-- [ ] The team knows the [support route](/troubleshooting/support) and what diagnostic information to provide.
+- [ ] You can disable or remove the integration.
+- [ ] You can restore the previous build.
+- [ ] An owner checks real traffic after release.
+- [ ] The team knows the [support route](/troubleshooting/support).
 
 ## Verify after enabling
 
-Open an actual public product page in a fresh browser session. Repeat the complete journey and inspect normal storefront navigation. Check for CSP errors, unexpected access rejection, broken image retrieval, or unusual failure rates in your existing monitoring.
+Open a public product page in a fresh session and complete the journey. Check your monitoring for CSP errors and access rejections.
 
-If the integration disrupts shopping, disable its entry point or remove its installation and verify normal product browsing. Revoke a key only when that is the intended action for every installation using it; see [update, disable, or remove](/maintenance/updates).
-
-Keep launch evidence with your storefront's release record. Passing a local test does not establish that the production hostname, key, security policy, and dependencies are configured correctly.
+If shopping breaks, disable the entry point or remove the integration. Revoke a key only if every installation that uses it must stop. See [update, disable, or remove](/maintenance/updates).

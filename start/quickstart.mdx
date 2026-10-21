@@ -1,30 +1,24 @@
 ---
 title: "Quickstart: add try-on to a product page"
 sidebarTitle: "Quickstart"
-description: "Install the loader, supply garment views, and complete your first virtual try-on."
+description: "Your first working try-on."
 ---
 
-<Note>This unpublished example targets the English v5 plural-image contract. Confirm v5 availability in your assigned environment before rollout. See [migration and temporary French compatibility](/reference/compatibility#temporary-french-compatibility).</Note>
+Complete the [prerequisites](/start/prerequisites).
 
-This example adds FittingMe's own try-on button beneath a product image. You can supply one image or several views of the same product and colour. FittingMe uses usable catalogue imagery first when it is available.
-
-## 1. Prepare three values
-
-Complete [prerequisites and access](/start/prerequisites), then replace:
+## 1. Replace three values
 
 | Placeholder | Replace with |
 | --- | --- |
-| `YOUR_PUBLISHABLE_KEY` | The retailer key authorised for the hostname serving this page. |
-| `YOUR_PRODUCT_ID` | Your stable identifier for this product. |
-| `https://images.example.com/YOUR_GARMENT.jpg` | A publicly retrievable HTTPS JPEG or PNG, at most 20 MiB. Use the same image in both places below. |
+| `YOUR_PUBLISHABLE_KEY` | Your retailer key. |
+| `YOUR_PRODUCT_ID` | The product identifier. |
+| `https://images.example.com/YOUR_GARMENT.jpg` | A public HTTPS image URL, in both places. |
 
-Confirm FittingMe has approved your storefront origin for framing, separately from the key domains. The example uses production; replace both widget and API addresses for another environment. Placeholder values cannot produce a working widget.
+FittingMe must approve your origin for framing. Use a direct image URL that meets the [image requirements](/integration/products#image-url-requirements). In HTML, write `&` as `&amp;`.
 
-Use a direct image URL, not a product-page URL or a private media-library link. Follow the [format, size, and redirect requirements](/integration/products#image-url-requirements). If an image URL contains query separators, write them as `&amp;` in HTML attributes.
+## 2. Add the page
 
-## 2. Add the complete example
-
-Save this as `try-on.html`, or adapt its product section to your storefront template. The empty container is reserved for FittingMe; the loader replaces its contents.
+Save it as `try-on.html`.
 
 ```html
 <!doctype html>
@@ -60,45 +54,42 @@ Save this as `try-on.html`, or adapt its product section to your storefront temp
 </html>
 ```
 
-For several views of the same product and colour, replace the attribute value with a JSON array. Keep the front view first. The example below shows the attribute only; keep the other attributes from the complete page above.
+For several views, put the front view first:
 
 ```html
 data-garment-image-urls='["https://images.example.com/FRONT.jpg","https://images.example.com/BACK.jpg"]'
 ```
 
-Put the container before the script. Load the page through your storefront or a local HTTP server on an authorised hostname. If Python 3 is available and you are using a dedicated `localhost` key, run this from the file's directory:
+Serve it from an allowed hostname. With a `localhost` key, run:
 
 ```bash
 python3 -m http.server 8080 --bind 127.0.0.1
 ```
 
-Then open `http://localhost:8080/try-on.html`. Keep the terminal running while testing.
+Open `http://localhost:8080/try-on.html`.
 
-## 3. Verify a complete try-on
+## 3. Verify the result
 
-1. Load the page. The product image and FittingMe entry point should appear.
-2. Open try-on. The drawer should cover its intended area without being clipped by the storefront.
-3. Follow the consent and photo steps. If using the desktop phone handoff, complete the linked capture journey and return to the product page.
-4. Start generation and wait for the result to display.
-5. Close the drawer. The product page should remain usable and scroll normally.
+1. Load the page. The FittingMe button appears.
+2. Open try-on. The drawer shows without clipping.
+3. Complete the consent and photo steps.
+4. Start generation. The result appears.
+5. Close the drawer. The page scrolls normally.
 
-Your first integration succeeds when the **correct garment appears in a completed result** and the shopper can return to the page. A visible button alone does not verify the services or product input.
+Success: the **correct garment appears in a completed result**, and the shopper can return.
 
 ## If it does not work
 
 | Observation | First check |
 | --- | --- |
-| No button | Confirm the script loaded and the container existed before it ran. Check the console for rejected attributes or a `frame-ancestors` block; the latter needs FittingMe framing approval. |
-| Image displayed on your page, but try-on fails | Confirm JPEG/PNG bytes, size, redirects, and retrieval without cookies or sign-in. An eligible button does not verify these. |
-| Authentication or access failure | Check the key, its environment, its authorised hostname, and retailer try-on access. |
-| Drawer clipped or opening refused | Check ancestor transforms and containment using [layout troubleshooting](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open). |
-
-Continue with [symptom-based troubleshooting](/troubleshooting/symptoms) if these checks do not resolve it.
+| No button | Container order, rejected attributes or `frame-ancestors` in the console. |
+| Try-on fails | Image type, size, redirects and access without sign-in. |
+| Access failure | Key, environment, hostnames and try-on access. |
+| Drawer clipped or opening refused | [Ancestor transforms](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open). |
 
 ## Continue your integration
 
-- [Connect your storefront's products](/integration/products).
-- [Handle product and variant changes](/integration/product-changes), including multiple embeds.
-- [Use React or another dynamic storefront](/integration/react).
-- [Customise the button and language](/integration/appearance).
-- [Run the launch checks](/testing/launch).
+- [Products](/integration/products)
+- [React](/integration/react)
+- [Complete the production launch checklist](/testing/launch)
+- [Troubleshooting](/troubleshooting/symptoms)

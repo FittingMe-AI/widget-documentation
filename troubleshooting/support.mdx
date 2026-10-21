@@ -4,30 +4,22 @@ sidebarTitle: "Get help"
 description: "Send a reproducible integration problem with enough safe context to investigate."
 ---
 
-Use your FittingMe support contact. If you do not have one, email [contact@fittingme.ai](mailto:contact@fittingme.ai), the address listed on the [FittingMe website](https://fittingme.ai/).
-
-Contact FittingMe when you need retailer access, entitlement, storefront framing approval, assisted catalogue onboarding, a confirmed service-side failure, or help after the relevant [symptom checks](/troubleshooting/symptoms).
+Use your FittingMe contact, or email [contact@fittingme.ai](mailto:contact@fittingme.ai). Contact FittingMe for access, entitlement, framing approval, catalogue onboarding or a service failure.
 
 ## Prepare a useful report
 
-Include:
-
-1. The retailer name, environment, and affected storefront hostname.
-2. Date, time, and time zone of the failure.
-3. Browser/version, operating system, and whether you used a physical phone or desktop emulation.
-4. Whether you used the loader or a direct embed, and the garment image URLs that the page supplies.
-5. Exact reproduction steps, what you expected, and what happened.
-6. The loader's bootstrap outcome or command verdict, plus the failing response's HTTP status and safe error `code` where available.
-7. Whether it affects one product, one browser, or all attempts; note the last known working storefront build if relevant.
-
-Provide a minimal example with placeholders for credentials. Share an affected public product page only when you are authorised to do so. Keep private preview links in the agreed support channel.
+1. The retailer, environment and hostname.
+2. The date, time and time zone.
+3. The browser, operating system and device.
+4. The garment image URLs.
+5. The steps, the expected result and the actual result.
+6. The bootstrap outcome or command verdict, the HTTP status and the error `code`.
+7. The scope: one product, one browser or all attempts.
 
 ## Redact before sharing
 
-Remove full retailer keys, cookies, authentication headers, session identifiers, capture/QR URLs, shopper photos, result URLs, and personal information. Browser network exports and screenshots can contain these values even when the visible error text does not.
-
-Do not open a Problem Details `type` URI expecting a support page. It is an error identifier; provide the safe `code` instead.
+Remove keys, cookies, session identifiers, capture or QR URLs, photos, result URLs and personal data. A `type` URI is an identifier, not a page: send the `code`.
 
 ## Report the impact clearly
 
-State whether normal browsing, cart, or checkout is affected. If shoppers cannot use the storefront, follow your prepared [disable procedure](/maintenance/updates#disable-the-entry-point) while investigating. Do not send repeated generation requests as a substitute for diagnosing a persistent failure.
+Tell FittingMe if cart or checkout is affected. If shoppers are blocked, [disable the entry point](/maintenance/updates#disable-the-entry-point).
