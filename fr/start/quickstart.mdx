@@ -1,28 +1,24 @@
 ---
 title: "Démarrage rapide : ajouter l’essayage à une fiche produit"
 sidebarTitle: "Démarrage rapide"
-description: "Installez le loader, fournissez des vues du vêtement et réalisez votre premier essayage virtuel."
+description: "Votre premier essayage fonctionnel."
 ---
 
-Cet exemple ajoute le bouton d’essayage FittingMe sous une image produit. Vous pouvez fournir une image ou plusieurs vues du même produit et de la même couleur. FittingMe utilise d’abord les images utilisables du catalogue lorsqu’elles sont disponibles.
+Suivez d’abord les [prérequis](/fr/start/prerequisites).
 
-## 1. Préparer trois valeurs
-
-Suivez [Prérequis et accès](/fr/start/prerequisites), puis remplacez les valeurs suivantes :
+## 1. Remplacer trois valeurs
 
 | Valeur de remplacement | Remplacez par |
 | --- | --- |
-| `YOUR_PUBLISHABLE_KEY` | La clé d’enseigne autorisée pour le nom d’hôte de cette page. |
-| `YOUR_PRODUCT_ID` | L’identifiant stable de ce produit dans votre système. |
-| `https://images.example.com/YOUR_GARMENT.jpg` | Une image JPEG ou PNG accessible publiquement en HTTPS, de 20 Mio maximum. Utilisez la même image aux deux endroits ci-dessous. |
+| `YOUR_PUBLISHABLE_KEY` | Votre clé d’enseigne. |
+| `YOUR_PRODUCT_ID` | L’identifiant du produit. |
+| `https://images.example.com/YOUR_GARMENT.jpg` | Une URL d’image publique en HTTPS, aux deux endroits. |
 
-Vérifiez que FittingMe a approuvé l’origine de votre boutique pour l’encadrement, indépendamment des domaines associés à la clé. L’exemple utilise la production ; pour un autre environnement, remplacez les adresses du widget et de l’API. Les valeurs de remplacement ne permettent pas de faire fonctionner le widget.
+FittingMe doit approuver votre origine pour l’encadrement. Utilisez une URL d’image directe conforme aux [exigences pour l’image](/fr/integration/products#exigences-pour-l’url-de-l’image). En HTML, écrivez `&` sous la forme `&amp;`.
 
-Utilisez l’URL directe de l’image, et non celle de la fiche produit ou un lien privé de médiathèque. Respectez les [exigences de format, de taille et de redirection](/fr/integration/products#exigences-pour-l’url-de-l’image). Si l’URL de l’image contient des séparateurs de paramètres, écrivez-les sous la forme `&amp;` dans les attributs HTML.
+## 2. Ajouter la page
 
-## 2. Ajouter l’exemple complet
-
-Enregistrez ce fichier sous `try-on.html` ou adaptez sa section produit au modèle de votre boutique. Le conteneur vide est réservé à FittingMe ; le loader en remplace le contenu.
+Enregistrez-la sous `try-on.html`.
 
 ```html
 <!doctype html>
@@ -58,44 +54,41 @@ Enregistrez ce fichier sous `try-on.html` ou adaptez sa section produit au modè
 </html>
 ```
 
-Pour plusieurs vues du même produit et de la même couleur, remplacez la valeur de l’attribut par un tableau JSON. Placez la vue de face en premier. L’exemple ci-dessous montre seulement cet attribut ; conservez les autres attributs de la page complète ci-dessus.
+Pour plusieurs vues, placez la vue de face en premier :
 
 ```html
 data-garment-image-urls='["https://images.example.com/FRONT.jpg","https://images.example.com/BACK.jpg"]'
 ```
 
-Placez le conteneur avant le script. Chargez la page depuis votre boutique ou depuis un serveur HTTP local utilisant un nom d’hôte autorisé. Si Python 3 est disponible et que vous utilisez une clé `localhost` dédiée, exécutez cette commande depuis le répertoire du fichier :
+Servez-la depuis un nom d’hôte autorisé. Avec une clé `localhost`, exécutez :
 
 ```bash
 python3 -m http.server 8080 --bind 127.0.0.1
 ```
 
-Ouvrez ensuite `http://localhost:8080/try-on.html`. Laissez le terminal ouvert pendant les tests.
+Ouvrez `http://localhost:8080/try-on.html`.
 
-## 3. Vérifier un essayage complet
+## 3. Vérifier le résultat
 
-1. Chargez la page. L’image produit et le point d’accès FittingMe doivent apparaître.
-2. Ouvrez l’essayage. Le panneau doit couvrir la zone prévue sans être tronqué par la boutique.
-3. Suivez les étapes de consentement et de photo. Si vous utilisez le transfert ordinateur-téléphone, terminez le parcours de capture associé et revenez à la fiche produit.
-4. Lancez la génération et attendez l’affichage du résultat.
-5. Fermez le panneau. La fiche produit doit rester utilisable et défiler normalement.
+1. Chargez la page. Le bouton FittingMe apparaît.
+2. Ouvrez l’essayage. Le panneau s’affiche sans être tronqué.
+3. Suivez les étapes de consentement et de photo.
+4. Lancez la génération. Le résultat apparaît.
+5. Fermez le panneau. La page défile normalement.
 
-Votre première intégration fonctionne lorsque **le bon vêtement apparaît dans un résultat terminé** et que l’acheteur peut revenir à la page. La seule présence d’un bouton ne valide ni les services ni les données produit.
+Réussite : **le bon vêtement apparaît dans un résultat terminé**, et l’acheteur peut revenir.
 
 ## En cas de problème
 
 | Observation | Premier point à vérifier |
 | --- | --- |
-| Aucun bouton | Vérifiez que le script s’est chargé et que le conteneur existait avant son exécution. Dans la console, recherchez des attributs refusés ou un blocage `frame-ancestors` ; ce dernier nécessite une autorisation d’encadrement de FittingMe. |
-| L’image s’affiche, mais l’essayage échoue | Vérifiez les octets JPEG/PNG, la taille, les redirections et l’accès sans cookies ni connexion. Un bouton éligible ne valide pas ces points. |
-| Échec d’authentification ou d’accès | Vérifiez la clé, son environnement, son nom d’hôte autorisé et les droits d’essayage de l’enseigne. |
-| Panneau tronqué ou ouverture refusée | Vérifiez les transformations et les règles de containment des éléments parents avec le [dépannage de la mise en page](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir). |
-
-Si ces vérifications ne résolvent pas le problème, consultez le [dépannage par symptôme](/fr/troubleshooting/symptoms).
+| Aucun bouton | Ordre du conteneur, attributs refusés ou `frame-ancestors` dans la console. |
+| L’essayage échoue | Type, taille et redirections de l’image, accès sans connexion. |
+| Échec d’accès | Clé, environnement, noms d’hôte et accès à l’essayage. |
+| Panneau tronqué | [Transformations des éléments parents](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir). |
 
 ## Poursuivre l’intégration
 
-- [Connecter les produits de votre boutique](/fr/integration/products).
-- [Utiliser React ou une autre boutique dynamique](/fr/integration/react).
-- [Personnaliser le bouton et la langue](/fr/integration/appearance).
-- [Effectuer les vérifications avant lancement](/fr/testing/launch).
+- [Produits](/fr/integration/products)
+- [React](/fr/integration/react)
+- [Dépannage](/fr/troubleshooting/symptoms)

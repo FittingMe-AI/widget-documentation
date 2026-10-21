@@ -1,25 +1,21 @@
 ---
 title: "Personnaliser l’apparence et la langue"
 sidebarTitle: "Apparence et langue"
-description: "Choisissez le point d’accès, personnalisez votre bouton et sélectionnez la langue du widget."
+description: "Choisissez le déclencheur et la langue du widget."
 ---
-
-Pour votre première installation, conservez le point d’accès fourni par le widget. Utilisez un bouton géré par votre boutique si vous avez besoin de personnaliser le texte, le style, l’emplacement ou le comportement.
-
-<Note>Le loader v5 utilisé dans l’exemple ci-dessous correspond à un contrat pluriel non publié. Confirmez ensemble la disponibilité du loader, du widget et de l’API dans votre environnement avant de l’utiliser.</Note>
 
 ## Choisir le déclencheur
 
-| Mode | Configuration | Votre responsabilité |
+| Mode | Configuration | Vous |
 | --- | --- | --- |
-| Point d’accès FittingMe | `data-trigger-mode="widget"` | Placez le conteneur dans la page. FittingMe affiche le déclencheur. |
-| Votre bouton | `data-trigger-mode="host"` | Affichez un bouton accessible, attendez l’éligibilité, puis appelez `open(container)`. |
+| Bouton FittingMe | `data-trigger-mode="widget"` | Placez le conteneur. |
+| Votre bouton | `data-trigger-mode="host"` | Affichez un bouton, attendez l’éligibilité, puis appelez `open(container)`. |
 
-Le conteneur reste obligatoire dans ce mode, même si sa hauteur est nulle lorsqu’il est fermé. Ne masquez pas et ne supprimez pas le conteneur de l’iframe pour masquer votre bouton.
+Le mode hôte nécessite aussi le conteneur, même avec une hauteur fermée nulle.
 
 ## Exemple complet avec un bouton personnalisé
 
-Remplacez les trois mêmes valeurs que dans le [démarrage rapide](/fr/start/quickstart). Dans cet exemple, le bouton reste désactivé jusqu’à ce que l’intégration soit éligible ; si l’amorçage échoue, l’acheteur voit clairement que le service est indisponible.
+Remplacez les trois valeurs du [démarrage rapide](/fr/start/quickstart).
 
 ```html
 <!doctype html>
@@ -28,13 +24,6 @@ Remplacez les trois mêmes valeurs que dans le [démarrage rapide](/fr/start/qui
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Try on this garment</title>
-  <style>
-    body { margin: 0; padding: 24px; font: 16px/1.6 system-ui, sans-serif; }
-    main { max-width: 480px; margin: auto; }
-    img { display: block; width: 100%; height: auto; }
-    button { padding: 12px 24px; font: inherit; cursor: pointer; }
-    button:disabled { cursor: wait; }
-  </style>
 </head>
 <body>
   <main>
@@ -91,18 +80,16 @@ Remplacez les trois mêmes valeurs que dans le [démarrage rapide](/fr/start/qui
 </html>
 ```
 
-Le délai de 15 secondes est un choix d’interface donné à titre d’exemple ; ce n’est pas un engagement de niveau de service. Si l’essayage ne se charge pas, la navigation et l’achat habituels doivent rester disponibles.
+Le message à 15 secondes est un exemple, pas un engagement de service.
 
 ## Définir la langue
 
-Utilisez `data-locale="en"` ou `data-locale="fr"`. La négociation de langue ne tient pas compte des majuscules ; une variante régionale telle que `en-GB` peut revenir à `en`. Une valeur absente ou non prise en charge revient au français. Indiquez la langue au lieu de vous fier au choix du navigateur de l’acheteur. Ce réglage concerne le widget intégré. La page de capture distincte affichée sur téléphone utilise actuellement la langue du navigateur et n’hérite pas de `data-locale` ; testez-la séparément.
+Définissez `data-locale="en"` ou `data-locale="fr"`. La valeur ne tient pas compte des majuscules, et `en-GB` revient à `en`. Les autres valeurs reviennent au français : définissez-la toujours.
 
-Pour changer la langue, créez une nouvelle intégration avec la configuration souhaitée. Traduisez séparément le texte de votre bouton et vos messages d’état.
+Une nouvelle langue nécessite une nouvelle intégration. Traduisez le texte de votre propre bouton. La page de capture sur téléphone utilise la langue du téléphone.
 
-## Comprendre les limites de personnalisation
+## Limites du style
 
-Votre CSS peut personnaliser la fiche produit, la section qui l’entoure et votre bouton. Le widget réside dans sa propre iframe ; le CSS de la boutique ne modifie pas ses écrans internes. FittingMe applique l’image de marque définie pour l’enseigne. Convenez des paramètres de marque pris en charge avec votre contact FittingMe ou via le processus autorisé du portail ; n’inventez pas d’attribut de thème pour le script du loader.
+Le CSS de la boutique ne modifie pas l’iframe. Convenez de l’image de marque avec FittingMe. Placez le conteneur hors des [éléments parents transformés](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir).
 
-Placez le conteneur en dehors des éléments parents transformés ou contenus qui empêcheraient l’affichage du panneau en plein écran. Consultez le [dépannage de la mise en page](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir).
-
-**Vérifiez :** l’activation au clavier, le focus après fermeture, l’échec de l’amorçage, les deux langues prises en charge et la mise en page mobile. Le bouton personnalisé ne doit jamais appeler `open()` avant la confirmation de l’éligibilité.
+**Vérifiez :** le clavier, le focus après fermeture, l’échec de l’amorçage, les deux langues et la mise en page mobile.
