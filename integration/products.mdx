@@ -32,7 +32,7 @@ Ask FittingMe before you add a product outside these categories.
 - On a public host. The loader skips private addresses, `localhost` and hosts that end in `.local` or `.internal`.
 - The encoded list has at most 6,144 characters. A longer list sends no page photo.
 
-Configure your image CDN to always serve JPEG or PNG: automatic WebP delivery fails. A bad image fails only after the shopper selects **Start**.
+Configure your image CDN to always serve JPEG or PNG: automatic WebP delivery fails. When the product has no usable catalogue photo, a bad page photo fails after the shopper selects **Start**.
 
 The attribute takes one plain URL or a JSON array of URLs. FittingMe trims the URLs, removes duplicates in order and skips invalid members. Malformed JSON logs a console error and sends no page photo, but catalogue photos still apply.
 
