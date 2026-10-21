@@ -18,7 +18,7 @@ Ask FittingMe about access if your dataset has not been provisioned.
 
 ## Columns
 
-`events_v1` has nine columns, in this order. One row is one fact.
+The `events_v1` contract has nine columns, in this order. One row is one fact. The ninth, `try_on_reference`, reaches production with the next production release of the FittingMe API; until then a production dataset has the first eight.
 
 | Column | Type | Meaning |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ Ask FittingMe about access if your dataset has not been provisioned.
 
 A session is one shopper's Try-On journey on one product. It lasts up to 48 hours: a shopper who comes back to the same product in the same browser within that time resumes it, and its facts keep the same `session_key`. `session_key` is derived from FittingMe's session and opens nothing on the API.
 
-`try_on_reference` was appended on 15 October 2026. FittingMe tells you when it reaches your dataset. It carries the same value as the [`tryon_result_revealed` page event](/reference/events#shown-try-on-renders) of that try-on, so you can join the two. It is also `NULL` on reveal rows recorded before it existed (those of 11 September 2026 and earlier).
+`try_on_reference` is the newest column and is not yet in every dataset. FittingMe tells you when it reaches your dataset. It carries the same value as the [`tryon_result_revealed` page event](/reference/events#shown-try-on-renders) of that try-on, so you can join the two. It is also `NULL` on reveal rows recorded before it existed (those of 11 September 2026 and earlier).
 
 ## Event types
 
@@ -56,7 +56,7 @@ Read these facts as observations, not as conversions:
 - `journey_exited` is not an abandonment: a shopper who reopens the drawer continues where they stopped.
 - `tryon_photo_refused` carries no reason, no origin and no photo. A missing fact is not proof that the shopper left.
 
-To count shown try-ons, count distinct `try_on_reference` values. Your invoice comes from FittingMe's own records, not from these rows.
+To count shown try-ons, count distinct `try_on_reference` values once that column reaches your dataset. Your invoice comes from FittingMe's own records, not from these rows.
 
 ## Reading rules
 

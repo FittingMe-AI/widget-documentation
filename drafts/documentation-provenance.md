@@ -1,4 +1,37 @@
-## Shown try-on renders — local unpublished draft, 2026-10-16
+## Shown try-on renders — production state, 2026-10-21
+
+Documentation updated: maintenance/releases.mdx and fr/maintenance/releases.mdx
+(section « Shown try-on renders », title and availability sentence only);
+reference/delivered-events.mdx and fr/reference/delivered-events.mdx (Columns
+introduction, `try_on_reference` paragraph, shown try-ons count) and
+reference/events.mdx and fr/reference/events.mdx (the `try_on_reference` join
+sentence), source b2b `origin/main:infra/modules/delivered_events/README.md:17`
+(« Eight columns, in this order: » at `805ae61e`).
+Founder ruling 2026-10-21: « We should keep it and update documentation
+accordingly. » `reference/delivered-events.mdx` described the nine-column
+contract of b2b `dev` and `staging` as if every dataset had it, and
+`reference/events.mdx` assumed the column exists; production serves eight
+columns, so both pages now say the ninth arrives with the next production
+release. `integration/analytics.mdx`, `reference/protocol.mdx` and their French
+counterparts state no environment or column and stay true; `tracking/usage` is
+a redirect (`docs.json:231`).
+
+Selected sources, read on 2026-10-21 without a new fetch (refs fetched by the
+lead at 06:01–06:03 UTC):
+
+| Repository | Revision | Measurement |
+| --- | --- | --- |
+| widget | `origin/main` `8c8e9c84fb83fb79182743e53b46a29ea1e76971` (widget#448, production promotion of 2026-10-21) | `git merge-base --is-ancestor <c> origin/main` rc 0 for `c2c00f69` (#395, P36 page event), `533e2364` (#401, first display after a close during generation, ticket 04) and `17eccf7c` (#402) |
+| b2b | `origin/main` `805ae61e0cd2f806fe4de51b78fd9a7918a834da` | does not contain `6a10129d` (#499, ninth `events_v1` column): rc 1 |
+| b2b | `origin/staging` `17cf09554cc310ee846f18f52c7c4cfa4da63397` | contains `6a10129d`: rc 0 |
+
+| Changed claim | Supporting source |
+| --- | --- |
+| `tryon_result_revealed` with `try_on_reference` is in production since 21 October 2026 | widget `origin/main` `8c8e9c84` contains `c2c00f69`; merge commit dated 2026-10-21T04:59:30+02:00. Served: `https://widget.fittingme.ai/v4/fittingme-loader.js` and `/v5/` HTTP 200, 28090 bytes each, 1 line containing `tryon_result_revealed` (2026-10-21 06:06 UTC) |
+| The once-per-try-on rule, including a first display on reopening after a close during generation, is in production | widget `origin/main` contains `533e2364` |
+| The ninth `events_v1` column reaches production with the next b2b production release | b2b `origin/main` lacks `6a10129d`; `origin/staging` has it |
+| A production dataset has the first eight `events_v1` columns until then (`reference/delivered-events.mdx`, `reference/events.mdx`) | b2b `origin/main` `805ae61e` `infra/modules/delivered_events/README.md:17` « Eight columns, in this order: »; its `main.tf` names `try_on_reference` 0 times |
+
 
 Documentation updated: `reference/events.mdx`, `integration/analytics.mdx`,
 `maintenance/releases.mdx`, `reference/protocol.mdx` (founder ruling
