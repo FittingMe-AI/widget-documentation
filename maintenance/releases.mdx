@@ -20,9 +20,9 @@ The canonical `/v4/` asset selects `fittingme/4` for both image and catalogue em
 
 The hosted loader URL is stable and does not contain a content hash. It is not a pin to an immutable release. Avoid an additional permanent cache or vendored copy that can outlive compatible widget/API changes.
 
-## Shown try-on renders — dev rollout, October 2026
+## Shown try-on renders — October 2026
 
-One announced addition, available on dev. Production availability is announced separately; confirm it for your storefront before relying on it.
+Since 21 October 2026, the fifth page event, `tryon_result_revealed` with `try_on_reference`, is in production. So is its rule: one event per try-on, at the first display of its render, also when that first display comes on reopening the drawer after the shopper closed it during generation. The ninth `events_v1` column, `try_on_reference`, reaches production with the next production release of the FittingMe API; FittingMe tells you when it reaches your dataset.
 
 - `window.FittingMe.on` gains a fifth event, `tryon_result_revealed`, sent once per try-on at the first display of its render, with `try_on_reference`. Only Try-On embeds on the `/v4` and `/v5` loaders send it; `/v2` never will.
 - `events_v1` gains a ninth column, `try_on_reference`, appended last and filled on `tryon_result_revealed` rows only.

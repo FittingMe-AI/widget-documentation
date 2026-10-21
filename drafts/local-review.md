@@ -1,4 +1,32 @@
-## Shown try-on renders — local unpublished review, 2026-10-16
+## Shown try-on renders — production state, local review, 2026-10-21
+
+Wording-only change to the « Shown try-on renders » section of
+`maintenance/releases.mdx` and `fr/maintenance/releases.mdx`: the title drops
+« dev rollout », and the availability sentence states the production state
+recorded in `drafts/documentation-provenance.md` (2026-10-21). No event,
+column, code fence or link changed.
+
+| Check | Result |
+| --- | --- |
+| `node scripts/validate-docs.mjs` (Node 24.18.0) | PASS, rc 0: 46 pages (23 per language), 238 links, 106 anchors, 38 code blocks, six complete HTML examples, 667 vocabulary checks, zero errors. |
+| `git diff --check` | rc 0. |
+| Wording oracle (12 checks on both sections) | rc 1 with 8 FAIL lines before the change; PASS after. |
+| Mutation round | Null: green. Killed: « dev rollout » title restored, wrong year, French « disponible sur dev », French `try_on_reference` code span changed (validator: named 4 times in English, 3 in French). Survivors, named: an English sentence that puts the ninth column in production now, and one that puts the event on dev only, both while the other wording stays; checked by reading the two sections. |
+| Preview | `mint dev --port 3003 --no-open`, stopped after the check: `/maintenance/releases` and `/fr/maintenance/releases` HTTP 200 with the new sentences and without the old ones. Not inspected at desktop and mobile widths (prose-only change in an existing section). |
+
+Pass 2, same day: `reference/delivered-events.mdx` and `reference/events.mdx`
+(English and French) no longer say that a production `events_v1` already has
+`try_on_reference` (b2b `origin/main` `805ae61e` serves eight columns). Prose
+only; the column table, column order, code spans and links are unchanged.
+
+| Check | Result |
+| --- | --- |
+| `node scripts/validate-docs.mjs` (Node 24.18.0) | PASS, rc 0: 46 pages, 238 links, 106 anchors, 38 code blocks, 667 vocabulary checks, zero errors. |
+| `git diff --check` | rc 0. |
+| Wording oracle (20 checks, both release sections and both reference pages) | rc 1 with 8 FAIL lines before the change; PASS after. |
+| Mutation round | Null: green. Killed: English « was appended on 15 October 2026 » restored, French « compte neuf colonnes, dans cet ordre. Une ligne » restored, English and French join-sentence qualifier removed (oracle); French `try_on_reference` code span changed (validator). Survivors, named: the English counting sentence of `reference/delivered-events.mdx` without its qualifier, and an English sentence that says a production dataset already has all nine columns; checked by reading the pages. |
+| Preview | Not run in pass 2: the site was not previewed and the changed pages were not inspected at desktop and mobile widths. |
+
 
 Local documentation: http://localhost:3230/reference/events#shown-try-on-renders
 (Mintlify CLI, detached, log `.review/trpe-03/mint.log`). Read

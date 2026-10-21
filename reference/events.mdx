@@ -72,7 +72,7 @@ The widget sends `tryon_result_revealed` once per try-on, at the first display o
 
 Showing a render that was already displayed sends nothing: reopening the drawer, reloading the page or resuming the same render. A render opened for the first time from the shopper's saved try-ons does not send this event. A re-run is a new try-on and sends a new event with a different reference.
 
-`try_on_reference` names that try-on: 32 lowercase hexadecimal characters, the same value as the `try_on_reference` column of its `tryon_result_revealed` row in [Delivered Events](/reference/delivered-events). It is derived for you, is not FittingMe's try-on identifier and opens nothing on the API. Count distinct `try_on_reference` values to count shown try-ons.
+`try_on_reference` names that try-on: 32 lowercase hexadecimal characters, the same value as the `try_on_reference` column of its `tryon_result_revealed` row in [Delivered Events](/reference/delivered-events) once that column reaches your dataset. It is derived for you, is not FittingMe's try-on identifier and opens nothing on the API. Count distinct `try_on_reference` values to count shown try-ons.
 
 The event reaches your page in the order the widget announced it: before the `closed` and `completed` of a later closure. It can follow `closed` only when the browser had not finished computing the reference when the render was displayed. If the browser refuses that computation, the widget sends no event and writes one console line; an event never arrives without its reference.
 

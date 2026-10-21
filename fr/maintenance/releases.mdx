@@ -20,9 +20,9 @@ Le fichier canonique `/v4/` utilise `fittingme/4` pour les images fournies et le
 
 L’URL du loader hébergé est stable et ne contient pas d’empreinte du contenu. Elle ne pointe pas vers une version immuable. Évitez d’ajouter un cache permanent ou une copie embarquée qui pourrait subsister après des changements incompatibles du widget ou de l’API.
 
-## Rendus d’essayage affichés — déploiement dev d’octobre 2026
+## Rendus d’essayage affichés — octobre 2026
 
-Un ajout annoncé, disponible sur dev. Sa disponibilité en production sera annoncée séparément ; confirmez-la pour votre boutique avant de vous y fier.
+Depuis le 21 octobre 2026, le cinquième événement de page, `tryon_result_revealed` avec `try_on_reference`, est en production. Sa règle aussi : un événement par essayage, au premier affichage de son rendu, y compris lorsque ce premier affichage a lieu à la réouverture du panneau après que l’acheteur l’a fermé pendant la génération. La neuvième colonne de `events_v1`, `try_on_reference`, arrive en production avec la prochaine version de production de l’API FittingMe ; FittingMe vous prévient lorsqu’elle arrive dans votre dataset.
 
 - `window.FittingMe.on` gagne un cinquième événement, `tryon_result_revealed`, envoyé une fois par essayage au premier affichage de son rendu, avec `try_on_reference`. Seules les intégrations d’essayage des loaders `/v4` et `/v5` l’envoient ; `/v2` ne l’enverra jamais.
 - `events_v1` gagne une neuvième colonne, `try_on_reference`, ajoutée en dernier et remplie uniquement sur les lignes `tryon_result_revealed`.

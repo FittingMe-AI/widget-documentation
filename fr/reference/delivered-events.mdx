@@ -18,7 +18,7 @@ Demandez l’accès à FittingMe si votre dataset n’a pas été provisionné.
 
 ## Colonnes
 
-`events_v1` compte neuf colonnes, dans cet ordre. Une ligne correspond à un fait.
+Le contrat `events_v1` comporte neuf colonnes, dans cet ordre. Une ligne correspond à un fait. La neuvième, `try_on_reference`, arrive en production avec la prochaine version de production de l’API FittingMe ; d’ici là, un dataset de production compte les huit premières.
 
 | Colonne | Type | Signification |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ Demandez l’accès à FittingMe si votre dataset n’a pas été provisionné.
 
 Une session est le parcours Try-On d’un acheteur sur un produit. Elle dure au plus 48 heures : un acheteur qui revient sur le même produit dans le même navigateur pendant ce délai la reprend, et ses faits gardent la même `session_key`. `session_key` est dérivée de la session FittingMe et n’ouvre rien sur l’API.
 
-`try_on_reference` a été ajoutée le 15 octobre 2026. FittingMe vous prévient lorsqu’elle arrive dans votre dataset. Elle porte la même valeur que l’[événement de page `tryon_result_revealed`](/fr/reference/events#rendus-d’essayage-affichés) de cet essayage, ce qui vous permet de joindre les deux. Elle vaut aussi `NULL` sur les lignes d’affichage enregistrées avant son existence (celles du 11 septembre 2026 et avant).
+`try_on_reference` est la colonne la plus récente et n’est pas encore présente dans tous les datasets. FittingMe vous prévient lorsqu’elle arrive dans votre dataset. Elle porte la même valeur que l’[événement de page `tryon_result_revealed`](/fr/reference/events#rendus-d’essayage-affichés) de cet essayage, ce qui vous permet de joindre les deux. Elle vaut aussi `NULL` sur les lignes d’affichage enregistrées avant son existence (celles du 11 septembre 2026 et avant).
 
 ## Types d’événements
 
@@ -56,7 +56,7 @@ Lisez ces faits comme des observations, pas comme des conversions :
 - `journey_exited` n’est pas un abandon : un acheteur qui rouvre le panneau reprend là où il s’était arrêté.
 - `tryon_photo_refused` ne porte ni cause, ni origine, ni photo. Un fait manquant ne prouve pas que l’acheteur est parti.
 
-Pour compter les essayages affichés, comptez les valeurs distinctes de `try_on_reference`. Votre facture provient des propres enregistrements de FittingMe, pas de ces lignes.
+Pour compter les essayages affichés, comptez les valeurs distinctes de `try_on_reference` dès que cette colonne arrive dans votre dataset. Votre facture provient des propres enregistrements de FittingMe, pas de ces lignes.
 
 ## Règles de lecture
 
