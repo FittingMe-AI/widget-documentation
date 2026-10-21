@@ -25,7 +25,7 @@ A missing or blank value prevents mounting, except for `data-garment-image-urls`
 | `data-garment-image-url` | None | Deprecated one-photo alias. |
 | `data-container` | `#fittingme-widget-container` | Selector of the existing container. |
 | `data-trigger-mode` | `host` | `widget` shows the FittingMe entry point. |
-| `data-locale` | French | `en` or `fr`. |
+| `data-locale` | French | The widget language, for example `en` or `fr`. An unknown value gives French. |
 | `data-correlation-id` | None | Your join value for [Delivered Events](/reference/delivered-events#join-your-own-analytics). |
 | `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Widget document override. |
 
@@ -35,7 +35,7 @@ A missing or blank value prevents mounting, except for `data-garment-image-urls`
 - `data-garment-image-urls` needs the `/v5/` loader. On an older loader, the embed does not mount.
 - The plural value is a plain URL or a JSON array. The loader trims it, removes duplicates in order and skips invalid members.
 - Each URL uses HTTPS and has at most 1,024 characters.
-- If both image attributes are present, the loader logs a developer error. The plural wins.
+- If both image attributes are present, the loader logs a developer error. The plural wins, even when it is empty or invalid.
 - Catalogue photos come first. Page photos are the fallback.
 - An unknown locale falls back to French. Set `data-locale` explicitly.
 - `data-correlation-id` has 1 to 128 characters and does not start with `FM_`. The loader reads it as written. A refused value logs one warning, and the embed still mounts. To change it, call [`setCorrelationId(id)`](/reference/javascript#correlation-identifier).

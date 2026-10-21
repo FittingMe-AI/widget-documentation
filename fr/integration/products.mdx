@@ -4,7 +4,7 @@ sidebarTitle: "Produits et images"
 description: "Fournissez les images du vêtement pour chaque page produit."
 ---
 
-Chaque intégration nécessite `data-product-id` et `data-garment-image-urls`. FittingMe utilise d’abord les images du catalogue, puis les photos de votre page. Toutes les vues montrent le même vêtement dans la même couleur. `data-garment-image-url` est un alias déconseillé pour une seule photo : si les deux attributs sont présents, l’attribut pluriel l’emporte.
+Chaque intégration nécessite `data-product-id` et `data-garment-image-urls`. FittingMe utilise d’abord les images du catalogue, avec les photos de votre page en solution de repli. Toutes les vues montrent le même vêtement dans la même couleur. `data-garment-image-url` est un alias déconseillé pour une seule photo : si les deux attributs sont présents, l’attribut pluriel l’emporte.
 
 ## Catégories de vêtements acceptées
 
@@ -29,8 +29,10 @@ Contactez FittingMe avant d’ajouter un produit hors de ces catégories.
 - 3 redirections au maximum.
 - Aucun nom d’utilisateur, mot de passe, fragment `#`, espace ou caractère de contrôle.
 - Accessible sans cookies ni connexion.
+- Sur un hôte public. Le loader ignore les adresses privées, `localhost` et les hôtes qui se terminent par `.local` ou `.internal`.
+- La liste encodée compte 6 144 caractères au maximum. Une liste plus longue n’envoie aucune photo de page.
 
-Configurez votre CDN d’images pour qu’il renvoie toujours du JPEG ou du PNG : la livraison automatique en WebP échoue. Une image incorrecte échoue seulement après que l’acheteur a sélectionné **Start**.
+Configurez votre CDN d’images pour qu’il renvoie toujours du JPEG ou du PNG : la livraison automatique en WebP échoue. Une image incorrecte échoue seulement après que l’acheteur a sélectionné **Lancer l’essayage**.
 
 L’attribut accepte une URL simple ou un tableau JSON d’URL. FittingMe supprime les espaces autour des URL, retire les doublons en conservant l’ordre et ignore les éléments invalides. Un JSON mal formé affiche une erreur dans la console et n’envoie aucune photo de page, mais les images du catalogue restent utilisées.
 

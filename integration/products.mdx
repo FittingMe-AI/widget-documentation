@@ -29,6 +29,8 @@ Ask FittingMe before you add a product outside these categories.
 - At most 3 redirects.
 - No user name, password, `#` fragment, whitespace or control characters.
 - Available without cookies or sign-in.
+- On a public host. The loader skips private addresses, `localhost` and hosts that end in `.local` or `.internal`.
+- The encoded list has at most 6,144 characters. A longer list sends no page photo.
 
 Configure your image CDN to always serve JPEG or PNG: automatic WebP delivery fails. A bad image fails only after the shopper selects **Start**.
 

@@ -28,15 +28,17 @@ FittingMe provisions one dataset per company, `delivered_events_YOUR_KEY`, with 
 | `correlation_id` | STRING | Your [correlation identifier](#join-your-own-analytics), else `FM_` and the `session_key`. |
 | `event_id` | STRING | Unique UUID. |
 | `retailer_id` | STRING | Lowercase Retailer UUID. |
-| `try_on_reference` | STRING | 32 lowercase hexadecimal characters on `tryon_result_revealed` rows, else `NULL`. |
+| `try_on_reference` | STRING | 32 lowercase hexadecimal characters on `tryon_result_revealed` rows, else `NULL`. Reveal rows of 2026-09-11 and earlier stay `NULL`. |
 
 When `try_on_reference` reaches your dataset, it has the value of the [`tryon_result_revealed` Page Event](/reference/events#shown-try-on-renders).
+
+A session is one shopper's Try-On journey on one product. It lasts up to 48 hours. A return to the same product in the same browser within that time resumes the session, with the same `session_key`.
 
 ## Event types
 
 | `event_type` | What happened | How often |
 | --- | --- | --- |
-| `session_created` | The shopper opened the Try-On journey. | Once per session. |
+| `session_created` | The shopper opened the Try-On journey. | Once per session. Resuming a session does not repeat it. |
 | `tryon_photo_ingested` | FittingMe accepted a shopper photo. | Once per new photo. |
 | `tryon_launch` | FittingMe accepted a try-on request. | Once per request or re-run. |
 | `tryon_result_revealed` | First display of a try-on render. | Once per try-on. |
@@ -50,7 +52,7 @@ These facts are observations, not conversions:
 - `journey_exited` is not an abandonment: the shopper can reopen and continue.
 - `tryon_photo_refused` has no reason, origin or photo.
 
-Once `try_on_reference` reaches your dataset, count its distinct values for shown renders.
+Once `try_on_reference` reaches your dataset, count its distinct values for shown renders. Rows are observations, not an invoice.
 
 ## Reading rules
 
@@ -58,7 +60,7 @@ Once `try_on_reference` reaches your dataset, count its distinct values for show
 - **Stable contract.** Nothing is renamed or removed, and new columns come last.
 - **Test traffic.** Ask FittingMe for a separate test Retailer.
 - **Retention.** Facts stay for 13 months.
-- **Erasure.** An erased correlation identifier becomes the `FM_` stand-in.
+- **Erasure.** An erased correlation identifier becomes the `FM_` stand-in. Rows that you copied into your own tables are yours to erase.
 
 ## Join your own analytics
 
@@ -84,6 +86,8 @@ GROUP BY day
 ORDER BY day
 ```
 
+A session that starts one day and continues the next counts on both days.
+
 Incremental copy without duplicates:
 
 ```sql
@@ -97,6 +101,8 @@ ON target.event_id = source.event_id
 WHEN NOT MATCHED THEN
   INSERT ROW
 ```
+
+When FittingMe announces a new column, add it to your table before the next run.
 
 Renders shown and cart intents per visit:
 

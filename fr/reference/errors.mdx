@@ -42,7 +42,7 @@ Les erreurs du service utilisent `application/problem+json`. Un proxy, un blocag
 | `payload_too_large` | La photo est trop grande. | Utilisez une photo plus petite. |
 | `unsupported_media_type` | Le type de photo n’est pas pris en charge. | Utilisez une photo prise en charge. |
 | `image_invalid` / HTTP 422 | Cette image ne peut pas servir à l’essayage. | Utilisez une autre image. |
-| `rate_limited` / HTTP 429 | Trop de requêtes. | Respectez `Retry-After`. Ne réessayez pas en parallèle. |
+| `rate_limited` / HTTP 429 | Trop de requêtes. | Si une réponse contient `Retry-After`, attendez cette durée avant de réessayer. Ne réessayez pas en parallèle. |
 | `service_unavailable` | Un service requis a échoué. | Réessayez quelques fois. Signalez les échecs persistants. |
 | `maintenance_shutoff` | Le service a désactivé le parcours. | Gardez les achats disponibles. Interrogez votre contact FittingMe. |
 | `internal_error` / HTTP 500 | Défaillance inattendue. | Faites une nouvelle tentative. Signalez les répétitions. |
@@ -51,11 +51,11 @@ Signalez un code inconnu avec son contexte. Ne le lisez jamais comme un produit 
 
 ## Refus de photo et défaillance du service
 
-Le fournisseur peut refuser une photo après Start. Le widget propose alors de changer de photo ou de revenir au produit. Les codes du fournisseur ne sont pas des diagnostics publics. Un échec de téléchargement ou de décodage du vêtement suit le rétablissement du service et n’incrimine pas la photo. Consultez le [dépannage](/fr/troubleshooting/symptoms).
+Le fournisseur peut refuser une photo après Lancer l’essayage. Le widget propose alors de changer de photo ou de revenir au produit. Les codes du fournisseur ne sont pas des diagnostics publics. Un échec de téléchargement ou de décodage du vêtement utilise le rétablissement du service et n’incrimine pas la photo. Consultez le [dépannage](/fr/troubleshooting/symptoms).
 
 ## Échecs sans événement d’erreur public
 
-Un refus `frame-ancestors` bloque l’iframe avant l’amorçage, sans corps d’API. Obtenez [l’autorisation d’encadrement](/fr/start/prerequisites#faire-approuver-l’encadrement-de-la-boutique). Une image du vêtement invalide échoue après Start : vérifiez les [exigences pour l’URL de l’image](/fr/integration/products#exigences-pour-l’url-de-l’image).
+Un refus `frame-ancestors` bloque l’iframe avant l’amorçage, sans corps d’API. Obtenez [l’autorisation d’encadrement](/fr/start/prerequisites#faire-approuver-l’encadrement-de-la-boutique). Une image du vêtement invalide échoue après Lancer l’essayage : vérifiez les [exigences pour l’URL de l’image](/fr/integration/products#exigences-pour-l’url-de-l’image).
 
 ## Éviter les boucles de nouvelles tentatives
 

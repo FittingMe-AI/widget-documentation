@@ -106,7 +106,7 @@ Pour remplacer une intégration sans recharger la page, gardez son conteneur jus
 3. Attendez `closed` avec un délai maximal. Si le délai expire, gardez l’intégration et proposez de recharger la page.
 4. Appelez `destroy(container)`. Supprimez le conteneur seulement après le retour de `accepted`.
 
-Appeler `close()` puis `destroy()` immédiatement renvoie `drawer_open`. Supprimer alors le conteneur peut bloquer le défilement de la page. Ne détruisez pas l’intégration et ne vous désabonnez pas dans le gestionnaire de `closed` : un `completed` suivant peut être perdu. Consultez les [limites de complétion](/fr/reference/events#la-complétion-n’est-pas-une-conversion).
+Pendant que le panneau est ouvert, appeler `close()` puis `destroy()` immédiatement renvoie `drawer_open`. Supprimer alors le conteneur peut bloquer le défilement de la page. `closed` et `completed` sont des messages distincts. Un `destroy` ou un désabonnement dans le gestionnaire de `closed`, ou juste après une promesse que ce gestionnaire résout, peut perdre `completed`. Aucune séquence de fermeture puis de destruction n’est sûre de le conserver. Consultez les [limites de complétion](/fr/reference/events#la-complétion-n’est-pas-une-conversion).
 
 ## Plusieurs intégrations sur une page
 

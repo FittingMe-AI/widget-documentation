@@ -20,11 +20,11 @@ Utilisez des clés distinctes en local et en production. Une clé locale a `loca
 Avec une Content Security Policy, ajoutez ces lignes :
 
 ```text
-script-src: https://widget.fittingme.ai
-frame-src:  https://widget.fittingme.ai
+script-src https://widget.fittingme.ai
+frame-src https://widget.fittingme.ai
 ```
 
-Ce sont des ajouts à votre politique, pas un en-tête complet. Vous n’avez pas besoin de `unsafe-inline`.
+Ajoutez ces sources à vos directives `script-src` et `frame-src` existantes. Ce n’est pas un en-tête complet. Vous n’avez pas besoin de `unsafe-inline`.
 
 ## Confirmer les trois contrôles d’accès indépendants
 

@@ -47,11 +47,11 @@ FittingMe's servers fetch the image without cookies or sign-in. It must be JPEG 
 
 ## The wrong garment appears
 
-An attribute edit after the script runs does not update the iframe. On a product or colour change, close and [replace the embed](/integration/react).
+An attribute edit after the script runs does not update the iframe. On a product or colour change, close and [replace the embed](/integration/react). If the page attributes are right, ask FittingMe to check the product-to-image mapping.
 
 ## The drawer is clipped or refuses to open
 
-An ancestor with `transform`, `filter`, `will-change` or `contain` breaks the fixed iframe. The loader then refuses to open with `fullscreen_unavailable`. Its console message, in French, names the ancestor and the property. Move the container, or remove the property.
+An ancestor with `transform` or `filter` breaks the fixed iframe. So does a `will-change` of transform, filter, perspective or contain, or a `contain` of paint, layout, strict or content. The loader then refuses to open with `fullscreen_unavailable`. Its console message, in French, names the ancestor and the property. Move the container, or remove the property.
 
 ## A custom button does nothing
 

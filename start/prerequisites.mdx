@@ -19,8 +19,8 @@ description: "Gather access, domains and product inputs."
 
 1. Ask an Admin or FittingMe for an invitation to the [Retailer Portal](https://app.fittingme.ai).
 2. Accept the invitation. Set up the authenticator. Never share Admin codes.
-3. Select the retailer account. The next steps need the Admin role.
-4. Open **Clés d'environnement**. Select **Créer une clé**.
+3. Select the retailer account. The next steps need the Admin role. If you cannot manage keys, ask an Admin.
+4. The portal labels are in French. Open **Clés d'environnement**. Select **Créer une clé**.
 5. Name the key after its use.
 6. Enter bare hostnames, without `https://`, port or path.
 7. Create the key. Copy the full value: the portal shows it once.
@@ -36,16 +36,20 @@ The key is visible in the browser.
 - Put `localhost` alone on a local-development key.
 - Serve a local page at `http://localhost:PORT`. `127.0.0.1` is a different hostname.
 
+Removing a hostname breaks the storefronts that still use it. Check them before you save the change.
+
 ## Confirm storefront framing approval
 
-Send FittingMe each storefront origin with scheme and port, for example `http://localhost:8080`. Include preview, production and parent frames. Key domains do not change framing. No JavaScript works around it. The browser checks framing at load, and the API checks the key domain at session start. Test both.
+Send FittingMe each storefront origin with scheme and port, for example `http://localhost:8080`. Include preview, production and parent frames. Key domains do not change framing. A new storefront origin can need a FittingMe configuration change before framing works. No JavaScript works around it.
+
+The browser checks framing at load, and the API checks the key domain at session start. Test both.
 
 ## Adapt the portal snippet
 
 1. Add `data-garment-image-urls`, as in the quickstart.
 2. Set `data-journey="tryon"` and `data-trigger-mode="widget"`.
 
-The page rule requires the image attribute, not the loader: without any image attribute, the embed mounts with no page photo. Use one installation per container. For another environment, change the widget origin, `data-api-base` and the key together.
+This guide requires the image attribute, not the loader: without any image attribute, the embed mounts with no page photo. Use one installation per container. For another environment, change the widget origin, `data-api-base` and the key together.
 
 ## Check browsers and layout
 
@@ -54,7 +58,7 @@ The integration needs JavaScript, iframes, cross-origin messaging, browser histo
 - Test Chromium, Firefox, Safari/WebKit and your audience's phones.
 - Confirm old browsers and webviews with FittingMe. No minimum-version list exists.
 - Let the iframe grow beyond its closed size. Do not hard-code its height.
-- Avoid ancestors with fixed-position containing blocks: they [clip the drawer](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open).
+- Avoid ancestors that create a fixed-position containing block. The drawer then [refuses to open](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open), and a console message names the ancestor.
 - Test narrow, short, zoomed, landscape and overlay views.
 
 **Next:** [Quickstart](/start/quickstart).

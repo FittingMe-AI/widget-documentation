@@ -20,11 +20,11 @@ Use separate local and production keys. A local key has `localhost` as its only 
 With a Content Security Policy, add these lines:
 
 ```text
-script-src: https://widget.fittingme.ai
-frame-src:  https://widget.fittingme.ai
+script-src https://widget.fittingme.ai
+frame-src https://widget.fittingme.ai
 ```
 
-They are additions to your policy, not a full header. You do not need `unsafe-inline`.
+Add these sources to your existing `script-src` and `frame-src` directives. They are not a full header. You do not need `unsafe-inline`.
 
 ## Confirm the three independent access checks
 

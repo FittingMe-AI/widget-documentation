@@ -47,11 +47,11 @@ Les serveurs FittingMe récupèrent l’image sans cookies ni connexion. Elle do
 
 ## Le mauvais vêtement apparaît
 
-Modifier un attribut après l’exécution du script ne met pas à jour l’iframe. En cas de changement de produit ou de couleur, fermez et [remplacez l’intégration](/fr/integration/react).
+Modifier un attribut après l’exécution du script ne met pas à jour l’iframe. En cas de changement de produit ou de couleur, fermez et [remplacez l’intégration](/fr/integration/react). Si les attributs de la page sont corrects, demandez à FittingMe de vérifier la correspondance entre le produit et son image.
 
 ## Le panneau est tronqué ou refuse de s’ouvrir
 
-Un élément parent avec `transform`, `filter`, `will-change` ou `contain` casse l’iframe à position fixe. Le loader refuse alors l’ouverture avec `fullscreen_unavailable`. Son message de console, en français, nomme l’élément parent et la propriété. Déplacez le conteneur, ou supprimez la propriété.
+Un ancêtre avec `transform` ou `filter` casse l’iframe à position fixe. Un `will-change` de transform, filter, perspective ou contain, ou un `contain` de paint, layout, strict ou content, la casse aussi. Le loader refuse alors l’ouverture avec `fullscreen_unavailable`. Son message de console, en français, nomme l’ancêtre et la propriété. Déplacez le conteneur, ou supprimez la propriété.
 
 ## Le bouton personnalisé ne fait rien
 
@@ -70,7 +70,7 @@ Reproduisez le problème avec un réseau lent et une navigation rapide, puis con
 
 ## Une photo est refusée
 
-Si le fournisseur refuse la photo après Start, le panneau propose de changer de photo ou de revenir au produit. Consultez les [erreurs et le rétablissement](/fr/reference/errors#refus-de-photo-et-défaillance-du-service).
+Si le fournisseur refuse la photo après Lancer l’essayage, le panneau propose de changer de photo ou de revenir au produit. Consultez les [erreurs et le rétablissement](/fr/reference/errors#refus-de-photo-et-défaillance-du-service).
 
 ## Le transfert de photo ou la génération n’aboutit pas
 

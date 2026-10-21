@@ -42,7 +42,7 @@ Service errors use `application/problem+json`. A proxy, a browser block or a tra
 | `payload_too_large` | The photo is too large. | Use a smaller photo. |
 | `unsupported_media_type` | The photo type is not supported. | Use a supported photo. |
 | `image_invalid` / HTTP 422 | This image cannot be used for Try-On. | Use another image. |
-| `rate_limited` / HTTP 429 | Too many requests. | Obey `Retry-After`. Do not retry in parallel. |
+| `rate_limited` / HTTP 429 | Too many requests. | When a response has `Retry-After`, wait that long before you retry. Do not retry in parallel. |
 | `service_unavailable` | A required service failed. | Retry a few times. Report persistent failures. |
 | `maintenance_shutoff` | The service disabled the journey. | Keep shopping available. Ask your FittingMe contact. |
 | `internal_error` / HTTP 500 | Unexpected failure. | Start a new attempt. Report repeats. |

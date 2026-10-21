@@ -19,8 +19,8 @@ description: "Rassemblez les accès, les domaines et les données produit."
 
 1. Demandez à un administrateur ou à FittingMe une invitation au [Portail Enseigne](https://app.fittingme.ai).
 2. Acceptez l’invitation. Configurez l’authentificateur. Ne partagez jamais les codes d’un administrateur.
-3. Sélectionnez le compte de l’enseigne. Les étapes suivantes nécessitent le rôle Administrateur.
-4. Ouvrez **Clés d'environnement**. Sélectionnez **Créer une clé**.
+3. Sélectionnez le compte de l’enseigne. Les étapes suivantes nécessitent le rôle Administrateur. Si vous ne pouvez pas gérer les clés, demandez à un administrateur.
+4. Les libellés du portail sont en français. Ouvrez **Clés d'environnement**. Sélectionnez **Créer une clé**.
 5. Nommez la clé d’après son usage.
 6. Saisissez les noms d’hôte seuls, sans `https://`, port ni chemin.
 7. Créez la clé. Copiez sa valeur complète : le portail ne l’affiche qu’une fois.
@@ -36,16 +36,20 @@ La clé est visible dans le navigateur.
 - Placez `localhost` seul sur une clé de développement local.
 - Servez une page locale sur `http://localhost:PORT`. `127.0.0.1` est un nom d’hôte différent.
 
+Retirer un nom d’hôte casse les boutiques qui l’utilisent encore. Vérifiez-les avant d’enregistrer la modification.
+
 ## Faire approuver l’encadrement de la boutique
 
-Envoyez à FittingMe chaque origine de la boutique avec son schéma et son port, par exemple `http://localhost:8080`. Incluez la préproduction, la production et les cadres parents. Les domaines de la clé ne modifient pas l’encadrement. Aucun code JavaScript ne le contourne. Le navigateur vérifie l’encadrement au chargement, et l’API vérifie le domaine de la clé à l’ouverture de la session. Testez les deux.
+Envoyez à FittingMe chaque origine de la boutique avec son schéma et son port, par exemple `http://localhost:8080`. Incluez la préproduction, la production et les cadres parents. Les domaines de la clé ne modifient pas l’encadrement. Une nouvelle origine de boutique peut nécessiter une modification de la configuration FittingMe avant que l’encadrement fonctionne. Aucun code JavaScript ne le contourne.
+
+Le navigateur vérifie l’encadrement au chargement, et l’API vérifie le domaine de la clé à l’ouverture de la session. Testez les deux.
 
 ## Adapter l’extrait du portail
 
 1. Ajoutez `data-garment-image-urls`, comme dans le démarrage rapide.
 2. Définissez `data-journey="tryon"` et `data-trigger-mode="widget"`.
 
-La règle des pages exige l’attribut d’image, pas le loader : sans aucun attribut d’image, l’intégration se monte sans photo de page. Utilisez une seule installation par conteneur. Pour un autre environnement, changez ensemble l’origine du widget, `data-api-base` et la clé.
+Ce guide exige l’attribut d’image, pas le loader : sans aucun attribut d’image, l’intégration se monte sans photo de page. Utilisez une seule installation par conteneur. Pour un autre environnement, changez ensemble l’origine du widget, `data-api-base` et la clé.
 
 ## Vérifier les navigateurs et la mise en page
 
@@ -54,7 +58,7 @@ L’intégration nécessite JavaScript, les iframes, la messagerie entre origine
 - Testez Chromium, Firefox, Safari/WebKit et les téléphones de votre public.
 - Confirmez les anciens navigateurs et les vues Web avec FittingMe. Il n’existe aucune liste de versions minimales.
 - Laissez l’iframe dépasser sa taille fermée. Ne fixez pas sa hauteur.
-- Évitez les éléments parents qui créent un bloc conteneur pour le positionnement fixe : ils [tronquent le panneau](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir).
+- Évitez les ancêtres qui créent un bloc conteneur pour le positionnement fixe. Le panneau [refuse alors de s’ouvrir](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir), et un message de la console nomme l’ancêtre.
 - Testez les écrans étroits, bas, zoomés, en paysage et avec superpositions.
 
 **Étape suivante :** [Démarrage rapide](/fr/start/quickstart).

@@ -4,7 +4,7 @@ sidebarTitle: "JavaScript API"
 description: "Address an embed, control its drawer and read its state."
 ---
 
-`window.FittingMe` exists after the loader script loads. Pass the container or iframe element, not a selector.
+`window.FittingMe` exists after the loader accepts its first script tag. Before that, use the loader attributes. Pass the container or iframe element, not a selector.
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
@@ -22,7 +22,7 @@ const state = fm.resolve(container);
 | `destroy(element)` | Verdict | Removes a closed embed. |
 | `on(handler)` | Unsubscribe function | Subscribes to all embeds. Filter on `event.embed`. |
 
-Commands return synchronously. `accepted` is not the result: watch the events. An `open` before bootstrap is refused, not queued. `close` then `destroy` at once returns `drawer_open` ([close before replacing](/integration/react#close-before-replacing)). `get()` is an older call form: use the element commands.
+Commands return synchronously. `accepted` is not the result: watch the events. An `open` before bootstrap is refused, not queued. While the drawer is open, `close` then `destroy` at once returns `drawer_open` ([close before replacing](/integration/react#close-before-replacing)). `get()` is an older call form: use the element commands.
 
 ## Correlation identifier
 
@@ -75,4 +75,4 @@ const unsubscribe = fm.on(event => {
 unsubscribe();
 ```
 
-On subscribe, the loader replays the last bootstrap outcome. It does not replay other events.
+On subscribe, the loader replays the last bootstrap outcome. It does not replay other events. The replay runs inside `on()`. Initialise your values before you call `on()`. Do not call the returned function from the replayed handler.

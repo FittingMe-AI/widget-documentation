@@ -4,7 +4,7 @@ sidebarTitle: "API JavaScript"
 description: "Ciblez une intégration, contrôlez son panneau et lisez son état."
 ---
 
-`window.FittingMe` existe après le chargement du script du loader. Transmettez l’élément conteneur ou l’iframe, pas un sélecteur.
+`window.FittingMe` existe après que le loader a accepté sa première balise de script. Avant cela, utilisez les attributs du loader. Transmettez l’élément conteneur ou l’iframe, pas un sélecteur.
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
@@ -22,7 +22,7 @@ const state = fm.resolve(container);
 | `destroy(element)` | Verdict | Supprime une intégration fermée. |
 | `on(handler)` | Fonction de désabonnement | S’abonne à toutes les intégrations. Filtrez sur `event.embed`. |
 
-Les commandes répondent de façon synchrone. `accepted` n’est pas le résultat : observez les événements. Un `open` avant l’amorçage est refusé, pas mis en attente. `close` puis `destroy` immédiatement renvoie `drawer_open` ([Fermer avant de remplacer](/fr/integration/react#fermer-avant-de-remplacer)). `get()` est une ancienne forme d’appel : utilisez les commandes avec élément.
+Les commandes répondent de façon synchrone. `accepted` n’est pas le résultat : observez les événements. Un `open` avant l’amorçage est refusé, pas mis en attente. Pendant que le panneau est ouvert, `close` puis `destroy` immédiatement renvoie `drawer_open` ([Fermer avant de remplacer](/fr/integration/react#fermer-avant-de-remplacer)). `get()` est une ancienne forme d’appel : utilisez les commandes avec élément.
 
 ## Identifiant de corrélation
 
@@ -75,4 +75,4 @@ const unsubscribe = fm.on(event => {
 unsubscribe();
 ```
 
-À l’abonnement, le loader répète le dernier résultat de l’amorçage. Il ne répète pas les autres événements.
+À l’abonnement, le loader répète le dernier résultat de l’amorçage. Il ne répète pas les autres événements. La répétition s’exécute dans `on()`. Initialisez vos valeurs avant d’appeler `on()`. N’appelez pas la fonction renvoyée depuis le gestionnaire répété.

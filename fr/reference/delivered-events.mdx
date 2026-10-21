@@ -28,15 +28,17 @@ FittingMe met à disposition un dataset par entreprise, `delivered_events_YOUR_K
 | `correlation_id` | STRING | Votre [identifiant de corrélation](#joindre-vos-propres-analyses), sinon `FM_` suivi de la `session_key`. |
 | `event_id` | STRING | UUID unique. |
 | `retailer_id` | STRING | UUID de l’enseigne, en minuscules. |
-| `try_on_reference` | STRING | 32 caractères hexadécimaux minuscules sur les lignes `tryon_result_revealed`, sinon `NULL`. |
+| `try_on_reference` | STRING | 32 caractères hexadécimaux minuscules sur les lignes `tryon_result_revealed`, sinon `NULL`. Les lignes d’affichage du 11 septembre 2026 et avant restent à `NULL`. |
 
 Lorsque `try_on_reference` arrive dans votre dataset, elle porte la valeur de l’[événement de page `tryon_result_revealed`](/fr/reference/events#rendus-d’essayage-affichés).
+
+Une session est le parcours Try-On d’un acheteur sur un produit. Elle dure au plus 48 heures. Un retour sur le même produit dans le même navigateur pendant ce délai reprend la session, avec la même `session_key`.
 
 ## Types d’événements
 
 | `event_type` | Ce qui s’est passé | Fréquence |
 | --- | --- | --- |
-| `session_created` | L’acheteur a ouvert le parcours Try-On. | Une fois par session. |
+| `session_created` | L’acheteur a ouvert le parcours Try-On. | Une fois par session. Reprendre une session ne le répète pas. |
 | `tryon_photo_ingested` | FittingMe a accepté une photo de l’acheteur. | Une fois par nouvelle photo. |
 | `tryon_launch` | FittingMe a accepté une demande d’essayage. | Une fois par demande ou relance. |
 | `tryon_result_revealed` | Premier affichage d’un rendu d’essayage. | Une fois par essayage. |
@@ -50,7 +52,7 @@ Ces faits sont des observations, pas des conversions :
 - `journey_exited` n’est pas un abandon : l’acheteur peut rouvrir et continuer.
 - `tryon_photo_refused` ne porte ni cause, ni origine, ni photo.
 
-Lorsque `try_on_reference` arrive dans votre dataset, comptez ses valeurs distinctes pour les rendus affichés.
+Lorsque `try_on_reference` arrive dans votre dataset, comptez ses valeurs distinctes pour les rendus affichés. Les lignes sont des observations, pas une facture.
 
 ## Règles de lecture
 
@@ -58,7 +60,7 @@ Lorsque `try_on_reference` arrive dans votre dataset, comptez ses valeurs distin
 - **Contrat stable.** Rien n’est renommé ni supprimé, et les nouvelles colonnes arrivent en dernier.
 - **Trafic de test.** Demandez à FittingMe une enseigne de test distincte.
 - **Conservation.** Les faits restent 13 mois.
-- **Effacement.** Un identifiant de corrélation effacé devient le remplacement `FM_`.
+- **Effacement.** Un identifiant de corrélation effacé devient le remplacement `FM_`. L’effacement des lignes copiées dans vos propres tables vous incombe.
 
 ## Joindre vos propres analyses
 
@@ -84,6 +86,8 @@ GROUP BY day
 ORDER BY day
 ```
 
+Une session qui commence un jour et continue le lendemain compte pour les deux jours.
+
 Copie incrémentale sans doublons :
 
 ```sql
@@ -97,6 +101,8 @@ ON target.event_id = source.event_id
 WHEN NOT MATCHED THEN
   INSERT ROW
 ```
+
+Lorsque FittingMe annonce une nouvelle colonne, ajoutez-la à votre table avant l’exécution suivante.
 
 Rendus affichés et intentions d’ajout au panier par visite :
 

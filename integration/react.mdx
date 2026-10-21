@@ -106,7 +106,7 @@ To replace an embed without a page load, keep its container until step 4 succeed
 3. Wait for `closed` with a time limit. If the limit expires, keep the embed and offer a page reload.
 4. Call `destroy(container)`. Remove the container only after it returns `accepted`.
 
-Calling `close()` then `destroy()` at once returns `drawer_open`. Removing the container then can lock page scrolling. Do not destroy or unsubscribe in the `closed` handler: a following `completed` can be lost. See the [completion limits](/reference/events#completion-is-not-conversion).
+While the drawer is open, calling `close()` then `destroy()` at once returns `drawer_open`. Removing the container then can lock page scrolling. `closed` and `completed` are separate messages. A `destroy` or unsubscribe in the `closed` handler, or right after a promise that handler resolves, can lose `completed`. No close-and-destroy sequence is sure to keep it. See the [completion limits](/reference/events#completion-is-not-conversion).
 
 ## Multiple embeds on one page
 
