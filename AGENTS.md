@@ -4,9 +4,9 @@
 
 This repository publishes the retailer-facing FittingMe integration documentation with Mintlify. Content pages are MDX files, and `docs.json` owns navigation and site presentation.
 
-The current documentation scope is virtual try-on only: onboarding, Journey Embed placement, the public loader contract, direct `fittingme/3` integration, configuration, tracking and observable integration failures. Sizing is deferred while it is still being developed.
+The current documentation scope is virtual try-on only: onboarding, Journey Embed placement, the public loader contract, configuration, tracking and observable integration failures. Sizing is deferred while it is still being developed.
 
-The founder-approved scope, developer goals and page list are recorded in `drafts/documentation-design.md`. Its Navigation section is the approved page list: `scripts/validate-docs.mjs` requires `docs.json` to match it in order and groups, with `fr/` mirroring it. Catalogue onboarding is FittingMe-assisted and catalogue integration uses the loader; direct protocol examples use `fittingme/3` with a supplied garment image URL.
+The founder-approved scope, developer goals and page list are recorded in `drafts/documentation-design.md`. Its Navigation section is the approved page list: `scripts/validate-docs.mjs` requires `docs.json` to match it in order and groups, with `fr/` mirroring it. Catalogue onboarding is FittingMe-assisted, and catalogue integration uses the loader.
 
 ## Repository boundary
 

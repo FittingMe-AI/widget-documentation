@@ -19,8 +19,6 @@ The container is still required in host-button mode, even when its closed height
 
 ## Complete custom-button example
 
-**Current limitation:** a drawer opened with `FittingMe.open(container)` does not reliably close on browser Back. The first Back can leave the drawer open and the page scroll-locked; a further Back can leave the product page. This affects this custom-button example. Use the widget-provided entry point for the default integration. If Back must work with your own button, the [direct-embed example](/integration/direct-embed) implements its own history handling for a normal page; it is not a SPA router adapter.
-
 Replace the same three placeholders as in the [quickstart](/start/quickstart). This example keeps the button disabled until the embed is eligible and gives the shopper an explicit unavailable state when bootstrap cannot complete.
 
 ```html

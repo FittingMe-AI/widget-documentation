@@ -54,7 +54,7 @@ Vérifiez les [règles de validation](/fr/integration/products#exigences-pour-l�
 
 ## Le mauvais vêtement apparaît
 
-Comparez le produit affiché avec l’identifiant et l’image utilisés à la création de l’intégration. Modifier les attributs du script après son exécution ne met pas à jour l’iframe. En cas de changement de produit ou de couleur, fermez et [remplacez l’intégration](/fr/integration/product-changes).
+Comparez le produit affiché avec l’identifiant et l’image utilisés à la création de l’intégration. Modifier les attributs du script après son exécution ne met pas à jour l’iframe. En cas de changement de produit ou de couleur, fermez et [remplacez l’intégration](/fr/integration/react).
 
 Pour une recherche dans le catalogue, demandez à FittingMe de vérifier la correspondance convenue entre le produit et son image. Ne masquez pas un décalage en affichant un autre titre de produit autour de l’ancienne intégration.
 
@@ -74,11 +74,9 @@ Déplacez le conteneur vers un emplacement approprié dans la mise en page ou su
 
 ## La navigation produit crée des doublons ou bloque le défilement
 
-Ne supprimez pas un conteneur si `destroy()` renvoie `drawer_open`. Une commande `close()` acceptée n’a pas nécessairement fini de s’exécuter ; React supprime son DOM avant la fin du nettoyage asynchrone. Si la page est déjà bloquée, un rechargement complet rétablit un document sain. Utilisez le [modèle React où la page gère l’intégration](/fr/integration/react) et respectez les [contraintes de remplacement](/fr/integration/product-changes#fermer-avant-de-remplacer).
+Ne supprimez pas un conteneur si `destroy()` renvoie `drawer_open`. Une commande `close()` acceptée n’a pas nécessairement fini de s’exécuter ; React supprime son DOM avant la fin du nettoyage asynchrone. Si la page est déjà bloquée, un rechargement complet rétablit un document sain. Utilisez le [modèle React où la page gère l’intégration](/fr/integration/react) et respectez les [contraintes de remplacement](/fr/integration/react#fermer-avant-de-remplacer).
 
 ## Le bouton de retour laisse le panneau ouvert
-
-Si l’ouverture provient de `FittingMe.open(container)`, notamment d’un bouton personnalisé, il s’agit d’une limitation connue du loader. Un nouvel appui sur le bouton de retour peut quitter la fiche produit. Pour l’intégration par défaut, conservez le point d’accès du widget ; l’[exemple direct sur page classique](/fr/integration/direct-embed) gère explicitement son historique. Ne considérez pas le bouton de retour comme validé avec un bouton personnalisé simplement parce qu’il fonctionne avec le déclencheur natif du widget.
 
 Consultez la page [Gestion des boutiques dynamiques](/fr/integration/react) et reproduisez le problème avec un chargement réseau lent et une navigation rapide.
 

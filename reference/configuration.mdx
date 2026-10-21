@@ -46,11 +46,11 @@ A missing or blank input in this table prevents mounting, except `data-garment-i
 - `data-correlation-id` is read exactly as written, without trimming, and never travels in a URL. A refused value (over 128 characters or starting with `FM_`) logs one console warning and leaves no correlation identifier in force; the embed still mounts. To change the value later, call [`setCorrelationId(id)`](/reference/javascript#correlation-identifier).
 - The loader derives `host_origin` from the page and chooses the message protocol major. Do not add `data-host-origin` or `data-loader-major`.
 
-The `/v5/` loader uses `fittingme/5` English messages and requires an explicit plural capability acknowledgement from the widget and API. Older peers cannot silently accept one view. Artifact paths and wire majors are separate contracts. Set `data-trigger-mode="widget"` explicitly to show the widget trigger. Omission, empty and unknown values retain host mode. Deprecated French trigger aliases are described in [migration guidance](/reference/compatibility#temporary-french-compatibility).
+The `/v5/` loader uses `fittingme/5` English messages and requires an explicit plural capability acknowledgement from the widget and API. Older peers cannot silently accept one view. Artifact paths and wire majors are separate contracts. Set `data-trigger-mode="widget"` explicitly to show the widget trigger. Omission, empty and unknown values retain host mode.
 
 ## Lifetime
 
-All inputs are read when that script executes. Changing the script's attributes afterwards has no effect. See [product changes](/integration/product-changes) for replacement.
+All inputs are read when that script executes. Changing the script's attributes afterwards has no effect. See [product changes](/integration/react) for replacement.
 
 If the selector does not find a container, nothing is mounted. If another live embed already owns the element, the duplicate is ignored. Use one unique container per embed and insert it before the script.
 

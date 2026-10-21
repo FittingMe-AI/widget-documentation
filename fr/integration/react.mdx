@@ -13,13 +13,30 @@ Ce modèle nécessite de pouvoir contrôler la structure de la page. Il ne perme
 Partez du [fichier HTML complet du démarrage rapide](/fr/start/quickstart). Conservez dans le modèle de page l’image produit, le conteneur du widget et le script du loader configuré. À côté du conteneur, ajoutez un point de montage React distinct :
 
 ```html
-<!-- Render these siblings in the page template, outside React. -->
-<div id="try-on-react-root"></div>
-<div id="fittingme-widget-container"></div>
-<!-- Put the configured loader script from the quickstart after the container. -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Example product page</title>
+</head>
+<body>
+  <!-- Render these siblings in the page template, outside React. -->
+  <div id="try-on-react-root"></div>
+  <div id="fittingme-widget-container"></div>
+  <script src="https://widget.fittingme.ai/v5/fittingme-loader.js"
+    data-api-base="https://api.fittingme.ai"
+    data-retailer-key="YOUR_PUBLISHABLE_KEY"
+    data-product-id="YOUR_PRODUCT_ID"
+    data-garment-image-urls="https://images.example.com/YOUR_GARMENT.jpg"
+    data-journey="tryon"
+    data-locale="en"
+    data-trigger-mode="widget"
+    data-container="#fittingme-widget-container"></script>
+</body>
+</html>
 ```
 
-Montez votre application React existante ou le composant d’état dans `try-on-react-root`. Le loader utilise `data-container="#fittingme-widget-container"` et `data-trigger-mode="embed"`. N’affichez pas le conteneur du widget dans cette racine React, n’effacez pas son élément parent et n’utilisez pas de transition de route qui le supprime.
+Montez votre application React existante ou le composant d’état dans `try-on-react-root`. Le loader utilise `data-container="#fittingme-widget-container"` et `data-trigger-mode="widget"`. N’affichez pas le conteneur du widget dans cette racine React, n’effacez pas son élément parent et n’utilisez pas de transition de route qui le supprime.
 
 Le modèle de produit gère le conteneur et le script jusqu’au déchargement du document. Un effet React ne gère que son abonnement et ses minuteries. Le nettoyage de cet effet ne doit appeler ni `close()` ni `destroy()`.
 
@@ -88,11 +105,52 @@ Pour les changements de produit ou de couleur nécessitant une autre image, util
 
 Le déchargement complet d’une page ne garantit pas la transmission des événements analytiques. En particulier, quitter la page alors qu’un résultat est ouvert peut empêcher l’observation de la fin du parcours. Lisez les [limites de complétion](/fr/reference/events#la-complétion-n’est-pas-une-conversion) avant de décider quoi comptabiliser.
 
+## Déterminer s’il faut remplacer l’intégration
+
+| Changement dans la boutique | Action sur l’intégration |
+| --- | --- |
+| Navigation vers un autre produit | Chargez le nouveau document avec ses propres données. |
+| Sélection d’une couleur avec une autre image | Accédez à la page de ce produit ou de cette couleur avec la nouvelle image. |
+| Sélection d’une taille sans changer de produit ni d’image | Conservez l’intégration ; la sélection de taille et le panier relèvent de votre boutique. |
+| Nouveau rendu de contenu sans rapport | Conservez l’intégration existante et laissez son conteneur connecté. |
+| Nécessité de naviguer entre les produits sans recharger la page | Mettez en œuvre et testez les contraintes de gestion ci-dessous avant d’utiliser cette approche. |
+
+L’API publique du loader ne fournit ni méthode de mise à jour du produit ni méthode de définition de la taille sélectionnée. Modifier les attributs du script déjà exécuté ou transmettre une variante à `open()` ne change pas le vêtement.
+
+## Fermer avant de remplacer
+
+Pour remplacer l’intégration sans recharger la page, son responsable doit empêcher toute nouvelle ouverture et conserver le conteneur d’origine dans le document jusqu’à la fin du nettoyage :
+
+1. Si le panneau est ouvert, abonnez-vous à l’événement `closed` de cette intégration avant de demander sa fermeture.
+2. Appelez `FittingMe.close(container)` et vérifiez le verdict renvoyé. La demande de fermeture est asynchrone, même si le verdict est renvoyé de façon synchrone.
+3. Attendez la confirmation de fermeture avant d’appeler `destroy(container)`. Limitez l’attente ; si le délai expire, laissez l’intégration connectée et arrêtez le remplacement. Proposez de naviguer vers une nouvelle page ou de recharger la page.
+4. Attendez que `destroy(container)` renvoie `accepted` avant de supprimer le script et le conteneur, puis de monter une nouvelle intégration avec un nouvel élément conteneur.
+
+Si le panneau est ouvert, appeler `close()`, puis immédiatement `destroy()` peut renvoyer `drawer_open`. Supprimer les éléments du DOM après ce refus peut laisser le défilement de la page verrouillé. Le nettoyage du framework ne doit pas supprimer le conteneur avant la fin de ces étapes.
+
+**Limite liée à la fin du parcours :** après `closed`, l’événement `completed` est envoyé lorsqu’un résultat terminé doit être signalé. Détruire l’intégration ou se désabonner dans le gestionnaire de fermeture, y compris juste après avoir attendu une promesse résolue par ce gestionnaire, peut faire perdre l’événement de fin. L’API publique ne signale pas que tous les messages liés à la fermeture ont été transmis. Un délai d’attente ne garantit pas leur réception ; attendre uniquement l’événement de fin bloquerait les parcours inachevés.
+
+C’est pourquoi ce guide ne fournit pas de fonction de fermeture et de destruction qui garantisse la réception de tous les événements. Après une fermeture normale, gardez actives les intégrations gérées par la page et le suivi associé ; pour changer de produit, privilégiez la navigation complète par défaut. Si le remplacement sur place est indispensable, convenez avec FittingMe des limites de perte d’événements et testez la gestion des routes. Même sans nettoyage, les événements publics ne permettent pas de compter les générations uniques ; consultez la [sémantique de complétion](/fr/reference/events#la-complétion-n’est-pas-une-conversion).
+
+## Plusieurs intégrations sur une page
+
+Attribuez à chaque intégration un conteneur et un script distincts. Utilisez le point d’accès fourni par chaque widget et laissez les conteneurs montés pendant toute la durée de vie de la page. Les abonnements sont globaux ; filtrez-les à l’aide de l’élément conteneur réel :
+
+```javascript
+const jacket = document.getElementById('jacket-tryon');
+const unsubscribe = window.FittingMe.on(event => {
+  if (event.embed !== jacket) return;
+  // Handle this embed's milestone using your own product context.
+});
+```
+
+Le loader ne coordonne qu’un seul panneau ouvert à la fois. Le chargement d’un deuxième script dans un conteneur actif déjà utilisé est ignoré comme doublon. Dans l’API de commande, une chaîne sélecteur ne remplace pas l’argument qui doit être l’élément.
+
 ## Limites de l’intégration dans une SPA
 
 React n’attend pas la fin du nettoyage asynchrone d’un effet avant de supprimer son DOM. Si une intégration est ouverte, appeler `close()` puis immédiatement `destroy()` renvoie `drawer_open` ; supprimer tout de même le conteneur peut empêcher la page suivante de défiler. Attendre de façon asynchrone dans la fonction de nettoyage ne maintient pas connecté un conteneur géré par React.
 
-Une intégration conservée sur place nécessite un responsable qui garde le conteneur connecté, empêche toute nouvelle ouverture et confirme la fermeture **avant** d’autoriser sa suppression ou le remplacement de la route. Il doit aussi tenir compte des événements de fin transmis après la fermeture ; le loader public ne signale pas que « tous les messages de fermeture ont été transmis ». Consultez [le remplacement du produit](/fr/integration/product-changes#fermer-avant-de-remplacer). Cette page ne fournit pas d’adaptateur général garantissant un démontage sûr dans une SPA.
+Une intégration conservée sur place nécessite un responsable qui garde le conteneur connecté, empêche toute nouvelle ouverture et confirme la fermeture **avant** d’autoriser sa suppression ou le remplacement de la route. Il doit aussi tenir compte des événements de fin transmis après la fermeture ; le loader public ne signale pas que « tous les messages de fermeture ont été transmis ». Consultez [le remplacement du produit](#fermer-avant-de-remplacer). Cette page ne fournit pas d’adaptateur général garantissant un démontage sûr dans une SPA.
 
 Appeler `open()` depuis React présente également la [limitation du loader avec le bouton de retour](/fr/integration/appearance#exemple-complet-avec-un-bouton-personnalisé). Le modèle de page ci-dessus utilise le bouton du widget.
 
@@ -104,3 +162,5 @@ Appeler `open()` depuis React présente également la [limitation du loader avec
 - Remontez le composant d’état et vérifiez qu’il reçoit le résultat d’amorçage actuel.
 - Suivez un lien produit et vérifiez que la page est entièrement rechargée avec le bon produit et la bonne image.
 - Bloquez la requête du loader et vérifiez qu’à l’expiration du délai, le composant d’état cesse d’attendre et que la boutique reste utilisable.
+
+**Vérification :** consultez plusieurs produits, changez de couleur, naviguez vers une autre page puis revenez, et vérifiez que chaque résultat correspond au produit actif. Vérifiez le rétablissement du défilement après fermeture et après chaque transition de route.

@@ -46,11 +46,11 @@ Une entrée de ce tableau manquante ou vide empêche le montage, sauf `data-garm
 - `data-correlation-id` est lu tel qu’il est écrit, sans suppression des espaces, et ne circule jamais dans une URL. Une valeur refusée (plus de 128 caractères ou préfixe `FM_`) écrit un avertissement dans la console et ne laisse aucun identifiant de corrélation en vigueur ; l’intégration se monte quand même. Pour changer la valeur ensuite, appelez [`setCorrelationId(id)`](/fr/reference/javascript#identifiant-de-corrélation).
 - Le loader déduit `host_origin` de la page et choisit la version majeure du protocole de messages. N’ajoutez ni `data-host-origin` ni `data-loader-major`.
 
-Le loader `/v5/` utilise les messages anglais `fittingme/5` et exige que le widget et l’API confirment explicitement la capacité plurielle. Une ancienne version ne peut pas accepter silencieusement une seule vue. Le chemin du fichier et la version du protocole sont deux contrats distincts. Indiquez explicitement `data-trigger-mode="widget"` pour afficher le déclencheur du widget. Une valeur omise, vide ou inconnue conserve le mode hôte. Les alias français sont décrits dans la [migration](/fr/reference/compatibility#compatibilité-française-temporaire).
+Le loader `/v5/` utilise les messages anglais `fittingme/5` et exige que le widget et l’API confirment explicitement la capacité plurielle. Une ancienne version ne peut pas accepter silencieusement une seule vue. Le chemin du fichier et la version du protocole sont deux contrats distincts. Indiquez explicitement `data-trigger-mode="widget"` pour afficher le déclencheur du widget. Une valeur omise, vide ou inconnue conserve le mode hôte.
 
 ## Durée de vie
 
-Toutes les entrées sont lues lors de l’exécution du script. Modifier ses attributs par la suite n’a aucun effet. Pour le remplacer, consultez [Changements de produit](/fr/integration/product-changes).
+Toutes les entrées sont lues lors de l’exécution du script. Modifier ses attributs par la suite n’a aucun effet. Pour le remplacer, consultez [Changements de produit](/fr/integration/react).
 
 Si le sélecteur ne trouve aucun conteneur, rien n’est monté. Si une autre intégration active utilise déjà l’élément, le doublon est ignoré. Prévoyez un conteneur unique par intégration et placez-le avant le script.
 

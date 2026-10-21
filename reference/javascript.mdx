@@ -4,8 +4,6 @@ sidebarTitle: "JavaScript API"
 description: "Address an embed, control its drawer, read its state, and release it safely."
 ---
 
-<Note>These examples target the English v4 contract. Confirm v4 availability in your assigned environment before rollout. See [migration and temporary French compatibility](/reference/compatibility#temporary-french-compatibility).</Note>
-
 The loader creates `window.FittingMe`. Wait for the script to load before accessing it. Script loading and embed eligibility are separate: opening requires an eligible [bootstrap outcome](/reference/events#bootstrap-outcome).
 
 ## Address an embed
@@ -30,9 +28,7 @@ Do not pass a selector string to the command methods. Do not use generated ifram
 | `destroy(element)` | Verdict string | Removes the closed embed and its loader-owned resources. Refuses while its drawer is open. |
 | `on(handler)` | Unsubscribe function | Subscribes to all embeds on the page. Filter each event by `embed`. |
 
-**Current Back limitation:** openings requested with `open(element)` do not reliably close on browser Back, including when called from a custom button or a React handler. Prefer the widget-provided entry point, or implement and test history ownership through the [direct protocol](/integration/direct-embed).
-
-Calling `close(element)` followed immediately by `destroy(element)` is unsafe while open: destruction returns `drawer_open`. Removing the container anyway can leave the page scroll-locked. `closed` confirms closure, but does not guarantee that a following `completed` has been delivered. See [replacement limits](/integration/product-changes#close-before-replacing).
+Calling `close(element)` followed immediately by `destroy(element)` is unsafe while open: destruction returns `drawer_open`. Removing the container anyway can leave the page scroll-locked. `closed` confirms closure, but does not guarantee that a following `completed` has been delivered. See [replacement limits](/integration/react#close-before-replacing).
 
 Commands return synchronously. `accepted` means the command was accepted; observe events for the resulting state. An open request made before bootstrap completes is refused, not queued for later.
 
@@ -93,7 +89,7 @@ unsubscribe();
 
 The last known bootstrap outcome is delivered synchronously during subscription for each live embed. Opening, closing, and completion events are not replayed. Initialise values used by the handler before calling `on()`; do not call a not-yet-assigned unsubscribe variable from a replayed bootstrap handler.
 
-Unsubscribing more than once is safe. Destroying an embed does not unsubscribe your global handler. Follow [replacement and cleanup](/integration/product-changes) for the full sequence.
+Unsubscribing more than once is safe. Destroying an embed does not unsubscribe your global handler. Follow [replacement and cleanup](/integration/react#close-before-replacing) for the full sequence.
 
 ## Older call forms
 

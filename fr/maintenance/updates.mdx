@@ -9,7 +9,7 @@ Identifiez clairement la configuration de l’intégration, le composant qui la 
 ## Mettre à jour une intégration
 
 1. Consignez la version fonctionnelle de la boutique, le préfixe de la clé, l’approche de saisie des données produit et l’environnement de service. Ne copiez pas la clé complète dans l’enregistrement de mise en production.
-2. Consultez la [compatibilité de référence](/fr/maintenance/releases) et l’avis de changement correspondant à votre mise à jour.
+2. Consultez l’avis de changement correspondant à votre mise à jour.
 3. Appliquez le changement sur la boutique de test avec une configuration de test correspondante.
 4. Effectuez les [tests du parcours](/fr/testing/journey), y compris les scénarios d’échec et de navigation concernés par le changement.
 5. Suivez le processus habituel d’approbation des versions de votre boutique et gardez la possibilité de rétablir la configuration précédente.
@@ -31,7 +31,7 @@ Ne lancez pas une autre rotation sur la même lignée de clés tant qu’une rot
 
 Utilisez un indicateur de fonctionnalité de la boutique ou une modification du déploiement pour empêcher le montage de nouvelles intégrations, puis supprimez ou désactivez les boutons d’essayage personnalisés. Conservez la sélection normale des produits, le panier et le paiement.
 
-Pour une page déjà montée, respectez les [contraintes de fermeture et de suppression](/fr/integration/product-changes#fermer-avant-de-remplacer). Laissez le conteneur connecté jusqu’à ce que la destruction soit acceptée et tenez compte des événements de complétion en attente. Par défaut, rechargez la page avec un modèle qui ne contient pas l’intégration. Supprimer uniquement le bouton visible ne détruit pas l’iframe active.
+Pour une page déjà montée, respectez les [contraintes de fermeture et de suppression](/fr/integration/react#fermer-avant-de-remplacer). Laissez le conteneur connecté jusqu’à ce que la destruction soit acceptée et tenez compte des événements de complétion en attente. Par défaut, rechargez la page avec un modèle qui ne contient pas l’intégration. Supprimer uniquement le bouton visible ne détruit pas l’iframe active.
 
 La révocation d’une clé concerne toutes les installations qui l’utilisent. Réservez cette action à la révocation effective d’un identifiant ; ne l’utilisez pas comme simple commande d’affichage propre à une page.
 
