@@ -4,7 +4,7 @@ sidebarTitle: "Loader configuration"
 description: "Attributes of the script embed and their validation rules."
 ---
 
-Load `https://widget.fittingme.ai/v5/fittingme-loader.js` once per embed, with its attributes on that script.
+Load `https://widget.fittingme.ai/v5/fittingme-loader.js` once per embed, with its attributes on that script. Keep `async` on that script: the browser then reads and displays your product page without waiting for FittingMe. The page's `load` event still waits for the loader and the widget frame.
 
 ## Required attributes
 

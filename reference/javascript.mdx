@@ -8,8 +8,22 @@ description: "Address an embed, control its drawer and read its state."
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
-const fm = window.FittingMe;
-const state = fm.resolve(container);
+// The loader script is async: wait up to 15 seconds for window.FittingMe.
+(() => {
+  let poll;
+  const deadline = setTimeout(() => clearTimeout(poll), 15000);
+  const connect = () => {
+    const fm = window.FittingMe;
+    if (!fm) {
+      poll = setTimeout(connect, 100);
+      return;
+    }
+    clearTimeout(deadline);
+    const state = fm.resolve(container);
+    // Call the other methods on fm here.
+  };
+  connect();
+})();
 ```
 
 ## Methods
@@ -63,6 +77,7 @@ Commands return synchronously. `accepted` is not the result: watch the events. A
 ## Subscribe
 
 ```javascript
+// Inside connect() from the first example, once fm is set:
 const unsubscribe = fm.on(event => {
   if (event.embed !== container) return;
   if (event.type === 'bootstrap') {

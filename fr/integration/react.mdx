@@ -19,7 +19,7 @@ Gardez l’intégration dans le modèle de page. Ajoutez un point de montage Rea
   <!-- Render these siblings in the page template, outside React. -->
   <div id="try-on-react-root"></div>
   <div id="fittingme-widget-container"></div>
-  <script src="https://widget.fittingme.ai/v5/fittingme-loader.js"
+  <script async src="https://widget.fittingme.ai/v5/fittingme-loader.js"
     data-api-base="https://api.fittingme.ai"
     data-retailer-key="YOUR_PUBLISHABLE_KEY"
     data-product-id="YOUR_PRODUCT_ID"
@@ -114,10 +114,25 @@ Donnez à chaque intégration son propre conteneur et son propre script. Filtrez
 
 ```javascript
 const jacket = document.getElementById('jacket-tryon');
-const unsubscribe = window.FittingMe.on(event => {
-  if (event.embed !== jacket) return;
-  // Handle this embed's milestone using your own product context.
-});
+// The loader script is async: wait up to 15 seconds for window.FittingMe.
+let unsubscribe = () => {};
+(() => {
+  let poll;
+  const deadline = setTimeout(() => clearTimeout(poll), 15000);
+  const connect = () => {
+    const fm = window.FittingMe;
+    if (!fm) {
+      poll = setTimeout(connect, 100);
+      return;
+    }
+    clearTimeout(deadline);
+    unsubscribe = fm.on(event => {
+      if (event.embed !== jacket) return;
+      // Handle this embed's milestone using your own product context.
+    });
+  };
+  connect();
+})();
 ```
 
 Un seul panneau s’ouvre à la fois. Le loader ignore un deuxième script dans le même conteneur actif.

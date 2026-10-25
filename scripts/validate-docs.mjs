@@ -104,6 +104,8 @@ for (const page of pages) {
     if (!code.includes('/v5/fittingme-loader.js')) continue;
     const loaders = (code.match(/<script\b[^>]*>/g) ?? []).filter(tag => tag.includes('/v5/fittingme-loader.js'));
     if (loaders.some(tag => !/\sdata-garment-image-urls\s*=/.test(tag))) errors.push(`${page}: a /v5/ loader example omits data-garment-image-urls.`);
+    // The product page must not wait for the loader (tryon-capacity 25): async on each loader tag.
+    if (loaders.some(tag => !/\sasync[\s=>]/.test(tag))) errors.push(`${page}: a /v5/ loader example omits async.`);
   }
   if (page === 'reference/configuration' || page === 'fr/reference/configuration') {
     const fr = page.startsWith('fr/'), row = /^\|\s*`data-garment-image-urls`\s*\|/gm;

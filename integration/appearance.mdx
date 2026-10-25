@@ -35,7 +35,7 @@ Replace the three [quickstart](/start/quickstart) values.
     <p id="try-on-status" role="status">Checking try-on availability…</p>
     <div id="fittingme-widget-container"></div>
   </main>
-  <script src="https://widget.fittingme.ai/v5/fittingme-loader.js"
+  <script async src="https://widget.fittingme.ai/v5/fittingme-loader.js"
     data-api-base="https://api.fittingme.ai"
     data-retailer-key="YOUR_PUBLISHABLE_KEY"
     data-product-id="YOUR_PRODUCT_ID"
@@ -48,33 +48,43 @@ Replace the three [quickstart](/start/quickstart) values.
     const container = document.getElementById('fittingme-widget-container');
     const button = document.getElementById('try-on');
     const status = document.getElementById('try-on-status');
-    const fm = window.FittingMe;
-    if (!fm) {
-      status.textContent = 'Try-on could not load. Please reload the page.';
-    } else {
+    (() => {
+      let poll;
       const deadline = setTimeout(() => {
-        status.textContent = 'Try-on is taking longer than expected. Please reload to retry.';
+        clearTimeout(poll);
+        status.textContent = window.FittingMe ?
+          'Try-on is taking longer than expected. Please reload to retry.' :
+          'Try-on could not load. Please reload the page.';
       }, 15000);
-      const unsubscribe = fm.on(event => {
-        if (event.embed !== container) return;
-        if (event.type === 'bootstrap') {
-          clearTimeout(deadline);
-          button.disabled = event.outcome !== 'eligible';
-          status.textContent = event.outcome === 'eligible' ? '' :
-            event.outcome === 'ineligible' ? 'Try-on is unavailable for this product.' :
-            'Try-on is temporarily unavailable. Please reload to retry.';
+      // The loader script is async: wait until window.FittingMe exists.
+      const connect = () => {
+        const fm = window.FittingMe;
+        if (!fm) {
+          poll = setTimeout(connect, 100);
+          return;
         }
-        if (event.type === 'closed') button.focus();
-      });
-      button.addEventListener('click', () => {
-        const verdict = fm.open(container);
-        if (verdict !== 'accepted') {
-          status.textContent = 'Try-on could not open. Please try again.';
-        }
-      });
-      // A full page navigation releases this document and its subscription.
-      // A SPA must call unsubscribe() as part of its component cleanup.
-    }
+        const unsubscribe = fm.on(event => {
+          if (event.embed !== container) return;
+          if (event.type === 'bootstrap') {
+            clearTimeout(deadline);
+            button.disabled = event.outcome !== 'eligible';
+            status.textContent = event.outcome === 'eligible' ? '' :
+              event.outcome === 'ineligible' ? 'Try-on is unavailable for this product.' :
+              'Try-on is temporarily unavailable. Please reload to retry.';
+          }
+          if (event.type === 'closed') button.focus();
+        });
+        button.addEventListener('click', () => {
+          const verdict = fm.open(container);
+          if (verdict !== 'accepted') {
+            status.textContent = 'Try-on could not open. Please try again.';
+          }
+        });
+        // A full page navigation releases this document and its subscription.
+        // A SPA must call unsubscribe() as part of its component cleanup.
+      };
+      connect();
+    })();
   </script>
 </body>
 </html>
