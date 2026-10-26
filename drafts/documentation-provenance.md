@@ -478,3 +478,26 @@ attribute exactly once, as a code-formatted row of its required table, and a cod
 attribute values or a loader created in JavaScript.
 
 No claim of deployed v5 availability or of b2b reading Product Service in production.
+
+## Desktop QR code only on request (2026-10-26)
+
+Change: the loader reference documents the optional `data-qr-code` attribute (campaign
+desktop-qr-code ticket 04, founder rulings 2026-10-26). English and French:
+`reference/configuration` (row and validation bullet), `introduction`, `testing/journey`,
+`testing/launch`. The phone handoff is no longer presented as always present.
+
+Selected revisions: widget `84f3af9e` (origin/dev, widget#507; not yet in production),
+widget-documentation `0c6daac` (origin/main). Unreleased: merge only after widget P37 is live in
+production; before that the production loader refuses an embed that carries `data-qr-code`.
+
+| Claim | Current owning source |
+| --- | --- |
+| Optional loader attribute, forwarded as `qr_code` only when set, trimmed | widget `loader/lib/embed-protocol.js:201`; `loader/fittingme-loader.js:301`; protocol § 2.2 row and decision P37 |
+| Only `true` turns the QR code on; missing, empty or `false` keep it off with no message; any other value keeps it off and logs one console error naming `data-qr-code` | widget `foundation/embed-bootstrap.ts:20-28` |
+| Try-On only: the Try-On entry reads it; the Sizing entry never does | widget `build/tryon.entry.ts:22`; `foundation/index.ts:1665-1666` |
+| Off: no handoff link, no QR code on desktop | widget `foundation/tryon.ts:1159-1160` |
+
+Deviation from the ticket's wording: the validation bullet says "other than `true`, `false` or
+empty", because an empty value is silent (`foundation/embed-bootstrap.ts:23-24`). DeepL Write
+reviewed the French (2026-10-26): accepted two comma changes; refused capitalising `true`,
+dropping code backticks and a full stop in a table cell.

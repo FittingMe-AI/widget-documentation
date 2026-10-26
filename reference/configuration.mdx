@@ -27,6 +27,7 @@ A missing or blank value prevents mounting, except for `data-garment-image-urls`
 | `data-trigger-mode` | `host` | `widget` shows the FittingMe entry point. |
 | `data-locale` | French | The widget language, for example `en` or `fr`. An unknown value gives French. |
 | `data-correlation-id` | None | Your join value for [Delivered Events](/reference/delivered-events#join-your-own-analytics). |
+| `data-qr-code` | None (no QR code) | `true` shows a QR code on desktop, so the shopper can send a photo from their phone. Try-On only. |
 | `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Widget document override. |
 
 ## Validation
@@ -39,6 +40,7 @@ A missing or blank value prevents mounting, except for `data-garment-image-urls`
 - Catalogue photos come first. Page photos are the fallback.
 - An unknown locale falls back to French. Set `data-locale` explicitly.
 - `data-correlation-id` has 1 to 128 characters and does not start with `FM_`. The loader reads it as written. A refused value logs one warning, and the embed still mounts. To change it, call [`setCorrelationId(id)`](/reference/javascript#correlation-identifier).
+- A `data-qr-code` value other than `true`, `false` or empty logs an error, and no QR code shows.
 
 Do not add `data-host-origin` or `data-loader-major`. Set `data-trigger-mode="widget"` explicitly. An omitted, empty or unknown value gives host mode.
 

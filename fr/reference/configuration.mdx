@@ -27,6 +27,7 @@ Une valeur absente ou vide empêche le montage, sauf pour `data-garment-image-ur
 | `data-trigger-mode` | `host` | `widget` affiche le point d’accès FittingMe. |
 | `data-locale` | Français | La langue du widget, par exemple `en` ou `fr`. Une valeur inconnue donne le français. |
 | `data-correlation-id` | Aucun | Votre valeur de jointure pour les [Événements Livrés](/fr/reference/delivered-events#joindre-vos-propres-analyses). |
+| `data-qr-code` | Aucun (pas de QR code) | `true` affiche un QR code sur ordinateur : l’acheteur peut envoyer une photo depuis son téléphone. Essayage uniquement. |
 | `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Remplacement du document du widget. |
 
 ## Validation
@@ -39,6 +40,7 @@ Une valeur absente ou vide empêche le montage, sauf pour `data-garment-image-ur
 - Les images du catalogue passent en premier. Les photos de la page servent de solution de repli.
 - Une langue inconnue revient au français. Définissez `data-locale` explicitement.
 - `data-correlation-id` compte de 1 à 128 caractères et ne commence pas par `FM_`. Le loader le lit tel quel. Une valeur refusée affiche un avertissement et l’intégration se monte quand même. Pour la modifier, appelez [`setCorrelationId(id)`](/fr/reference/javascript#identifiant-de-corrélation).
+- Une valeur de `data-qr-code` autre que `true`, `false` ou vide affiche une erreur et aucun QR code ne s’affiche.
 
 N’ajoutez ni `data-host-origin` ni `data-loader-major`. Définissez `data-trigger-mode="widget"` explicitement. Une valeur absente, vide ou inconnue donne le mode hôte.
 
