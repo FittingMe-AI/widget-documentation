@@ -19,7 +19,7 @@ Un `bootstrap` rejoué n’est pas une visite d’acheteur.
 
 ## Ajouter un adaptateur de suivi
 
-Exécutez ce code après le chargement du loader, avant d’activer un déclencheur personnalisé.
+Exécutez ce code avant d’activer un déclencheur personnalisé. Il attend le loader jusqu’à 15 secondes.
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
@@ -38,16 +38,31 @@ const eventNames = {
   tryon_result_revealed: 'fittingme_tryon_result_revealed',
 };
 
-const unsubscribe = window.FittingMe.on(event => {
-  if (event.embed !== container || !analyticsAllowed) return;
-  const name = eventNames[event.type];
-  if (!name) return;
-  const record = { event: name, product_id: productId };
-  if (event.type === 'opened') record.open_origin = event.origin;
-  if (event.type === 'tryon_result_revealed') record.try_on_reference = event.try_on_reference;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(record);
-});
+// The loader script is async: wait up to 15 seconds for window.FittingMe.
+let unsubscribe = () => {};
+(() => {
+  let poll;
+  const deadline = setTimeout(() => clearTimeout(poll), 15000);
+  const connect = () => {
+    const fm = window.FittingMe;
+    if (!fm) {
+      poll = setTimeout(connect, 100);
+      return;
+    }
+    clearTimeout(deadline);
+    unsubscribe = fm.on(event => {
+      if (event.embed !== container || !analyticsAllowed) return;
+      const name = eventNames[event.type];
+      if (!name) return;
+      const record = { event: name, product_id: productId };
+      if (event.type === 'opened') record.open_origin = event.origin;
+      if (event.type === 'tryon_result_revealed') record.try_on_reference = event.try_on_reference;
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push(record);
+    });
+  };
+  connect();
+})();
 
 // Keep this subscription for the lifetime of the page-owned embed.
 // Do not unsubscribe in a closed handler: completed can follow.

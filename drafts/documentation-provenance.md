@@ -1,3 +1,30 @@
+## Async loader tag (2026-10-25)
+
+Documentation updated: `start/quickstart`, `integration/react`, `integration/appearance`,
+`integration/analytics`, `reference/javascript` and `reference/configuration`, English and `fr/`
+(ticket tryon-capacity 25). The 3 loader tags of each edition carry `async`. The appearance,
+analytics, React multi-embed and JavaScript reference examples wait up to 15 seconds for
+`window.FittingMe`. `reference/configuration` tells the reader to keep `async` on the script.
+
+Selected revision: widget `9951036e`, read with `git show 9951036e:loader/fittingme-loader.js`.
+Its `loader/` has the same bytes at widget `origin/main` `ab11308c`:
+`git -C widget diff --quiet 9951036e origin/main -- loader/` returns 0 (2026-10-25).
+
+Claim anchors (widget `loader/fittingme-loader.js` at `9951036e`):
+- The loader reads its own tag from `document.currentScript`, else the first
+  `script[data-container]`: `:1743-1744`.
+- It creates `window.FittingMe` before it looks for the container: `:1750` (`getRegistry()`),
+  `:1723` (one assignment). An example that reads `window.FittingMe` before the async loader runs
+  finds nothing, so the examples wait for it.
+- It returns without an error when the container is missing: `:1810-1811`. A second tag on the
+  same container is ignored with a warning: `:1817-1823`.
+- It boots at the end of the file, with no `DOMContentLoaded`, `readyState` or page `load`
+  listener: `:3078` (its only `load` listener is on the iframe, `:2455`).
+- `readHostData` refuses only unknown `data-*` names, so `async` passes: `:504-511`.
+- The default `data-widget-url` is the production URL: `:284`.
+
+The 2026-09-23 claim anchors below stay: they pin an older revision.
+
 ## Client-only rewrite — 2026-10-21
 
 Documentation updated: the 18 pages of `drafts/documentation-design.md` § Navigation, English and

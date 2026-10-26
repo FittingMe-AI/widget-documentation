@@ -1,3 +1,28 @@
+## Loader script keeps `async` — local review, 2026-10-25
+
+Ticket tryon-capacity 25. The loader `<script>` tag carries `async` in
+`start/quickstart`, `integration/react` and `integration/appearance`. The
+appearance, analytics, React multi-embed and JavaScript reference examples
+wait up to 15 seconds for `window.FittingMe`. `reference/configuration` tells
+the reader to keep `async` on the script. The change is on 12 pages (6 English,
+6 French), with code fences byte-identical between the editions. Provenance:
+`drafts/documentation-provenance.md` § Async loader tag (2026-10-25), widget
+`9951036e`. New validator rule in `scripts/validate-docs.mjs`: a `/v5/` loader
+example without `async` fails with « a /v5/ loader example omits async ».
+
+| Check | Result |
+| --- | --- |
+| Browser proof (dev demo page `/demo/`, its Try-On tag with the quickstart fence and the dev `/v5/` loader, loader held 1,500 ms) | PASS in Chromium 147.0.7727.15, Firefox 148.0.2 and WebKit 26.4 at 1440×1000. With `async`, `DOMContentLoaded` fires before the loader loads; the embed becomes eligible, the button shows and the drawer opens and closes, as with the synchronous tag. 36 recipe runs (loader held 1,000 ms): with `async`, today's appearance, analytics, React multi-embed and JavaScript reference examples fail, and the new examples work, in the 3 engines. Stopped at the consent screen: no photo, no Launch, GPU 0, VTON 0. The widget revision of the dev host was not recorded. |
+| Recipe simulation (4 examples × 5 loader timings) | rc 0. Each example waits, then ends all its timers (150 polls at most). When the loader never arrives or arrives after 16 s, the appearance example shows « Try-on could not load. Please reload the page. ». |
+| Scope probe (examples pasted alone, in pairs, and the JavaScript reference Subscribe example) | Each example pasted alone runs with 0 errors. Two examples pasted in one page give the same redeclaration errors before and after the change. The Subscribe example works when pasted at the marker in the first example (0 errors), not as a separate script (`fm is not defined`). |
+| `node scripts/validate-docs.mjs` (Node 24.18.0) | Red first: with the rule and today's pages, rc 1 with 6 errors « a /v5/ loader example omits async » (3 English, 3 French pages). After the change: PASS, rc 0: 36 pages (18 per language), 118 links, 60 anchors, 32 code blocks, six complete HTML examples, 396 vocabulary checks, zero errors. |
+| `git diff --check` | rc 0. |
+| `node scripts/check-loader-parity.mjs` (widget `origin/main` `ab11308c`) | 0 errors: 12 attributes, 9 methods, 3 exempt, 36 compared. |
+| Mutation round (valid) | Null: rc 0. Accept control (`async` at the end of the tag): rc 0. Killed, rc 1 by the async rule: English React tag synchronous, French quickstart tag synchronous, appearance loader tag synchronous with another script `async`, `data-async` in place of `async`. Rule mutants: a rule that checks each code fence, not each loader tag, misses the appearance mutant, and a rule not anchored on whitespace misses `data-async` (both rc 0): this shows why the rule checks each tag and anchors on whitespace. |
+| Preview (`mint dev --port 3003`) | 12 pages × 1440×1000 and 390×844: 24 rows, HTTP 200, `async` in the page text, 0 px horizontal overflow, 0 page errors. Port 3003 free after the stop. |
+| DeepL review of the French sentence | Comma before « sans attendre FittingMe » accepted. « le load » for « le loader » rejected (« load » names the event). Typographic apostrophe ’ in « L’événement » and « l’iframe », as in the other French prose. |
+| Not checked | The render on the published site after the merge (publication waits for the founder's approval), and `/v5/` in production. |
+
 ## Shown try-on renders — production state, local review, 2026-10-21
 
 Wording-only change to the « Shown try-on renders » section of
