@@ -28,6 +28,7 @@ Une valeur absente ou vide empêche le montage, sauf pour `data-garment-image-ur
 | `data-locale` | Français | La langue du widget, par exemple `en` ou `fr`. Une valeur inconnue donne le français. |
 | `data-correlation-id` | Aucun | Votre valeur de jointure pour les [Événements Livrés](/fr/reference/delivered-events#joindre-vos-propres-analyses). |
 | `data-qr-code` | Aucun (pas de QR code) | `true` affiche un QR code sur ordinateur : l’acheteur peut envoyer une photo depuis son téléphone. Essayage uniquement. |
+| `data-input-gender` | Aucun (pas de genre présélectionné) | `male` ou `female` présélectionne le genre de l’acheteur dans le profil de recommandation de taille. L’acheteur peut modifier ce choix. Recommandation de taille uniquement : l’Essayage ne tient pas compte de ce paramètre. |
 | `data-widget-url` | `https://widget.fittingme.ai/tryon/` | Remplacement du document du widget. |
 
 ## Validation
@@ -41,6 +42,7 @@ Une valeur absente ou vide empêche le montage, sauf pour `data-garment-image-ur
 - Une langue inconnue revient au français. Définissez `data-locale` explicitement.
 - `data-correlation-id` compte de 1 à 128 caractères et ne commence pas par `FM_`. Le loader le lit tel quel. Une valeur refusée affiche un avertissement et l’intégration se monte quand même. Pour la modifier, appelez [`setCorrelationId(id)`](/fr/reference/javascript#identifiant-de-corrélation).
 - Une valeur de `data-qr-code` autre que `true`, `false` ou vide affiche une erreur et aucun QR code ne s’affiche.
+- Une valeur de `data-input-gender` autre que `male`, `female` ou vide affiche une erreur, et aucun genre n’est présélectionné. L’intégration se monte quand même.
 
 N’ajoutez ni `data-host-origin` ni `data-loader-major`. Définissez `data-trigger-mode="widget"` explicitement. Une valeur absente, vide ou inconnue donne le mode hôte.
 

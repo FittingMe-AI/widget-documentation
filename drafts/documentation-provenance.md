@@ -528,3 +528,25 @@ Deviation from the ticket's wording: the validation bullet says "other than `tru
 empty", because an empty value is silent (`foundation/embed-bootstrap.ts:23-24`). DeepL Write
 reviewed the French (2026-10-26): accepted two comma changes; refused capitalising `true`,
 dropping code backticks and a full stop in a table cell.
+
+## Sizing gender preselection (2026-10-28)
+
+Change: the loader reference documents the optional `data-input-gender` attribute (founder
+rulings 2026-10-28, Sizing first-step grilling, Q10–Q14). English and French:
+`reference/configuration` (row and validation bullet). The guide stays Try-On only; the row
+names the one journey that reads it.
+
+Selected revisions: widget `902bd13a` (origin/dev, widget#517; not yet in production),
+widget-documentation `a5c5b49` (origin/main). Unreleased: merge only when Sizing enters the
+public guide and widget P38 is live in production; before P38 the production loader refuses an
+embed that carries `data-input-gender`.
+
+| Claim | Current owning source |
+| --- | --- |
+| Optional loader attribute, forwarded as `input_gender` only when set, trimmed | widget `loader/lib/embed-protocol.js:202`; `loader/fittingme-loader.js:302`; protocol § 2.2 row and decision P38 |
+| Only `male` or `female` preselect; missing or empty preselect nothing with no message; any other value preselects nothing and logs one console error naming `data-input-gender`; the embed still mounts | widget `foundation/embed-bootstrap.ts:30-38` |
+| Size recommendation only: the Sizing entry reads it; the Try-On entry never does | widget `build/sizing.entry.ts:77`; `foundation/index.ts:1672-1673` |
+| It fills an empty gender only; a saved profile's gender wins, and the shopper can change the radio | widget `foundation/sizing.ts:1333-1339`; `tests/browserless/sizing-input-gender.test.ts` |
+
+DeepL Write reviewed the French (2026-10-28): accepted one comma; refused a full stop in a table
+cell, capitalising the code values `male`/`female` and lower-casing « Essayage ».
