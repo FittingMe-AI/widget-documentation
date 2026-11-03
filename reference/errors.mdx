@@ -30,19 +30,20 @@ Service errors use `application/problem+json`. A proxy, a browser block or a tra
 
 | Code or status | Cause | Recovery |
 | --- | --- | --- |
-| HTTP 401 | Key missing, invalid, wrong environment or revoked. | Correct the key. |
+| HTTP 401 | The key was revoked after the widget loaded. A key that is missing, invalid, of another environment or revoked before the load never reaches the API: the browser blocks the frame. | Correct the key. |
 | HTTP 403 | Domain, consent or entitlement. Read the code. | Correct the cause. Do not repeat the request. |
 | `origin_not_allowed` / HTTP 403 | The page origin is not in the key's domains. | Add the storefront hostname to the key, then reopen. |
 | `origin_underivable` / HTTP 403 | The service cannot find the page origin. | Use an HTTP(S) page and the loader. Never forge origin headers. |
 | `validation_error` | The input named by `field`. | Correct the input. |
 | `consent_required` | No generation consent for this session. | Go back through the consent step. |
 | `capability_not_entitled` | No Try-On access for the Retailer. | Ask FittingMe to check the account. |
-| `not_found` | The resource or journey is gone. | Start a new journey. |
+| `not_found` | The resource or journey is gone. With `detail` "Product is unavailable", FittingMe cannot offer Try-On for this product, for example because it has no usable garment photo. | Start a new journey. For "Product is unavailable", check the product identifier and the key's image hosts. |
 | `conflict` | A generation is already in progress. | Wait for it. |
 | `payload_too_large` | The photo is too large. | Use a smaller photo. |
 | `unsupported_media_type` | The photo type is not supported. | Use a supported photo. |
 | `image_invalid` / HTTP 422 | This image cannot be used for Try-On. | Use another image. |
 | `rate_limited` / HTTP 429 | Too many requests. | When a response has `Retry-After`, wait that long before you retry. Do not retry in parallel. |
+| `session_limit_reached` / HTTP 429 | The session reached its limit of photos or Try-On launches (title "Limite de la session atteinte"). No `Retry-After`: the limit does not reopen in this session. | The widget tells the shopper. Do not retry. |
 | `service_unavailable` | A required service failed. | Retry a few times. Report persistent failures. |
 | `maintenance_shutoff` | The service disabled the journey. | Keep shopping available. Ask your FittingMe contact. |
 | `internal_error` / HTTP 500 | Unexpected failure. | Start a new attempt. Report repeats. |
@@ -55,7 +56,7 @@ The provider can refuse a photo after Start. The widget then offers to change th
 
 ## Failures without a public error event
 
-A `frame-ancestors` refusal blocks the iframe before bootstrap, with no API body. Get [framing approval](/start/prerequisites#confirm-storefront-framing-approval). When the product has no usable catalogue photo, an invalid page photo fails after Start. Check the [image URL requirements](/integration/products#image-url-requirements).
+A `frame-ancestors` refusal blocks the iframe before bootstrap, with no API body. Add the page to the [key's domains](/start/prerequisites#check-storefront-framing). A missing, unknown, other-environment or revoked key also gives this refusal: correct the key. If the FittingMe API cannot be reached, no widget appears. When the product has no usable catalogue photo, an invalid page photo fails after Start. Check the [image URL requirements](/integration/products#image-url-requirements).
 
 ## Avoid retry loops
 

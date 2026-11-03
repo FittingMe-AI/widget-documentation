@@ -1,3 +1,37 @@
+## Public key abuse S1: framing, image hosts, local-only keys, Turnstile (2026-11-03)
+
+Documentation updated: `start/prerequisites`, `start/quickstart`, `integration/products`,
+`testing/security`, `testing/journey`, `testing/launch`, `troubleshooting/symptoms`,
+`reference/errors` and `troubleshooting/support`, English and `fr/` (ticket public-key-abuse 08).
+The heading « Confirm storefront framing approval » became « Check storefront framing »
+(fr « Faire approuver l’encadrement de la boutique » → « Vérifier l’encadrement de la boutique »);
+`reference/errors`, `testing/security` and `troubleshooting/symptoms` link to the new anchor. New
+subsection « Use a local-only key » (fr « Utiliser une clé locale »).
+
+Selected revisions (origin/dev, read with `git show <sha>:<path>`, 2026-11-02T23:53Z): b2b
+`939de0cf`, widget `1514a492`, retailer-portal `03d2739f`; widget-documentation `a5c5b49`
+(origin/main). Unreleased: none of widget `6c4405e2`, `dd9ce9bd`, `a53794f5` or b2b `5edee480`,
+`6c53bb45`, `108cbbd4` or `393c52aa` (b2b#755, the `session_limit_reached` row) is on staging or
+main. Production still frames from the environment list and keeps every page photo, so publish
+only with the production release that carries them. The Turnstile paragraphs also need a
+production Turnstile site key: widget `infra/targets.json` leaves the production
+`turnstileSiteKey` empty until ticket 07 step a and ruling F1.
+
+| Claim family | Owning source |
+| --- | --- |
+| The key's domain list decides framing, read at each widget load; the same list governs session opening | b2b `backend/src/services/domain_rules.rs:408` (`effective_domains`), `:444` (`frame_ancestor_sources`); widget#557 `tests/browser/key-framing.spec.ts:91`, `:95`, `:102`; `tests/host/entry-policy.test.ts:110`, `:187` |
+| A public entry frames only from `https://` (port 443); a local entry from any port; `localhost` does not cover `127.0.0.1` | b2b `domain_rules.rs:444-475`, test `:944`; widget `key-framing.spec.ts:91`, `:95`, `:119` |
+| Unlisted page: blocked frame, `frame-ancestors` console line, no API body; API unreachable: no widget | widget `key-framing.spec.ts:95`, `:102`; `entry-policy.test.ts:177` (503, `'none'`); dev check `.agents/backlog/public-key-abuse/runs/04/20261026T082154Z/reports/qa-behavior-dev.md:7-33` |
+| Local entries (`localhost`, canonical IPv4 in 127/8, 10/8, 172.16/12, 192.168/16); a key never mixes local and public entries | b2b `domain_rules.rs:249` (`reach`), `:342` rule 4, test `:1182`; b2b#760 `108cbbd4` |
+| Image hosts: exact host, no wildcard, no port, no IP; set by FittingMe (no Portal field); a new key has none; rotation keeps them | b2b#668 `backend/src/services/garment_image.rs:110` (`is_listed_host`); retailer-portal grep rc 1 (`runs/08/20261102T234540Z/probes/tdd-analyst-inv/03-portal-grep.log`); b2b#664 rotation copy |
+| Unlisted page photos dropped; catalogue product keeps catalogue photos; unknown product gets no Try-On offer (`ineligible`); direct open 404 `not_found` « Product is unavailable » | b2b `tests/journey_session_route_integration.rs:1593`, `:1696`; `journey_tryon_commands_integration.rs:14665`; `backend/src/services/journey_session.rs:624`; widget `foundation/embed-bootstrap.ts:113`; dev probe `runs/05/20261101T120112Z/00-arbitrage.md:65` |
+| Turnstile runs inside the widget iframe; the retailer CSP needs no Cloudflare source; a checkbox can show in the drawer | widget#553 `tests/browser/turnstile.spec.ts:299`, `:396`, `:408`, `:439`; dev widget CSP (`probes/tdd-analyst-inv/04-dev-widget-gets.log`); public-site `infra/image/default.conf.tmpl` `frame-src` without Cloudflare |
+| `session_limit_reached` 429, title « Limite de la session atteinte », no `Retry-After` | b2b `backend/src/error.rs:642`; `tests/contract/fixtures/widget-api-v2/widget-api-v2.openapi.yaml:113`; `problem_session_limit_reached_429.json` |
+
+Not stated, by decision: how often the Turnstile checkbox shows, a refusal of a missing token,
+an `attestation_refused` row, production enforcement, and anything about Cloudflare's data,
+cookies, retention or sub-processor status.
+
 ## Async loader tag (2026-10-25)
 
 Documentation updated: `start/quickstart`, `integration/react`, `integration/appearance`,

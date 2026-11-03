@@ -4,7 +4,7 @@ sidebarTitle: "Produits et images"
 description: "Fournissez les images du vêtement pour chaque page produit."
 ---
 
-Chaque intégration nécessite `data-product-id` et `data-garment-image-urls`. FittingMe utilise d’abord les images du catalogue, avec les photos de votre page en solution de repli. Toutes les vues montrent le même vêtement dans la même couleur. `data-garment-image-url` est un alias déconseillé pour une seule photo : si les deux attributs sont présents, l’attribut pluriel l’emporte.
+Chaque intégration nécessite `data-product-id` et `data-garment-image-urls`. FittingMe utilise d’abord les images du catalogue, avec les photos de votre page en solution de repli. Une photo de page compte seulement si son hôte figure parmi les hôtes d’images de la clé : FittingMe ignore les autres sans message. Toutes les vues montrent le même vêtement dans la même couleur. `data-garment-image-url` est un alias déconseillé pour une seule photo : si les deux attributs sont présents, l’attribut pluriel l’emporte.
 
 ## Catégories de vêtements acceptées
 
@@ -30,9 +30,10 @@ Contactez FittingMe avant d’ajouter un produit hors de ces catégories.
 - Aucun nom d’utilisateur, mot de passe, fragment `#`, espace ou caractère de contrôle.
 - Accessible sans cookies ni connexion.
 - Sur un hôte public. Le loader ignore les adresses privées, `localhost` et les hôtes qui se terminent par `.local` ou `.internal`.
+- Sur l’un des hôtes d’images de la clé : l’hôte exact, sans caractère générique, sans port et sans adresse IP. FittingMe définit cette liste sur demande. Une nouvelle clé n’en a aucun, et une rotation de la clé les conserve.
 - La liste encodée compte 6 144 caractères au maximum. Une liste plus longue n’envoie aucune photo de page.
 
-Configurez votre CDN d’images pour qu’il renvoie toujours du JPEG ou du PNG : la livraison automatique en WebP échoue. Si le produit n’a pas d’image du catalogue utilisable, une photo de page incorrecte échoue après que l’acheteur a sélectionné **Lancer l’essayage**.
+Configurez votre CDN d’images pour qu’il renvoie toujours du JPEG ou du PNG : la livraison automatique en WebP échoue. Si le produit n’a pas d’image du catalogue utilisable, une photo de page incorrecte échoue après que l’acheteur a sélectionné **Lancer l’essayage**. Un produit que FittingMe ne connaît pas, sans photo de page sur un hôte d’images inscrit, n’a pas de bouton d’essayage : le résultat de l’amorçage est `ineligible`.
 
 L’attribut accepte une URL simple ou un tableau JSON d’URL. FittingMe supprime les espaces autour des URL, retire les doublons en conservant l’ordre et ignore les éléments invalides. Un JSON mal formé affiche une erreur dans la console et n’envoie aucune photo de page, mais les images du catalogue restent utilisées.
 

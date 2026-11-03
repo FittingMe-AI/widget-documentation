@@ -9,11 +9,11 @@ description: "Gather access, domains and product inputs."
 | Storefront edit rights | You can add a script. |
 | Try-on access | FittingMe confirms it. |
 | Publishable key | You have the full key. |
-| Allowed hostnames | Your test hostname is on the key. |
-| Framing approval | FittingMe allows your origin. |
+| Key domains | Every page that frames the widget is on the key. |
+| Garment image hosts | FittingMe listed your image hosts on the key. |
 | Environment addresses | Widget, API and key match. |
 | Product identifier | It is stable. |
-| Garment image | Public JPEG or PNG, at most 20 MiB. |
+| Garment image | Public JPEG or PNG, at most 20 MiB, on a listed image host. |
 
 ## Get a key
 
@@ -24,25 +24,34 @@ description: "Gather access, domains and product inputs."
 5. Name the key after its use.
 6. Enter bare hostnames, without `https://`, port or path.
 7. Create the key. Copy the full value: the portal shows it once.
-8. Store it in your approved configuration. Use it as `data-retailer-key`.
+8. Ask FittingMe to add your garment image hosts to the key. The portal has no field for them. A new key has none, and a key rotation keeps them.
+9. Store the key in your approved configuration. Use it as `data-retailer-key`.
 
 The key is visible in the browser.
 
 ## Configure domains
 
+The key's domain list decides which pages can frame the widget. The widget reads it at each load, so a change applies at the next widget load.
+
+- List every page that frames the widget: the storefront, parent frames, and preview and editor tools.
 - List exact hostnames, `www` included.
-- Write a wildcard as `*.example.com`. List `example.com` separately.
+- Write a wildcard as `*.example.com`. It covers subdomains only: list `example.com` separately.
+- A public hostname frames the widget only from `https://` on port 443.
 - Give a key 1 to 20 domains.
-- Put `localhost` alone on a local-development key.
-- Serve a local page at `http://localhost:PORT`. `127.0.0.1` is a different hostname.
 
 Removing a hostname breaks the storefronts that still use it. Check them before you save the change.
 
-## Confirm storefront framing approval
+### Use a local-only key
 
-Send FittingMe each storefront origin with scheme and port, for example `http://localhost:8080`. Include preview, production and parent frames. Key domains do not change framing. A new storefront origin can need a FittingMe configuration change before framing works. No JavaScript works around it.
+Local entries are `localhost`, names that end in `.localhost`, and IPv4 addresses written as four decimal numbers in 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16. A key lists local entries or public hostnames, never both.
 
-The browser checks framing at load, and the API checks the key domain at session start. Test both.
+For a laptop, use a separate local-only key that lists only `localhost`, or only `127.0.0.1`. A local entry without `*.` frames the widget from any port. A local `*.` entry frames the widget only from `https://`. Serve a local page at `http://localhost:PORT`. `localhost` does not cover `127.0.0.1`.
+
+## Check storefront framing
+
+The browser frames the widget only inside the pages on the key's domains. On another page, the browser blocks the frame: the console shows a `frame-ancestors` refusal, and no API body arrives. If the FittingMe API cannot be reached, no widget appears. No JavaScript works around it.
+
+The browser checks framing at each widget load, and the API checks the key domain again at session start. Test both.
 
 ## Adapt the portal snippet
 
