@@ -51,7 +51,9 @@ Signalez un code inconnu avec son contexte. Ne le lisez jamais comme un produit 
 
 ## Refus de photo et défaillance du service
 
-Le fournisseur peut refuser une photo après Lancer l’essayage. Le widget propose alors de changer de photo ou de revenir au produit. Les codes du fournisseur ne sont pas des diagnostics publics. Un échec de téléchargement ou de décodage du vêtement utilise le rétablissement du service et n’incrimine pas la photo. Consultez le [dépannage](/fr/troubleshooting/symptoms).
+FittingMe lit chaque nouvelle photo dès que l’acheteur l’ajoute. Un refus à cette étape demande une autre photo et ne propose pas Lancer l’essayage. Le lancement d’une photo refusée renvoie HTTP 422 `image_invalid`. Ce code couvre également d’autres images inutilisables sans en préciser la cause : ne répétez pas le lancement et n’en déduisez aucune cause. Une lecture trop lente ou indisponible laisse le parcours disponible.
+
+Le fournisseur peut aussi refuser une photo après Lancer l’essayage. Le widget propose alors de changer de photo ou de revenir au produit. Les codes du fournisseur ne sont pas des diagnostics publics. Un échec de téléchargement ou de décodage du vêtement utilise le rétablissement du service et n’incrimine pas la photo. Consultez le [dépannage](/fr/troubleshooting/symptoms).
 
 ## Échecs sans événement d’erreur public
 

@@ -51,7 +51,9 @@ Report an unknown code with its context. Never read it as an eligible or ineligi
 
 ## Photo refusal and service failure
 
-The provider can refuse a photo after Start. The widget then offers to change the photo or return to the product. Provider codes are not public diagnostics. A garment download or decoding failure uses service recovery and does not blame the photo. See [troubleshooting](/troubleshooting/symptoms).
+FittingMe reads each new photo when the shopper adds it. A refusal at that point asks for another photo and offers no Start. A launch of a refused photo returns HTTP 422 `image_invalid`. This code also covers other unusable images and does not give the cause, so do not retry the launch or infer a cause from the code. A slow or unavailable reading keeps the journey available.
+
+The provider can also refuse a photo after Start. The widget then offers to change the photo or return to the product. Provider codes are not public diagnostics. A garment download or decoding failure uses service recovery and does not blame the photo. See [troubleshooting](/troubleshooting/symptoms).
 
 ## Failures without a public error event
 
