@@ -12,8 +12,9 @@ Do not share keys, photos or capture links.
 2. Create the container before the script, outside hidden or unmounted components.
 3. Read the console for an unknown `data-*` attribute or a malformed `data-garment-image-urls`. Some console messages are in French.
 4. If both image attributes are set, the plural attribute takes priority. It needs the `/v5/` loader.
-5. If the console shows a `frame-ancestors` refusal, ask FittingMe to approve your origin.
-6. Inspect the state:
+5. If the console shows a `frame-ancestors` refusal, first check that the key is the full, active key of this environment. Then check that the page's hostname and the hostname of each parent frame are on the key's domains. Reload after a change. See [storefront framing](/start/prerequisites#check-storefront-framing).
+6. If FittingMe does not know the product, a page photo must be on one of the key's image hosts. Otherwise the bootstrap outcome is `ineligible` and no button shows.
+7. Inspect the state:
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
@@ -36,10 +37,10 @@ In `host` trigger mode, FittingMe shows no button, so render your own.
 1. Check that the key matches the retailer and environment.
 2. Check that the key is not revoked.
 3. Compare the hostname with the key's domains, including `www`.
-4. For local tests, use a `localhost` key on an HTTP `localhost` URL.
+4. For local tests, use a local-only key that lists only `localhost`, on an HTTP `localhost` URL.
 5. If access is forbidden with a valid key, ask FittingMe to check the entitlement.
 
-The domain check runs when the session opens. See [error codes](/reference/errors).
+The browser checks the key's domains when the widget loads, and the API checks them again when the session opens. See [error codes](/reference/errors).
 
 ## The image works on the page but generation fails
 

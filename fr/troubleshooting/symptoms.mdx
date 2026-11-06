@@ -12,8 +12,9 @@ Ne partagez ni clés, ni photos, ni liens de capture.
 2. Créez le conteneur avant le script, hors de tout composant masqué ou démonté.
 3. Recherchez dans la console un attribut `data-*` inconnu ou une valeur `data-garment-image-urls` mal formée. Certains messages de la console sont en français.
 4. Si les deux attributs d’image sont présents, l’attribut pluriel l’emporte. Il exige le loader `/v5/`.
-5. Si la console affiche un refus `frame-ancestors`, demandez à FittingMe d’autoriser votre origine.
-6. Inspectez l’état :
+5. Si la console affiche un refus `frame-ancestors`, vérifiez d’abord que la clé est la clé complète et active de cet environnement. Vérifiez ensuite que le nom d’hôte de la page et celui de chaque cadre parent figurent parmi les domaines de la clé. Rechargez après une modification. Consultez [l’encadrement de la boutique](/fr/start/prerequisites#vérifier-l’encadrement-de-la-boutique).
+6. Si FittingMe ne connaît pas le produit, une photo de page doit se trouver sur l’un des hôtes d’images de la clé. Sinon, le résultat de l’amorçage est `ineligible` et aucun bouton ne s’affiche.
+7. Inspectez l’état :
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
@@ -36,10 +37,10 @@ En mode déclencheur `host`, FittingMe n’affiche aucun bouton : affichez le v�
 1. Vérifiez que la clé correspond à l’enseigne et à l’environnement.
 2. Vérifiez que la clé n’est pas révoquée.
 3. Comparez le nom d’hôte avec les domaines de la clé, `www` compris.
-4. Pour les tests locaux, utilisez une clé `localhost` sur une URL HTTP `localhost`.
+4. Pour les tests locaux, utilisez une clé locale qui indique seulement `localhost`, sur une URL HTTP `localhost`.
 5. Si l’accès est refusé avec une clé valide, demandez à FittingMe de vérifier les droits.
 
-Le contrôle du domaine a lieu à l’ouverture de la session. Consultez les [codes d’erreur](/fr/reference/errors).
+Le navigateur vérifie les domaines de la clé au chargement du widget, et l’API les vérifie à nouveau à l’ouverture de la session. Consultez les [codes d’erreur](/fr/reference/errors).
 
 ## L’image s’affiche, mais la génération échoue
 

@@ -4,7 +4,7 @@ sidebarTitle: "Products and images"
 description: "Supply the garment images for each product page."
 ---
 
-Each embed needs `data-product-id` and `data-garment-image-urls`. FittingMe uses its catalogue photos first and your page photos as a fallback. All views show the same garment and colour. `data-garment-image-url` is a deprecated one-photo alias: if both attributes are present, FittingMe uses the plural attribute.
+Each embed needs `data-product-id` and `data-garment-image-urls`. FittingMe uses its catalogue photos first and your page photos as a fallback. A page photo counts only when its host is on the key's image hosts: FittingMe drops the others without a message. All views show the same garment and colour. `data-garment-image-url` is a deprecated one-photo alias: if both attributes are present, FittingMe uses the plural attribute.
 
 ## Accepted garment categories
 
@@ -30,9 +30,10 @@ Ask FittingMe before you add a product outside these categories.
 - No user name, password, `#` fragment, whitespace or control characters.
 - Available without cookies or sign-in.
 - On a public host. The loader skips private addresses, `localhost` and hosts that end in `.local` or `.internal`.
+- On one of the key's image hosts: the exact host, with no wildcard, no port and no IP address. FittingMe sets this list on request. A new key starts with none, and a key rotation keeps them.
 - The encoded list has at most 6,144 characters. A longer list sends no page photo.
 
-Configure your image CDN to always serve JPEG or PNG: automatic WebP delivery fails. When the product has no usable catalogue photo, a bad page photo causes try-on to fail after the shopper selects **Start**.
+Configure your image CDN to always serve JPEG or PNG: automatic WebP delivery fails. When the product has no usable catalogue photo, a bad page photo causes try-on to fail after the shopper selects **Start**. A product that FittingMe does not know, with no page photo on a listed image host, gets no Try-On button: the bootstrap outcome is `ineligible`.
 
 The attribute takes one plain URL or a JSON array of URLs. FittingMe trims the URLs, removes duplicates in order and skips invalid members. Malformed JSON logs a console error and sends no page photo, but catalogue photos still apply.
 
