@@ -9,7 +9,6 @@ description: "Keep credentials, photos and analytics safe."
 | Value | Where it belongs |
 | --- | --- |
 | Publishable key | The browser embed |
-| Portal password and codes | The portal login only |
 | Service credentials | Never in storefront code |
 | Capture links, private image URLs | The journey only, never analytics |
 
@@ -31,7 +30,7 @@ FittingMe runs Cloudflare Turnstile inside the widget iframe to detect automated
 ## Check your CSP, key domains and image hosts
 
 1. Make sure that your CSP allows the loader and frame.
-2. Add every page that frames the widget to the key's domains. The same list decides [storefront framing](/start/prerequisites#check-storefront-framing) and session opening.
+2. Ask FittingMe to add every page that frames the widget to the key's domains. The same list decides [storefront framing](/start/prerequisites#check-storefront-framing) and session opening.
 3. Ask FittingMe to list your garment image hosts on the key.
 
 ## Preserve the iframe boundary

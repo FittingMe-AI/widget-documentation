@@ -12,7 +12,7 @@ Ne partagez ni clés, ni photos, ni liens de capture.
 2. Créez le conteneur avant le script, hors de tout composant masqué ou démonté.
 3. Recherchez dans la console un attribut `data-*` inconnu ou une valeur `data-garment-image-urls` mal formée. Certains messages de la console sont en français.
 4. Si les deux attributs d’image sont présents, l’attribut pluriel l’emporte. Il exige le loader `/v5/`.
-5. Si la console affiche un refus `frame-ancestors`, vérifiez d’abord que la clé est la clé complète et active de cet environnement. Vérifiez ensuite que le nom d’hôte de la page et celui de chaque cadre parent figurent parmi les domaines de la clé. Rechargez après une modification. Consultez [l’encadrement de la boutique](/fr/start/prerequisites#vérifier-l’encadrement-de-la-boutique).
+5. Si la console affiche un refus `frame-ancestors`, vérifiez d’abord que la clé est la clé complète et active de cet environnement. Demandez ensuite à FittingMe de vérifier que le nom d’hôte de la page et celui de chaque cadre parent figurent parmi les domaines de la clé. Rechargez après une modification. Consultez [l’encadrement de la boutique](/fr/start/prerequisites#vérifier-l’encadrement-de-la-boutique).
 6. Si FittingMe ne connaît pas le produit, une photo de page doit se trouver sur l’un des hôtes d’images de la clé. Sinon, le résultat de l’amorçage est `ineligible` et aucun bouton ne s’affiche.
 7. Inspectez l’état :
 
@@ -35,8 +35,8 @@ En mode déclencheur `host`, FittingMe n’affiche aucun bouton : affichez le v�
 ## Échec de l’authentification ou de l’accès au domaine
 
 1. Vérifiez que la clé correspond à l’enseigne et à l’environnement.
-2. Vérifiez que la clé n’est pas révoquée.
-3. Comparez le nom d’hôte avec les domaines de la clé, `www` compris.
+2. Demandez à FittingMe de vérifier que la clé n’est pas révoquée.
+3. Demandez à FittingMe de comparer le nom d’hôte avec les domaines de la clé, `www` compris.
 4. Pour les tests locaux, utilisez une clé locale qui indique seulement `localhost`, sur une URL HTTP `localhost`.
 5. Si l’accès est refusé avec une clé valide, demandez à FittingMe de vérifier les droits.
 

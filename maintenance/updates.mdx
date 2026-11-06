@@ -17,15 +17,16 @@ The loader URL is stable and has no content hash. Do not keep a vendored or long
 
 ## Rotate a retailer key
 
-An Admin rotates keys in **Clés d'environnement** with **Faire tourner…**. The previous key stays valid until it is revoked. The new key shows once.
+FittingMe rotates keys on request. The previous key stays valid until FittingMe revokes it.
 
-1. Store the new key safely.
-2. Replace the old value everywhere.
-3. Complete a try-on on each hostname.
-4. Wait for cached pages to expire.
-5. Revoke the previous key when no installation uses it. Revoking it breaks every installation that still uses it.
+1. Ask FittingMe to rotate the key.
+2. Store the new key safely. The service shows a key only once.
+3. Replace the old value everywhere.
+4. Complete a try-on on each hostname.
+5. Wait for cached pages to expire.
+6. Ask FittingMe to revoke the previous key when no installation uses it. Revoking it breaks every installation that still uses it.
 
-Start only one rotation at a time in a key lineage.
+Ask FittingMe to revoke the previous key before you ask for another rotation.
 
 ## Disable the entry point
 
@@ -37,7 +38,7 @@ Stop mounting new embeds and hide custom buttons. Keep cart and checkout availab
 2. Remove custom buttons and subscriptions.
 3. Remove the containers.
 4. Check browsing, cart and checkout.
-5. Ask the Admin to retire unused keys.
+5. Ask FittingMe to revoke unused keys.
 6. Remove unused CSP allowances.
 
 To close the account or delete data, ask your FittingMe contact.
