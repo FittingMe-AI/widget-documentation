@@ -32,7 +32,7 @@ Les erreurs du service utilisent `application/problem+json`. Un proxy, un blocag
 | --- | --- | --- |
 | HTTP 401 | La clé a été révoquée après le chargement du widget. Une clé manquante, invalide, d’un autre environnement ou révoquée avant le chargement n’atteint jamais l’API : le navigateur bloque l’iframe. | Corrigez la clé. |
 | HTTP 403 | L’erreur vient du domaine, du consentement ou du droit d’accès. Lisez le code. | Corrigez la cause. Ne répétez pas la requête. |
-| `origin_not_allowed` / HTTP 403 | L’origine de la page ne figure pas parmi les domaines de la clé. | Ajoutez le nom d’hôte de la boutique à la clé, puis rouvrez. |
+| `origin_not_allowed` / HTTP 403 | L’origine de la page ne figure pas parmi les domaines de la clé. | Demandez à FittingMe d’ajouter le nom d’hôte de la boutique à la clé, puis rouvrez. |
 | `origin_underivable` / HTTP 403 | Le service ne trouve pas l’origine de la page. | Utilisez une page HTTP(S) et le loader. Ne falsifiez jamais les en-têtes d’origine. |
 | `validation_error` | L’entrée indiquée par `field` est invalide. | Corrigez l’entrée. |
 | `consent_required` | Aucun consentement à la génération n’a été donné pour cette session. | Repassez par l’étape de consentement. |
@@ -58,7 +58,7 @@ Le fournisseur peut aussi refuser une photo après Lancer l’essayage. Le widge
 
 ## Échecs sans événement d’erreur public
 
-Un refus `frame-ancestors` bloque l’iframe avant l’amorçage, sans corps d’API. Ajoutez la page aux [domaines de la clé](/fr/start/prerequisites#vérifier-l’encadrement-de-la-boutique). Une clé manquante, inconnue, d’un autre environnement ou révoquée donne aussi ce refus : corrigez la clé. Si l’API FittingMe est injoignable, aucun widget n’apparaît. Si le produit n’a pas d’image du catalogue utilisable, une photo de page invalide échoue après Lancer l’essayage. Vérifiez les [exigences pour l’URL de l’image](/fr/integration/products#exigences-pour-l’url-de-l’image).
+Un refus `frame-ancestors` bloque l’iframe avant l’amorçage, sans corps d’API. Demandez à FittingMe d’ajouter la page aux [domaines de la clé](/fr/start/prerequisites#vérifier-l’encadrement-de-la-boutique). Une clé manquante, inconnue, d’un autre environnement ou révoquée donne aussi ce refus : corrigez la clé. Si l’API FittingMe est injoignable, aucun widget n’apparaît. Si le produit n’a pas d’image du catalogue utilisable, une photo de page invalide échoue après Lancer l’essayage. Vérifiez les [exigences pour l’URL de l’image](/fr/integration/products#exigences-pour-l’url-de-l’image).
 
 ## Éviter les boucles de nouvelles tentatives
 

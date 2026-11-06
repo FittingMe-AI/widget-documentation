@@ -654,3 +654,32 @@ so this row names a journey the guide does not offer.
 
 DeepL Write reviewed the French (2026-10-28): accepted one comma; refused a full stop in a table
 cell, capitalising the code values `male`/`female` and lower-casing « Essayage ».
+
+## Retailer Portal removed (2026-11-06)
+
+Documentation updated: `start/prerequisites`, `maintenance/updates`, `testing/security`,
+`testing/journey`, `testing/launch`, `reference/errors`, `troubleshooting/symptoms`,
+`troubleshooting/support`, `integration/appearance` and `introduction`, English and `fr/`.
+Headings changed: « Configure domains » became « Choose the domains » (fr « Configurer les
+domaines » → « Choisir les domaines »), and « Adapt the portal snippet » became « Use the quickstart
+tag » (fr « Adapter l’extrait du portail » → « Utiliser la balise du démarrage rapide »). No page,
+b2b, widget or public-site origin linked to the old anchors.
+
+Selected revisions: b2b `32a6ad68` (origin/main), public-site `4504dfa` (origin/main),
+retailer-portal `b672371` (origin/main), widget-documentation `3371e49` (origin/main).
+
+| Claim family | Owning source |
+| --- | --- |
+| No retailer screen; a change to a key, its domains or a Brand Kit goes through FittingMe | ADR-109, Consequences (founder decision of 2026-11-06) |
+| FittingMe creates, rotates and revokes keys and changes their domains through b2b's internal routes | b2b `backend/src/routes/mod.rs:558`, `:563`, `:567`, `:571`; public-site `scripts/widget-key.mjs:1` creates one key and nothing else |
+| The service shows a key only once | b2b `backend/src/routes/internal_portal.rs:940`, `:946` |
+| The previous key stays valid until it is revoked; a second rotation needs that revocation first | b2b `internal_portal.rs:1116`, `:1145` (`rotation_in_progress`) |
+| A key holds 1 to 20 domains (wording only) | b2b `backend/src/services/domain_rules.rs:62`, `:350` |
+| Brand Kit « Kit de Marque » | `CONTEXT.md` at the workspace root, Brand Kit |
+
+Not verified: a live call to b2b's internal routes as the kept account (ADR-109, « Not verified at
+delivery »). FittingMe's channel to hand over a key is not defined, so the pages name none. Other
+`drafts/` records keep their dated portal statements as history.
+
+The French sentences began as DeepL drafts, then took the terms of this edition. DeepL has no
+English-to-French dictionary in the account's glossary « FittingMe widget ».

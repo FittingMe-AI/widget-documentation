@@ -17,15 +17,16 @@ L’URL du loader est stable et ne contient pas d’empreinte de contenu. Ne gar
 
 ## Faire tourner une clé d’enseigne
 
-Un administrateur fait tourner les clés dans **Clés d'environnement** avec **Faire tourner…**. L’ancienne clé reste valide jusqu’à sa révocation. La nouvelle clé ne s’affiche qu’une fois.
+FittingMe effectue la rotation des clés sur demande. L’ancienne clé reste valide jusqu’à ce que FittingMe la révoque.
 
-1. Stockez la nouvelle clé en lieu sûr.
-2. Remplacez l’ancienne valeur partout.
-3. Terminez un essayage sur chaque nom d’hôte.
-4. Attendez que les pages en cache expirent.
-5. Révoquez l’ancienne clé quand aucune installation ne l’utilise. La révocation casse toute installation qui l’utilise encore.
+1. Demandez à FittingMe d’effectuer la rotation de la clé.
+2. Stockez la nouvelle clé en lieu sûr. Le service n’affiche une clé qu’une fois.
+3. Remplacez l’ancienne valeur partout.
+4. Terminez un essayage sur chaque nom d’hôte.
+5. Attendez que les pages en cache expirent.
+6. Demandez à FittingMe de révoquer l’ancienne clé quand aucune installation ne l’utilise. La révocation casse toute installation qui l’utilise encore.
 
-Ne lancez qu’une rotation à la fois dans une lignée de clés.
+Demandez à FittingMe de révoquer l’ancienne clé avant de demander une nouvelle rotation.
 
 ## Désactiver le point d’accès
 
@@ -37,7 +38,7 @@ Cessez de monter de nouvelles intégrations et masquez les boutons personnalisé
 2. Supprimez les boutons personnalisés et les abonnements.
 3. Supprimez les conteneurs.
 4. Vérifiez la navigation, le panier et le paiement.
-5. Demandez à l’administrateur de retirer les clés inutilisées.
+5. Demandez à FittingMe de révoquer les clés inutilisées.
 6. Supprimez les autorisations CSP inutilisées.
 
 Pour clore le compte ou supprimer des données, contactez votre interlocuteur FittingMe.

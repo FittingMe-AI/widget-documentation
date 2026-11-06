@@ -12,7 +12,7 @@ The founder-approved scope, developer goals and page list are recorded in `draft
 
 - This repository has one branch, `main`; it does not use the b2b `dev → staging → main` promotion train.
 - A documentation change stays in this repository. Sibling `widget`, `b2b` and `retailer-portal` repositories may be read as implementation sources but must not be edited as part of the same change.
-- Portal coverage is limited to integration onboarding: initial access, keys and authorized domains. Do not document internal administration surfaces, QA tooling or catalogue API administration here.
+- Onboarding coverage is limited to initial access, keys and authorized domains. No retailer screen exists ([ADR-109](https://app.notion.com/p/410570f41d7381f6a756d11fe289e0de)), so write each of these actions as a request to FittingMe. Do not document internal administration surfaces, QA tooling or catalogue API administration here.
 - Never include secrets, live credentials, or production retailer keys in prose or examples. Browser examples may use explicit placeholders for the public retailer key.
 
 ## Retailer documentation update policy
@@ -31,7 +31,7 @@ size is not the criterion.
 | Loader configuration/API, direct protocol, public events, lifecycle, browser support or Try-On steps | `widget` |
 | Authentication/domains, entitlement, product/image/session rules, observable errors or service behavior | `b2b/backend`; shared crates, capture, VTON and hosting through `b2b/AGENTS.md` |
 | Delivered Events: event types, `events_v1` columns, access, retention | `b2b/infra/modules/delivered_events/` (`README.md`, `main.tf`); retention and erasure in `b2b/infra/modules/tracking/` |
-| Initial access, roles/authenticator setup, keys, domain configuration, installation snippets or onboarding steps | `retailer-portal` |
+| Initial access, keys, domain configuration or onboarding steps | `b2b/backend`; ADR-109 for who performs them |
 | Shared brand assets/tokens or referenced contact/support links and snippets | `public-site` |
 | React/Next.js or GTM/GA4 changes that invalidate a recipe; Mintlify changes that break rendering/navigation | The relevant official documentation and the affected local example/render |
 | Reproducible reader difficulty, failed/stale examples, broken links/anchors, missing conditions or misleading instructions | The affected page and its provenance sources |
@@ -96,7 +96,7 @@ Read the relevant source before changing an API or integration claim:
 | Loader URL, attributes, defaults, and browser API | widget: `loader/fittingme-loader.js` and `loader/lib/embed-protocol.js` |
 | Delivered Events (`events_v1`) types and columns | `infra/modules/delivered_events/README.md` and `main.tf` |
 | Direct loader/widget protocol | widget: `docs/contracts/loader-widget-protocol-v2.md` (including the major-3 amendment), `foundation/fil.ts`, and `tests/contract/fixtures/protocole/` |
-| Portal onboarding | retailer-portal: `docs/openapi.yaml` and `spa/src/` |
+| Retailer key creation, rotation, revocation and domains | `backend/src/routes/internal_portal.rs` and `backend/src/services/domain_rules.rs` |
 | RFC 9457 business-error mapping | `backend/src/error.rs` |
 | Shared Problem Document shape | `crates/problem-details/src/lib.rs` |
 | Framework errors and query-free `instance` | `backend/src/middleware/problem_normalization.rs` |
@@ -140,7 +140,7 @@ Presentation follows the FittingMe design system, whose canonical source is `pub
 - Use active voice, second person, sentence-case headings, and concise paragraphs.
 - Keep examples copyable and use placeholders such as `YOUR_PUBLISHABLE_KEY`.
 - Add, move, or delete a page together with its `docs.json` entry and its line in the approved page list (`drafts/documentation-design.md`, Navigation). A new page needs founder approval before it enters that list.
-- Changing the external publication domain of this Mintlify site is a separate deployment decision. Do not infer that change from API, CDN, marketing, or portal domain migrations.
+- Changing the external publication domain of this Mintlify site is a separate deployment decision. Do not infer that change from API, CDN or marketing domain migrations.
 
 ## Validation
 

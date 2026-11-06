@@ -9,7 +9,6 @@ description: "Protégez les identifiants, les photos et les données analytiques
 | Valeur | Emplacement prévu |
 | --- | --- |
 | Clé publiable | L’intégration dans le navigateur |
-| Mot de passe et codes du portail | La connexion au portail uniquement |
 | Identifiants de service | Jamais dans le code de la boutique |
 | Liens de capture, URL d’images privées | Le parcours uniquement, jamais l’analytique |
 
@@ -31,7 +30,7 @@ FittingMe exécute Cloudflare Turnstile dans l’iframe du widget pour détecter
 ## Vérifier votre CSP, les domaines de la clé et les hôtes d’images
 
 1. Vérifiez que votre CSP autorise le loader et l’iframe.
-2. Ajoutez chaque page qui encadre le widget aux domaines de la clé. La même liste décide de [l’encadrement de la boutique](/fr/start/prerequisites#vérifier-l’encadrement-de-la-boutique) et de l’ouverture de la session.
+2. Demandez à FittingMe d’ajouter chaque page qui encadre le widget aux domaines de la clé. La même liste décide de [l’encadrement de la boutique](/fr/start/prerequisites#vérifier-l’encadrement-de-la-boutique) et de l’ouverture de la session.
 3. Demandez à FittingMe d’inscrire vos hôtes d’images du vêtement sur la clé.
 
 ## Préserver l’isolation de l’iframe

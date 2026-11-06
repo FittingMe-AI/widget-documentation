@@ -17,35 +17,34 @@ description: "Gather access, domains and product inputs."
 
 ## Get a key
 
-1. Ask an Admin or FittingMe for an invitation to the [Retailer Portal](https://app.fittingme.ai).
-2. Accept the invitation. Set up the authenticator. Never share Admin codes.
-3. Select the retailer account. The next steps need the Admin role. If you cannot manage keys, ask an Admin.
-4. The portal labels are in French. Open **Clés d'environnement** and select **Créer une clé**.
-5. Name the key after its use.
-6. Enter bare hostnames, without `https://`, a port or a path.
-7. Create the key. Copy the full value: the portal shows it once.
-8. Ask FittingMe to add your garment image hosts to the key. The portal has no field for them. A new key has none, and a key rotation keeps them.
-9. Store the key in your approved configuration. Use it as `data-retailer-key`.
+FittingMe gives you your key, because no retailer screen exists. A change to a key, its domains or a [Brand Kit](/integration/appearance#styling-boundary) also goes through FittingMe.
+
+1. [Contact FittingMe](/troubleshooting/support) and ask for a key.
+2. Tell FittingMe the retailer, the environment and the use of the key. FittingMe names the key after its use.
+3. Give the hostnames for [the key's domains](#choose-the-domains): bare hostnames, without `https://`, a port or a path.
+4. Give your garment image hosts. A new key has none, and a key rotation keeps them.
+5. Store the full key in your approved configuration. The service shows a key only once.
+6. Use the key as `data-retailer-key`.
 
 The key is visible in the browser.
 
-## Configure domains
+## Choose the domains
 
-The key's domain list decides which pages can frame the widget. The widget reads it at each load, so a change applies at the next widget load.
+The key's domain list decides which pages can frame the widget. FittingMe sets the list on request. The widget reads it at each load, so a change applies at the next widget load.
 
 - List every page that frames the widget: the storefront, parent frames, and preview and editor tools.
 - List exact hostnames, including `www`.
 - Write a wildcard as `*.example.com`. It covers subdomains only: list `example.com` separately.
 - A public hostname frames the widget only from `https://` on port 443.
-- Give a key 1 to 20 domains.
+- A key holds 1 to 20 domains.
 
-Removing a hostname breaks the storefronts that still use it. Check them before you save the change.
+Removing a hostname breaks the storefronts that still use it. Check them before you ask FittingMe to remove it.
 
 ### Use a local-only key
 
 Local entries are `localhost`, names that end in `.localhost`, and IPv4 addresses written as four decimal numbers in 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16. A key lists local entries or public hostnames, never both.
 
-For a laptop, use a separate local-only key that lists only `localhost`, or only `127.0.0.1`. A local entry without `*.` frames the widget from any port. A local `*.` entry frames the widget only from `https://`. Serve a local page at `http://localhost:PORT`. `localhost` does not cover `127.0.0.1`.
+For a laptop, ask FittingMe for a separate local-only key that lists only `localhost`, or only `127.0.0.1`. A local entry without `*.` frames the widget from any port. A local `*.` entry frames the widget only from `https://`. Serve a local page at `http://localhost:PORT`. `localhost` does not cover `127.0.0.1`.
 
 ## Check storefront framing
 
@@ -53,10 +52,12 @@ The browser frames the widget only inside the pages on the key's domains. On ano
 
 The browser checks framing at each widget load, and the API checks the key domain again at session start. Test both.
 
-## Adapt the portal snippet
+## Use the quickstart tag
 
-1. Add `data-garment-image-urls`, as in the quickstart.
-2. Set `data-journey="tryon"` and `data-trigger-mode="widget"`.
+Start from the tag in the [quickstart](/start/quickstart). Keep these attributes:
+
+- `data-garment-image-urls`
+- `data-journey="tryon"` and `data-trigger-mode="widget"`
 
 This guide requires the image attribute, not the loader: without any image attribute, the embed mounts with no page photo. Use one installation per container. For another environment, change the widget origin, `data-api-base` and the key together.
 
