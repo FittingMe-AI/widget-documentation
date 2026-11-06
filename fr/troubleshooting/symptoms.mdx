@@ -28,7 +28,7 @@ console.table({
 });
 ```
 
-`undefined` signifie aucune intégration active, `ineligible` aucun parcours et `indeterminate` une disponibilité inconnue. Certaines catégories ne proposent jamais l’essayage ; consultez [Quand l’essayage est indisponible](/fr/integration/products#quand-l’essayage-est-indisponible).
+`undefined` signifie qu’aucune intégration n’est active, `ineligible` qu’il n’y a aucun parcours et `indeterminate` que la disponibilité est inconnue. Certaines catégories ne proposent jamais l’essayage ; consultez [Quand l’essayage est indisponible](/fr/integration/products#quand-l’essayage-est-indisponible).
 
 En mode déclencheur `host`, FittingMe n’affiche aucun bouton : affichez le vôtre.
 
@@ -57,9 +57,9 @@ Un ancêtre avec `transform` ou `filter` casse l’iframe à position fixe. Un `
 ## Le bouton personnalisé ne fait rien
 
 - Activez le bouton après `bootstrap` avec `outcome === 'eligible'`.
-- Transmettez l’élément conteneur à `open()`, pas son identifiant.
+- Transmettez l’élément conteneur à `open()`, et non son identifiant.
 - Lisez le [verdict de commande](/fr/reference/javascript#verdicts-des-commandes) renvoyé.
-- Attendez `opened`. `accepted` seul ne prouve pas que le panneau s’est affiché.
+- Attendez `opened`, car `accepted` seul ne prouve pas que le panneau s’est affiché.
 
 ## La navigation produit crée des doublons ou bloque le défilement
 
@@ -71,7 +71,16 @@ Reproduisez le problème avec un réseau lent et une navigation rapide, puis con
 
 ## Une photo est refusée
 
-Si le fournisseur refuse la photo après Lancer l’essayage, le panneau propose de changer de photo ou de revenir au produit. Consultez les [erreurs et le rétablissement](/fr/reference/errors#refus-de-photo-et-défaillance-du-service).
+| Ce que voit l’acheteur | Signification et prochaine action |
+| --- | --- |
+| Refus avant Lancer l’essayage | La photo ne montre aucune personne, montre un jeune enfant clairement identifié ou une nudité explicite, ou le modèle a bloqué la lecture. Choisissez une autre photo ; l’aperçu ne propose pas Lancer l’essayage. |
+| Conseil sur plusieurs personnes, le cadrage, le flou ou l’obscurité | Essayez avec cette photo ou choisissez-en une autre. Avec plusieurs personnes, le conseil ne dit pas qui sera habillé. |
+| Aucun message après une lecture trop lente ou indisponible | Le parcours continue. Cela ne certifie pas la photo. |
+| Refus après Lancer l’essayage | Changez de photo ou revenez au produit. |
+
+Lors du transfert, le refus apparaît sur le téléphone et le panneau sur ordinateur suit.
+
+Le widget gère ces contrôles. Ne recréez pas ces vérifications dans votre boutique. Consultez les [erreurs et le rétablissement](/fr/reference/errors#refus-de-photo-et-défaillance-du-service).
 
 ## Le transfert de photo ou la génération n’aboutit pas
 

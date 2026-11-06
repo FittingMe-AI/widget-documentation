@@ -12,7 +12,7 @@ description: "Transmettez les événements de page à vos outils analytiques."
 | Un acheteur a-t-il ouvert l’essayage ? | `opened`. |
 | Le panneau s’est-il fermé ? | `closed`. |
 | S’est-il fermé sur un résultat terminé ? | [`completed`](/fr/reference/events#la-complétion-n’est-pas-une-conversion), après `closed`. |
-| Combien de rendus ont été affichés ? | Valeurs distinctes de `try_on_reference` des événements `tryon_result_revealed`. [Indicatif, jamais une facture](/fr/reference/events#rendus-d’essayage-affichés). |
+| Combien de rendus ont été affichés ? | Les valeurs distinctes de `try_on_reference` dans les événements `tryon_result_revealed`. [Indicatif, jamais une facture](/fr/reference/events#rendus-d’essayage-affichés). |
 | L’acheteur a-t-il acheté ? | Vos propres événements de panier et de commande. |
 
 Un `bootstrap` rejoué n’est pas une visite d’acheteur.
@@ -74,11 +74,11 @@ N’envoyez jamais l’élément DOM, la clé d’enseigne, l’URL complète de
 
 ## Vérifier les mesures
 
-1. Refusez le consentement et terminez un parcours. Résultat attendu : aucun enregistrement.
+1. Refusez le consentement et terminez un parcours. Aucun enregistrement n’est attendu.
 2. Donnez le consentement et terminez un nouveau parcours.
-3. Fermez le panneau : attendez `closed`, puis `completed`, avec votre produit. Rouvrez et refermez : rien n’est attendu.
-4. Gardez le panneau ouvert sur un rendu. Attendez un `fittingme_tryon_result_revealed` avec une `try_on_reference` de 32 caractères.
-5. Relancez l’essayage. Attendez une nouvelle référence.
-6. Rouvrez, puis rechargez la page sur ce rendu. Résultat attendu : aucun enregistrement.
-7. Rechargez et fermez un résultat terminé : attendez une complétion, pas un nouvel essayage. Fermez pendant la génération, puis rouvrez : attendez un enregistrement. Abonnez-vous tard : aucun enregistrement n’est attendu.
+3. Fermez le panneau et attendez `closed`, puis `completed`, avec votre produit. Rouvrez et refermez : rien n’est attendu.
+4. Gardez le panneau ouvert sur un rendu et attendez un `fittingme_tryon_result_revealed` avec une `try_on_reference` de 32 caractères.
+5. Relancez l’essayage et attendez une nouvelle référence.
+6. Rouvrez, puis rechargez la page sur ce rendu. Aucun enregistrement n’est attendu.
+7. Rechargez et fermez un résultat terminé : attendez une complétion et non un nouvel essayage. Fermez pendant la génération, puis rouvrez et attendez un enregistrement. Abonnez-vous tard : aucun enregistrement n’est attendu.
 8. Comparez les achats avec vos événements de commande. Une complétion n’est jamais une conversion.
