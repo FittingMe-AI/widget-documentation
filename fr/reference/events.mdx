@@ -4,19 +4,19 @@ sidebarTitle: "Événements et données"
 description: "Les cinq événements de page et leurs champs."
 ---
 
-Abonnez-vous avec `window.FittingMe.on(handler)`. Les faits côté serveur sont des [Événements Livrés](/fr/reference/delivered-events), pas des événements de page.
+Abonnez-vous avec `window.FittingMe.on(handler)`. Les faits côté serveur sont des [Événements Livrés](/fr/reference/delivered-events) et non des événements de page.
 
 ## Catalogue des événements
 
 | `type` | Champs supplémentaires | Signification | Rejoué à un nouvel abonné ? |
 | --- | --- | --- | --- |
-| `bootstrap` | `outcome` ; `transport_code` facultatif | Dernier résultat d’amorçage. | Oui, pour chaque intégration dont le résultat est connu. |
+| `bootstrap` | `outcome` ; `transport_code` facultatif | Il indique le dernier résultat d’amorçage. | Oui, pour chaque intégration dont le résultat est connu. |
 | `opened` | `origin` : `tap` ou `command` | Le panneau s’est ouvert. | Non. |
 | `closed` | Aucun | Le panneau s’est fermé. | Non. |
 | `completed` | Aucun | Le panneau s’est fermé sur un résultat terminé. | Non. |
-| `tryon_result_revealed` | `try_on_reference` | Premier affichage d’un rendu d’essayage. Loaders `/v4` et `/v5` uniquement. | Non. |
+| `tryon_result_revealed` | `try_on_reference` | Il signale le premier affichage d’un rendu d’essayage, pour les loaders `/v4` et `/v5` uniquement. | Non. |
 
-Chaque événement contient `type` et `embed`, l’élément conteneur. Aucun événement ne contient d’horodatage, ni d’identifiant de produit, de session ou de commande. Traitez chaque événement selon `type` et ignorez les types inconnus.
+Chaque événement contient `type` et `embed`, qui correspond à l’élément conteneur. Aucun événement ne contient d’horodatage, ni d’identifiant de produit, de session ou de commande. Traitez chaque événement selon son `type` et ignorez les types inconnus.
 
 ## Résultat de l’amorçage
 
@@ -26,7 +26,7 @@ Chaque événement contient `type` et `embed`, l’élément conteneur. Aucun é
 | `ineligible` | L’intégration n’a aucun parcours pour ce produit. |
 | `indeterminate` | L’amorçage n’a pas pu décider. Le produit n’est pas inéligible. |
 
-Sur `indeterminate`, `transport_code` vaut `network`, `timeout` ou un code de statut HTTP sous forme de chaîne. Utilisez-le uniquement pour le diagnostic.
+Pour `indeterminate`, `transport_code` vaut `network`, `timeout` ou un code de statut HTTP sous forme de chaîne. Utilisez-le uniquement pour le diagnostic.
 
 ## Origine de l’ouverture
 
@@ -38,14 +38,14 @@ Abonnez-vous avant que l’acheteur puisse interagir, et filtrez sur `embed`. Un
 
 ## La complétion n’est pas une conversion
 
-Le widget envoie `completed` quand le panneau se ferme sur un résultat terminé, après `closed`. L’affichage seul d’un résultat n’envoie rien. Un rechargement peut l’envoyer de nouveau pour le même résultat. Si vous retirez l’intégration ou vous désabonnez sur `closed`, vous pouvez perdre `completed`.
+Le widget envoie `completed` quand le panneau se ferme sur un résultat terminé, après `closed`. L’affichage seul d’un résultat n’envoie rien. Un rechargement peut l’envoyer de nouveau pour le même résultat. Si vous retirez l’intégration ou que vous vous désabonnez sur `closed`, vous pouvez perdre `completed`.
 
 ## Rendus d’essayage affichés
 
-Le widget envoie `tryon_result_revealed` uniquement au premier affichage d’un rendu. Un rendu ouvert depuis les essayages enregistrés n’envoie rien. Un rendu terminé pendant que le panneau est fermé compte à la réouverture du panneau. Une relance est un nouvel essayage avec une nouvelle référence.
+Le widget envoie `tryon_result_revealed` uniquement au premier affichage d’un rendu. Un rendu ouvert depuis les essayages enregistrés n’envoie rien. Un rendu terminé pendant que le panneau est fermé est pris en compte à la réouverture du panneau. Une relance est un nouvel essayage avec une nouvelle référence.
 
 `try_on_reference` compte 32 caractères hexadécimaux minuscules. Elle correspond à la colonne `try_on_reference` des Événements Livrés. Si Web Crypto refuse de calculer la référence, le widget écrit une ligne dans la console et n’envoie aucun événement.
 
 ### Indicatif, pas une facture
 
-Cet événement est indicatif, jamais une facture. Une page manque des événements quand le consentement est refusé, quand elle s’abonne tard ou quand l’acheteur part.
+Cet événement est indicatif et n’est jamais une facture. Une page manque des événements quand le consentement est refusé, quand elle s’abonne tard ou quand l’acheteur part.

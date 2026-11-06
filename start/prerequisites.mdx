@@ -20,9 +20,9 @@ description: "Gather access, domains and product inputs."
 1. Ask an Admin or FittingMe for an invitation to the [Retailer Portal](https://app.fittingme.ai).
 2. Accept the invitation. Set up the authenticator. Never share Admin codes.
 3. Select the retailer account. The next steps need the Admin role. If you cannot manage keys, ask an Admin.
-4. The portal labels are in French. Open **Clés d'environnement**. Select **Créer une clé**.
+4. The portal labels are in French. Open **Clés d'environnement** and select **Créer une clé**.
 5. Name the key after its use.
-6. Enter bare hostnames, without `https://`, port or path.
+6. Enter bare hostnames, without `https://`, a port or a path.
 7. Create the key. Copy the full value: the portal shows it once.
 8. Store it in your approved configuration. Use it as `data-retailer-key`.
 
@@ -30,8 +30,8 @@ The key is visible in the browser.
 
 ## Configure domains
 
-- List exact hostnames, `www` included.
-- Write a wildcard as `*.example.com`. List `example.com` separately.
+- List exact hostnames, including `www`.
+- Write a wildcard as `*.example.com`, and list `example.com` separately.
 - Give a key 1 to 20 domains.
 - Put `localhost` alone on a local-development key.
 - Serve a local page at `http://localhost:PORT`. `127.0.0.1` is a different hostname.
@@ -56,7 +56,7 @@ This guide requires the image attribute, not the loader: without any image attri
 The integration needs JavaScript, iframes, cross-origin messaging, browser history and HTTPS. Your [security policy](/testing/security) must allow the script and frame.
 
 - Test Chromium, Firefox, Safari/WebKit and your audience's phones.
-- Confirm old browsers and webviews with FittingMe. No minimum-version list exists.
+- Confirm old browsers and webviews with FittingMe. There is no minimum-version list.
 - Let the iframe grow beyond its closed size. Do not hard-code its height.
 - Avoid ancestors that create a fixed-position containing block. The drawer then [refuses to open](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open), and a console message names the ancestor.
 - Test narrow, short, zoomed, landscape and overlay views.

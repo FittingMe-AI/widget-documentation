@@ -13,18 +13,18 @@ description: "Protégez les identifiants, les photos et les données analytiques
 | Identifiants de service | Jamais dans le code de la boutique |
 | Liens de capture, URL d’images privées | Le parcours uniquement, jamais l’analytique |
 
-Utilisez des clés distinctes en local et en production. Une clé locale a `localhost` pour seul domaine.
+Utilisez des clés distinctes en local et en production. Une clé locale a pour seul domaine `localhost`.
 
 ## Autoriser le loader et l’iframe
 
-Avec une Content Security Policy, ajoutez ces lignes :
+Dans une Content Security Policy, ajoutez ces lignes :
 
 ```text
 script-src https://widget.fittingme.ai
 frame-src https://widget.fittingme.ai
 ```
 
-Ajoutez ces sources à vos directives `script-src` et `frame-src` existantes. Ce n’est pas un en-tête complet. Vous n’avez pas besoin de `unsafe-inline`.
+Ajoutez ces sources à vos directives `script-src` et `frame-src` existantes. Il ne s’agit pas d’un en-tête complet et vous n’avez pas besoin de `unsafe-inline`.
 
 ## Confirmer les trois contrôles d’accès indépendants
 
@@ -34,12 +34,12 @@ Ajoutez ces sources à vos directives `script-src` et `frame-src` existantes. Ce
 
 ## Préserver l’isolation de l’iframe
 
-N’enveloppez pas l’iframe et ne modifiez pas son bac à sable. Le loader vérifie la source de chaque message. N’envoyez jamais de messages à `*`. Utilisez des URL d’image du vêtement en HTTPS.
+N’enveloppez pas l’iframe et ne modifiez pas son bac à sable. Le loader vérifie la source de chaque message. N’envoyez jamais de messages à `*`. Utilisez des URL en HTTPS pour l’image du vêtement.
 
 ## Cartographier les données de l’acheteur
 
-Les événements du loader n’exposent ni la photo ni le résultat. Le consentement à la génération n’est pas le consentement analytique.
+Les événements du loader n’exposent ni la photo ni le résultat. Le consentement à la génération ne vaut pas pour l’analytique.
 
 ## Avant le lancement
 
-Vérifiez que l’analytique exclut les données privées. Testez avec la CSP et le gestionnaire de consentement de production.
+Vérifiez que l’analytique exclut les données privées. Faites vos tests avec la CSP et le gestionnaire de consentement de production.

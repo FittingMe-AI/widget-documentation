@@ -11,8 +11,8 @@ Pour chaque essai, consignez la version, le nom d’hôte, le navigateur, l’ap
 | Action | Résultat attendu |
 | --- | --- |
 | Ouvrir une fiche produit | Une intégration se monte. |
-| Ouvrir l’essayage | Le panneau s’ouvre ; la page reste immobile. |
-| Accepter le consentement | L’étape photo s’ouvre. |
+| Ouvrir l’essayage | Le panneau s’ouvre et la page reste immobile. |
+| Accepter le consentement | L’étape photo s’affiche. |
 | Ajouter une photo de test | Le parcours l’accepte ou affiche une erreur. |
 | Lancer la génération | Un résultat ou un échec récupérable s’affiche. |
 | Examiner le résultat | Il montre le vêtement sélectionné. |
@@ -21,9 +21,9 @@ Pour chaque essai, consignez la version, le nom d’hôte, le navigateur, l’ap
 
 ## Vérifier le transfert de l’ordinateur au téléphone
 
-Faites-le seulement si votre intégration d’essayage définit `data-qr-code="true"`.
+Faites ce test seulement si votre intégration d’essayage définit `data-qr-code="true"`.
 
-1. Affichez le QR code sur ordinateur.
+1. Affichez le QR code sur l’ordinateur.
 2. Scannez-le avec un téléphone, ou ouvrez son URL dans un autre contexte de navigateur.
 3. Terminez l’étape photo. L’ordinateur reprend le parcours.
 4. Annulez, puis recommencez. L’ancienne et la nouvelle tentative ne se mélangent pas.
@@ -34,7 +34,7 @@ Un contexte de navigateur distinct ne teste pas un téléphone physique.
 
 | Cas | Résultat attendu |
 | --- | --- |
-| Clé révoquée | HTTP 401. Le widget peut rester invisible. |
+| Clé révoquée | Une erreur HTTP 401 est renvoyée. Le widget peut rester invisible. |
 | Origine sans autorisation d’encadrement | Le navigateur bloque l’iframe. |
 | Origine absente des domaines de la clé | L’ouverture échoue avec `origin_not_allowed`. |
 | Image du vêtement inutilisable | FittingMe utilise l’image du catalogue si le produit en a une. Sinon, l’essayage échoue après Lancer l’essayage. |
@@ -50,4 +50,4 @@ Utilisez des clés jetables pour les tests de révocation. Ne créez pas de cont
 
 ## Vérifier la mise en page et l’accessibilité
 
-Testez les largeurs de téléphone et d’ordinateur, le clavier, la touche Échap et le zoom à 200 %. Vérifiez que le bouton Précédent du navigateur ferme le panneau pour chaque méthode d’ouverture livrée. Pour les changements de produit, consultez [Boutiques monopages et dynamiques](/fr/integration/react).
+Testez les largeurs de téléphone et d’ordinateur, la navigation au clavier, la touche Échap et le zoom à 200 %. Vérifiez que le bouton Précédent du navigateur ferme le panneau pour chaque méthode d’ouverture livrée. Pour les changements de produit, consultez [Boutiques monopages et dynamiques](/fr/integration/react).

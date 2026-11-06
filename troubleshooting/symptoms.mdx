@@ -10,8 +10,8 @@ Do not share keys, photos or capture links.
 
 1. In Network, find `fittingme-loader.js`. If it is missing, check the URL and CSP.
 2. Create the container before the script, outside hidden or unmounted components.
-3. Read the console for an unknown `data-*` attribute or malformed `data-garment-image-urls`. Some console messages are in French.
-4. If both image attributes are set, the plural attribute wins. It needs the `/v5/` loader.
+3. Read the console for an unknown `data-*` attribute or a malformed `data-garment-image-urls`. Some console messages are in French.
+4. If both image attributes are set, the plural attribute takes priority. It needs the `/v5/` loader.
 5. If the console shows a `frame-ancestors` refusal, ask FittingMe to approve your origin.
 6. Inspect the state:
 
@@ -27,7 +27,7 @@ console.table({
 });
 ```
 
-`undefined` means no live embed, `ineligible` means no journey and `indeterminate` means unknown availability. Some categories never offer try-on; see [when try-on is unavailable](/integration/products#when-try-on-is-unavailable).
+`undefined` means there is no live embed, `ineligible` means there is no journey, and `indeterminate` means availability is unknown. Some categories never offer try-on; see [when try-on is unavailable](/integration/products#when-try-on-is-unavailable).
 
 In `host` trigger mode, FittingMe shows no button, so render your own.
 
@@ -35,7 +35,7 @@ In `host` trigger mode, FittingMe shows no button, so render your own.
 
 1. Check that the key matches the retailer and environment.
 2. Check that the key is not revoked.
-3. Compare the hostname with the key's domains, `www` included.
+3. Compare the hostname with the key's domains, including `www`.
 4. For local tests, use a `localhost` key on an HTTP `localhost` URL.
 5. If access is forbidden with a valid key, ask FittingMe to check the entitlement.
 
@@ -47,7 +47,7 @@ FittingMe's servers fetch the image without cookies or sign-in. It must be JPEG 
 
 ## The wrong garment appears
 
-An attribute edit after the script runs does not update the iframe. On a product or colour change, close and [replace the embed](/integration/react). If the page attributes are right, ask FittingMe to check the product-to-image mapping.
+Editing an attribute after the script runs does not update the iframe. On a product or colour change, close and [replace the embed](/integration/react). If the page attributes are right, ask FittingMe to check the product-to-image mapping.
 
 ## The drawer is clipped or refuses to open
 
