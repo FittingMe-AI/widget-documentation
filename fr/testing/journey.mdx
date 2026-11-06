@@ -11,19 +11,21 @@ Pour chaque essai, consignez la version, le nom d’hôte, le navigateur, l’ap
 | Action | Résultat attendu |
 | --- | --- |
 | Ouvrir une fiche produit | Une intégration se monte. |
-| Ouvrir l’essayage | Le panneau s’ouvre ; la page reste immobile. |
-| Accepter le consentement | L’étape photo s’ouvre. |
+| Ouvrir l’essayage | Le panneau s’ouvre et la page reste immobile. |
+| Accepter le consentement | L’étape photo s’affiche. |
 | Ajouter une photo de test | Le parcours l’accepte ou affiche une erreur. |
 | Lancer la génération | Un résultat ou un échec récupérable s’affiche. |
 | Examiner le résultat | Il montre le vêtement sélectionné. |
 | Fermer | Le défilement et le focus reviennent. |
 | Rouvrir | Le parcours reprend ou redémarre. |
 
+FittingMe exécute Cloudflare Turnstile dans l’iframe du widget. Cloudflare peut afficher une case à cocher dans le panneau.
+
 ## Vérifier le transfert de l’ordinateur au téléphone
 
-Faites-le seulement si votre intégration d’essayage définit `data-qr-code="true"`.
+Faites ce test seulement si votre intégration d’essayage définit `data-qr-code="true"`.
 
-1. Affichez le QR code sur ordinateur.
+1. Affichez le QR code sur l’ordinateur.
 2. Scannez-le avec un téléphone, ou ouvrez son URL dans un autre contexte de navigateur.
 3. Terminez l’étape photo. L’ordinateur reprend le parcours.
 4. Annulez, puis recommencez. L’ancienne et la nouvelle tentative ne se mélangent pas.
@@ -34,19 +36,20 @@ Un contexte de navigateur distinct ne teste pas un téléphone physique.
 
 | Cas | Résultat attendu |
 | --- | --- |
-| Clé révoquée | HTTP 401. Le widget peut rester invisible. |
-| Origine sans autorisation d’encadrement | Le navigateur bloque l’iframe. |
-| Origine absente des domaines de la clé | L’ouverture échoue avec `origin_not_allowed`. |
+| Clé révoquée | Le navigateur bloque l’iframe. La console affiche un refus `frame-ancestors`. |
+| Page absente des domaines de la clé | Le navigateur bloque l’iframe. La console affiche un refus `frame-ancestors`. |
+| Hôte d’images absent de la clé | FittingMe ignore les photos de la page. Un produit du catalogue garde ses images du catalogue ; un produit que FittingMe ne connaît pas n’affiche pas de bouton d’essayage. |
 | Image du vêtement inutilisable | FittingMe utilise l’image du catalogue si le produit en a une. Sinon, l’essayage échoue après Lancer l’essayage. |
 | Produit non activé | Votre déclencheur reste indisponible. |
 | Script bloqué | Le panier et le paiement fonctionnent. |
 | Annulation pendant la génération | Le panneau propose une étape suivante. |
 | Double-clic | Un seul panneau s’ouvre. |
 | Changement de couleur | Le nouveau vêtement s’affiche. |
+| Photo sans personne, par exemple une photo de produit | Le panneau donne la raison et propose de choisir une autre photo, sans Lancer l’essayage. |
 | Refus du fournisseur après Lancer l’essayage | Les actions pour changer de photo et revenir au produit s’affichent. |
 
 Utilisez des clés jetables pour les tests de révocation. Ne créez pas de contenu dangereux pour provoquer un refus.
 
 ## Vérifier la mise en page et l’accessibilité
 
-Testez les largeurs de téléphone et d’ordinateur, le clavier, la touche Échap et le zoom à 200 %. Vérifiez que le bouton Précédent du navigateur ferme le panneau pour chaque méthode d’ouverture livrée. Pour les changements de produit, consultez [Boutiques monopages et dynamiques](/fr/integration/react).
+Testez les largeurs de téléphone et d’ordinateur, la navigation au clavier, la touche Échap et le zoom à 200 %. Vérifiez que le bouton Précédent du navigateur ferme le panneau pour chaque méthode d’ouverture livrée. Pour les changements de produit, consultez [Boutiques monopages et dynamiques](/fr/integration/react).

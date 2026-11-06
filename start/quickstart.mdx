@@ -14,11 +14,11 @@ Complete the [prerequisites](/start/prerequisites).
 | `YOUR_PRODUCT_ID` | The product identifier. |
 | `https://images.example.com/YOUR_GARMENT.jpg` | A public HTTPS image URL, in both places. |
 
-FittingMe must approve your origin for framing. Use a direct image URL that meets the [image requirements](/integration/products#image-url-requirements). In HTML, write `&` as `&amp;`.
+Serve the page from a hostname on the key's domains. Ask FittingMe to list the image's host on the key's image hosts: without it, FittingMe ignores the page photo. Use a direct image URL that meets the [image requirements](/integration/products#image-url-requirements). In HTML, write `&` as `&amp;`.
 
 ## 2. Add the page
 
-Save it as `try-on.html`.
+Save the page as `try-on.html`.
 
 ```html
 <!doctype html>
@@ -60,7 +60,7 @@ For several views, put the front view first:
 data-garment-image-urls='["https://images.example.com/FRONT.jpg","https://images.example.com/BACK.jpg"]'
 ```
 
-Serve it from an allowed hostname. With a `localhost` key, run:
+Serve the page from a hostname on the key. With a local-only key that lists only `localhost`, run:
 
 ```bash
 python3 -m http.server 8080 --bind 127.0.0.1
@@ -82,7 +82,7 @@ Success: the **correct garment appears in a completed result**, and the shopper 
 
 | Observation | First check |
 | --- | --- |
-| No button | Container order, rejected attributes or `frame-ancestors` in the console. |
+| No button | Container order, rejected attributes, `frame-ancestors` in the console, the key's domains and image hosts. |
 | Try-on fails | Image type, size, redirects and access without sign-in. |
 | Access failure | Key, environment, hostnames and try-on access. |
 | Drawer clipped or opening refused | [Ancestor transforms](/troubleshooting/symptoms#the-drawer-is-clipped-or-refuses-to-open). |

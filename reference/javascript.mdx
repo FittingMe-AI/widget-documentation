@@ -36,14 +36,14 @@ const container = document.getElementById('fittingme-widget-container');
 | `destroy(element)` | Verdict | Removes a closed embed. |
 | `on(handler)` | Unsubscribe function | Subscribes to all embeds. Filter on `event.embed`. |
 
-Commands return synchronously. `accepted` is not the result: watch the events. An `open` before bootstrap is refused, not queued. While the drawer is open, `close` then `destroy` at once returns `drawer_open` ([close before replacing](/integration/react#close-before-replacing)). `get()` is an older call form: use the element commands.
+Commands return synchronously. An `accepted` verdict is not the result; watch the events. Calling `open` before bootstrap is refused, not queued. While the drawer is open, calling `close` and then `destroy` at once returns `drawer_open` ([close before replacing](/integration/react#close-before-replacing)). The `get()` method is an older call form; use the element commands instead.
 
 ## Correlation identifier
 
 `window.FittingMe.setCorrelationId(id)` sets the [Delivered Events](/reference/delivered-events#join-your-own-analytics) join value for all embeds on the page.
 
 - Pass 1 to 128 characters that do not start with `FM_`. Pass `""`, `null` or `undefined` to clear it.
-- The last value wins, from this method or [`data-correlation-id`](/reference/configuration#optional-attributes).
+- The last value set from this method or [`data-correlation-id`](/reference/configuration#optional-attributes) is used.
 - An embed takes the value when its drawer opens.
 - A refused value logs one warning and clears the identifier.
 - Never put a personal identifier, such as an email address, in it.
@@ -90,4 +90,4 @@ const unsubscribe = fm.on(event => {
 unsubscribe();
 ```
 
-On subscribe, the loader replays the last bootstrap outcome. It does not replay other events. The replay runs inside `on()`. Initialise your values before you call `on()`. Do not call the returned function from the replayed handler.
+When you subscribe, the loader replays the last bootstrap outcome. It does not replay other events. The replay runs inside `on()`. Initialise your values before you call `on()`. Do not call the returned function from the replayed handler.

@@ -36,7 +36,7 @@ Montez React dans `try-on-react-root`. Ne laissez jamais React afficher ou suppr
 
 ## Observer l’état depuis React
 
-L’effet gère uniquement son abonnement et ses minuteries. N’appelez ni `close()` ni `destroy()` dans son nettoyage. Le délai de 15 secondes est votre choix.
+L’effet gère uniquement son abonnement et ses minuteries. N’appelez ni `close()` ni `destroy()` dans son nettoyage. Le choix de ce délai de 15 secondes vous appartient.
 
 ```jsx
 'use client';
@@ -91,9 +91,9 @@ export function TryOnStatus() {
 
 ## Changer de produit en rechargeant la page
 
-- Autre produit ou autre image de couleur : chargez sa page.
-- Autre taille, même image : gardez l’intégration.
-- Autre contenu de la page : gardez l’intégration.
+- Si le produit ou l’image de couleur change, chargez sa page.
+- Si la taille change avec la même image, gardez l’intégration.
+- Si un autre contenu de la page change, gardez l’intégration.
 
 Désactivez l’interception du routeur sur les liens produit. Le loader n’a pas de méthode pour changer le produit ou la taille. Modifier les attributs du script ou transmettre une variante à `open()` ne change pas le vêtement.
 
@@ -106,7 +106,7 @@ Pour remplacer une intégration sans recharger la page, gardez son conteneur jus
 3. Attendez `closed` avec un délai maximal. Si le délai expire, gardez l’intégration et proposez de recharger la page.
 4. Appelez `destroy(container)`. Supprimez le conteneur seulement après le retour de `accepted`.
 
-Pendant que le panneau est ouvert, appeler `close()` puis `destroy()` immédiatement renvoie `drawer_open`. Supprimer alors le conteneur peut bloquer le défilement de la page. `closed` et `completed` sont des messages distincts. Un `destroy` ou un désabonnement dans le gestionnaire de `closed`, ou juste après une promesse que ce gestionnaire résout, peut perdre `completed`. Aucune séquence de fermeture puis de destruction n’est sûre de le conserver. Consultez les [limites de complétion](/fr/reference/events#la-complétion-n’est-pas-une-conversion).
+Pendant que le panneau est ouvert, appeler `close()` puis immédiatement `destroy()` renvoie `drawer_open`. Supprimer le conteneur à ce moment-là peut bloquer le défilement de la page. `closed` et `completed` sont des messages distincts. Un appel à `destroy` ou un désabonnement dans le gestionnaire de `closed`, ou juste après une promesse que ce gestionnaire résout, peut faire perdre `completed`. Aucune séquence de fermeture puis de destruction ne garantit de le conserver. Consultez les [limites de complétion](/fr/reference/events#la-complétion-n’est-pas-une-conversion).
 
 ## Plusieurs intégrations sur une page
 
@@ -141,6 +141,6 @@ Un seul panneau s’ouvre à la fois. Le loader ignore un deuxième script dans 
 
 - Montez, démontez et remontez le composant d’état avant l’arrivée du loader.
 - Vérifiez que le mode Strict et la version de production affichent un seul widget.
-- Ouvrez le panneau, démontez le composant et fermez le panneau. Le défilement de la page revient.
+- Ouvrez le panneau, démontez le composant et fermez le panneau. Le défilement de la page est rétabli.
 - Suivez un lien produit. Le rechargement complet affiche le bon produit.
 - Bloquez le loader. Le composant d’état cesse d’attendre après son délai.

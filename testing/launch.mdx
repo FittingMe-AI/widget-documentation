@@ -10,8 +10,9 @@ Give each open item an owner.
 
 - [ ] Production access includes try-on.
 - [ ] The key matches the retailer and environment.
-- [ ] The key authorises every production hostname, `www` included.
-- [ ] FittingMe approved framing for every production origin.
+- [ ] The key authorises every production hostname, including `www`.
+- [ ] The key's domains list every page that frames the widget, parent frames included.
+- [ ] FittingMe listed every production garment image host on the key.
 - [ ] No `localhost` key or placeholder remains.
 - [ ] Garment images meet the [image URL requirements](/integration/products#image-url-requirements).
 - [ ] The production CSP allows the loader and iframe.
@@ -20,7 +21,7 @@ Give each open item an owner.
 
 - [ ] A complete try-on works on representative products.
 - [ ] If you set `data-qr-code="true"`, the phone handoff works on real devices.
-- [ ] Close and reopen restore scrolling and focus.
+- [ ] Closing and reopening restore scrolling and focus.
 - [ ] Back closes the drawer for each opening method you ship.
 - [ ] Product changes and SPA navigation work.
 - [ ] Failures and retries leave shopping usable.

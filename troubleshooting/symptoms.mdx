@@ -10,10 +10,11 @@ Do not share keys, photos or capture links.
 
 1. In Network, find `fittingme-loader.js`. If it is missing, check the URL and CSP.
 2. Create the container before the script, outside hidden or unmounted components.
-3. Read the console for an unknown `data-*` attribute or malformed `data-garment-image-urls`. Some console messages are in French.
-4. If both image attributes are set, the plural attribute wins. It needs the `/v5/` loader.
-5. If the console shows a `frame-ancestors` refusal, ask FittingMe to approve your origin.
-6. Inspect the state:
+3. Read the console for an unknown `data-*` attribute or a malformed `data-garment-image-urls`. Some console messages are in French.
+4. If both image attributes are set, the plural attribute takes priority. It needs the `/v5/` loader.
+5. If the console shows a `frame-ancestors` refusal, first check that the key is the full, active key of this environment. Then check that the page's hostname and the hostname of each parent frame are on the key's domains. Reload after a change. See [storefront framing](/start/prerequisites#check-storefront-framing).
+6. If FittingMe does not know the product, a page photo must be on one of the key's image hosts. Otherwise the bootstrap outcome is `ineligible` and no button shows.
+7. Inspect the state:
 
 ```javascript
 const container = document.getElementById('fittingme-widget-container');
@@ -27,7 +28,7 @@ console.table({
 });
 ```
 
-`undefined` means no live embed, `ineligible` means no journey and `indeterminate` means unknown availability. Some categories never offer try-on; see [when try-on is unavailable](/integration/products#when-try-on-is-unavailable).
+`undefined` means there is no live embed, `ineligible` means there is no journey, and `indeterminate` means availability is unknown. Some categories never offer try-on; see [when try-on is unavailable](/integration/products#when-try-on-is-unavailable).
 
 In `host` trigger mode, FittingMe shows no button, so render your own.
 
@@ -35,11 +36,11 @@ In `host` trigger mode, FittingMe shows no button, so render your own.
 
 1. Check that the key matches the retailer and environment.
 2. Check that the key is not revoked.
-3. Compare the hostname with the key's domains, `www` included.
-4. For local tests, use a `localhost` key on an HTTP `localhost` URL.
+3. Compare the hostname with the key's domains, including `www`.
+4. For local tests, use a local-only key that lists only `localhost`, on an HTTP `localhost` URL.
 5. If access is forbidden with a valid key, ask FittingMe to check the entitlement.
 
-The domain check runs when the session opens. See [error codes](/reference/errors).
+The browser checks the key's domains when the widget loads, and the API checks them again when the session opens. See [error codes](/reference/errors).
 
 ## The image works on the page but generation fails
 
@@ -47,7 +48,7 @@ FittingMe's servers fetch the image without cookies or sign-in. It must be JPEG 
 
 ## The wrong garment appears
 
-An attribute edit after the script runs does not update the iframe. On a product or colour change, close and [replace the embed](/integration/react). If the page attributes are right, ask FittingMe to check the product-to-image mapping.
+Editing an attribute after the script runs does not update the iframe. On a product or colour change, close and [replace the embed](/integration/react). If the page attributes are right, ask FittingMe to check the product-to-image mapping.
 
 ## The drawer is clipped or refuses to open
 
@@ -70,7 +71,16 @@ Reproduce with a slow network and rapid navigation, then see [single-page and dy
 
 ## A photo is refused
 
-If the provider refuses the photo after Start, the drawer offers to change the photo or return to the product. See [errors and recovery](/reference/errors#photo-refusal-and-service-failure).
+| Shopper sees | Meaning and next action |
+| --- | --- |
+| Refusal before Start | No person, a clearly young child, explicit nudity, or a reading blocked by the model. Choose another photo; the preview offers no Start. |
+| Advice about several people, framing, blur or darkness | Continue with this photo or choose another. With several people, the advice does not say who will be dressed. |
+| No message after a slow or unavailable reading | The journey continues. This does not certify the photo. |
+| Refusal after Start | Change the photo or return to the product. |
+
+During handoff, the refusal shows on the phone and the desktop drawer follows.
+
+The widget owns these controls. Do not recreate these checks in your storefront. See [errors and recovery](/reference/errors#photo-refusal-and-service-failure).
 
 ## Photo handoff or generation does not finish
 

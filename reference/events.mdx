@@ -30,7 +30,7 @@ On `indeterminate`, `transport_code` is `network`, `timeout` or an HTTP status s
 
 ## Opening origin
 
-`origin` is `tap` for the widget's entry point and `command` when your page calls the loader. A custom button that calls `open(container)` gives `command`.
+`origin` is `tap` for the widget's entry point and `command` when your page calls the loader. A custom button that calls `open(container)` sets the origin to `command`.
 
 ## Timing and ownership
 
@@ -38,14 +38,14 @@ Subscribe before the shopper can interact, and filter on `embed`. A late subscri
 
 ## Completion is not conversion
 
-The widget sends `completed` when the drawer closes on a completed result, after `closed`. A displayed result alone sends nothing. A reload can send it again for the same result. If you remove the embed or unsubscribe on `closed`, you can lose `completed`.
+The widget sends `completed` when the drawer closes on a completed result, after `closed`. A displayed result alone does not send an event. A reload can send it again for the same result. If you remove the embed or unsubscribe on `closed`, you can lose `completed`.
 
 ## Shown try-on renders
 
-The widget sends `tryon_result_revealed` at the first display of a render only. A render opened from saved try-ons sends nothing. A render that finishes while the drawer is closed counts when the drawer opens again. A re-run is a new try-on with a new reference.
+The widget sends `tryon_result_revealed` at the first display of a render only. A render opened from saved try-ons does not send an event. A render that finishes while the drawer is closed sends the event when the drawer opens again. A re-run is a new try-on with a new reference.
 
-`try_on_reference` is 32 lowercase hexadecimal characters. It matches the `try_on_reference` column of Delivered Events. Production datasets do not have that column yet. FittingMe tells you when it reaches your dataset. If Web Crypto refuses to compute the reference, the widget writes one console line and sends no event.
+`try_on_reference` is 32 lowercase hexadecimal characters. It matches the `try_on_reference` column of Delivered Events. If Web Crypto refuses to compute the reference, the widget writes one console line and sends no event.
 
 ### Indicative, not an invoice
 
-This event is indicative, never an invoice. A page misses events when consent is refused, when it subscribes late or when the shopper leaves.
+This event is indicative and is never an invoice. A page misses events when consent is refused, when it subscribes late or when the shopper leaves.

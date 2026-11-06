@@ -13,7 +13,7 @@ description: "Keep credentials, photos and analytics safe."
 | Service credentials | Never in storefront code |
 | Capture links, private image URLs | The journey only, never analytics |
 
-Use separate local and production keys. A local key has `localhost` as its only domain.
+Use separate local and production keys. A [local-only key](/start/prerequisites#use-a-local-only-key) lists only local entries, such as `localhost`. A key never mixes local entries and public hostnames.
 
 ## Allow the loader and frame
 
@@ -26,19 +26,21 @@ frame-src https://widget.fittingme.ai
 
 Add these sources to your existing `script-src` and `frame-src` directives. They are not a full header. You do not need `unsafe-inline`.
 
-## Confirm the three independent access checks
+FittingMe runs Cloudflare Turnstile inside the widget iframe to detect automated use of a key. You add nothing for it: no script and no CSP source. Cloudflare can show the shopper a checkbox inside the drawer.
+
+## Check your CSP, key domains and image hosts
 
 1. Make sure that your CSP allows the loader and frame.
-2. Ask FittingMe to [approve your origin for framing](/start/prerequisites#confirm-storefront-framing-approval).
-3. Add the storefront hostname to the key's domains.
+2. Add every page that frames the widget to the key's domains. The same list decides [storefront framing](/start/prerequisites#check-storefront-framing) and session opening.
+3. Ask FittingMe to list your garment image hosts on the key.
 
 ## Preserve the iframe boundary
 
-Do not wrap the iframe or change its sandbox. The loader checks the source of each message. Never post messages to `*`. Use HTTPS garment image URLs.
+Do not wrap the iframe or change its sandbox. The loader checks the source of each message. Never post messages to `*`. Use HTTPS for garment image URLs.
 
 ## Map the shopper data flow
 
-Loader events do not expose the photo or the result. Generation consent is not analytics consent.
+Loader events do not expose the photo or the result. Consent for generation is not consent for analytics.
 
 ## Before launch
 

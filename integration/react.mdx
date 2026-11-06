@@ -36,7 +36,7 @@ Mount React into `try-on-react-root`. Never let React render or remove the widge
 
 ## Observe state from React
 
-The effect owns only its subscription and timers. Do not call `close()` or `destroy()` in its cleanup. The 15-second deadline is your choice.
+The effect owns only its subscription and timers. Do not call `close()` or `destroy()` in its cleanup. The 15-second deadline is up to you.
 
 ```jsx
 'use client';
@@ -91,9 +91,9 @@ export function TryOnStatus() {
 
 ## Change products with a full page load
 
-- Another product or colour image: load its page.
-- Another size, same image: keep the embed.
-- Other page content: keep the embed.
+- For another product or colour image, load its page.
+- For another size with the same image, keep the embed.
+- For other page content, keep the embed.
 
 Disable router interception on product links. The loader has no product or size setter. Editing script attributes or passing a variant to `open()` does not change the garment.
 
@@ -106,7 +106,7 @@ To replace an embed without a page load, keep its container until step 4 succeed
 3. Wait for `closed` with a time limit. If the limit expires, keep the embed and offer a page reload.
 4. Call `destroy(container)`. Remove the container only after it returns `accepted`.
 
-While the drawer is open, calling `close()` then `destroy()` at once returns `drawer_open`. Removing the container then can lock page scrolling. `closed` and `completed` are separate messages. A `destroy` or unsubscribe in the `closed` handler, or right after a promise that handler resolves, can lose `completed`. No close-and-destroy sequence is sure to keep it. See the [completion limits](/reference/events#completion-is-not-conversion).
+While the drawer is open, calling `close()` and then `destroy()` at once returns `drawer_open`. Removing the container at that point can lock page scrolling. `closed` and `completed` are separate messages. Calling `destroy` or unsubscribing in the `closed` handler, or right after a promise that the handler resolves, can lose `completed`. No close-and-destroy sequence is sure to keep it. See the [completion limits](/reference/events#completion-is-not-conversion).
 
 ## Multiple embeds on one page
 

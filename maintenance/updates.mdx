@@ -17,13 +17,13 @@ The loader URL is stable and has no content hash. Do not keep a vendored or long
 
 ## Rotate a retailer key
 
-An Admin rotates keys in **Clés d'environnement** with **Faire tourner…**. The previous key stays valid until revocation. The new key shows once.
+An Admin rotates keys in **Clés d'environnement** with **Faire tourner…**. The previous key stays valid until it is revoked. The new key shows once.
 
 1. Store the new key safely.
 2. Replace the old value everywhere.
 3. Complete a try-on on each hostname.
 4. Wait for cached pages to expire.
-5. Revoke the previous key when no installation uses it. Revocation breaks every installation that still uses it.
+5. Revoke the previous key when no installation uses it. Revoking it breaks every installation that still uses it.
 
 Start only one rotation at a time in a key lineage.
 

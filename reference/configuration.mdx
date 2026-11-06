@@ -16,7 +16,7 @@ Load `https://widget.fittingme.ai/v5/fittingme-loader.js` once per embed, with i
 | `data-garment-image-urls` | One HTTPS URL or a JSON array of URLs of the same product and colour. |
 | `data-journey` | `tryon`. |
 
-A missing or blank value prevents mounting, except for `data-garment-image-urls`. Without an image attribute, the embed sends no page photo.
+A missing or blank value prevents the embed from mounting, except for `data-garment-image-urls`. Without an image attribute, the embed sends no page photo.
 
 ## Optional attributes
 
@@ -37,8 +37,8 @@ A missing or blank value prevents mounting, except for `data-garment-image-urls`
 - `data-garment-image-urls` needs the `/v5/` loader. On an older loader, the embed does not mount.
 - The plural value is a plain URL or a JSON array. The loader trims it, removes duplicates in order and skips invalid members.
 - Each URL uses HTTPS and has at most 1,024 characters.
-- If both image attributes are present, the loader logs a developer error. The plural wins, even when it is empty or invalid.
-- Catalogue photos come first. Page photos are the fallback.
+- If both image attributes are present, the loader logs a developer error. The loader uses the plural attribute, even when it is empty or invalid.
+- Catalogue photos come first, and page photos are the fallback.
 - An unknown locale falls back to French. Set `data-locale` explicitly.
 - `data-correlation-id` has 1 to 128 characters and does not start with `FM_`. The loader reads it as written. A refused value logs one warning, and the embed still mounts. To change it, call [`setCorrelationId(id)`](/reference/javascript#correlation-identifier).
 - A `data-qr-code` value other than `true`, `false` or empty logs an error, and no QR code shows.
@@ -48,4 +48,4 @@ Do not add `data-host-origin` or `data-loader-major`. Set `data-trigger-mode="wi
 
 ## Lifetime
 
-The loader reads the attributes once, when the script executes. Use one unique container per embed, before the script. To change products, see [single-page and dynamic storefronts](/integration/react).
+The loader reads the attributes once, when the script executes. Use one unique container per embed, placed before the script. To change products, see [single-page and dynamic storefronts](/integration/react).

@@ -14,11 +14,11 @@ Suivez d’abord les [prérequis](/fr/start/prerequisites).
 | `YOUR_PRODUCT_ID` | L’identifiant du produit. |
 | `https://images.example.com/YOUR_GARMENT.jpg` | Une URL d’image publique en HTTPS, aux deux endroits. |
 
-FittingMe doit approuver votre origine pour l’encadrement. Utilisez une URL d’image directe conforme aux [exigences pour l’image](/fr/integration/products#exigences-pour-l’url-de-l’image). En HTML, écrivez `&` sous la forme `&amp;`.
+Servez la page depuis un nom d’hôte qui figure parmi les domaines de la clé. Demandez à FittingMe d’inscrire l’hôte de l’image parmi les hôtes d’images de la clé : sans lui, FittingMe ignore la photo de la page. Utilisez une URL d’image directe conforme aux [exigences pour l’image](/fr/integration/products#exigences-pour-l’url-de-l’image). En HTML, écrivez `&` sous la forme `&amp;`.
 
 ## 2. Ajouter la page
 
-Enregistrez-la sous `try-on.html`.
+Enregistrez la page sous `try-on.html`.
 
 ```html
 <!doctype html>
@@ -60,7 +60,7 @@ Pour plusieurs vues, placez la vue de face en premier :
 data-garment-image-urls='["https://images.example.com/FRONT.jpg","https://images.example.com/BACK.jpg"]'
 ```
 
-Servez-la depuis un nom d’hôte autorisé. Avec une clé `localhost`, exécutez :
+Servez la page depuis un nom d’hôte de la clé. Avec une clé locale qui indique seulement `localhost`, exécutez :
 
 ```bash
 python3 -m http.server 8080 --bind 127.0.0.1
@@ -82,10 +82,10 @@ Réussite : **le bon vêtement apparaît dans un résultat terminé**, et l’ac
 
 | Observation | Premier point à vérifier |
 | --- | --- |
-| Aucun bouton | Ordre du conteneur, attributs refusés ou `frame-ancestors` dans la console. |
-| L’essayage échoue | Type, taille et redirections de l’image, accès sans connexion. |
-| Échec d’accès | Clé, environnement, noms d’hôte et accès à l’essayage. |
-| Panneau tronqué ou ouverture refusée | [Transformations des éléments parents](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir). |
+| Aucun bouton | Vérifiez l’ordre du conteneur, les attributs refusés, `frame-ancestors` dans la console, les domaines et les hôtes d’images de la clé. |
+| L’essayage échoue | Vérifiez le type, la taille et les redirections de l’image, et l’accès sans connexion. |
+| Échec d’accès | Vérifiez la clé, l’environnement, les noms d’hôte et l’accès à l’essayage. |
+| Panneau tronqué ou ouverture refusée | Vérifiez les [transformations des éléments parents](/fr/troubleshooting/symptoms#le-panneau-est-tronqué-ou-refuse-de-s’ouvrir). |
 
 ## Poursuivre l’intégration
 

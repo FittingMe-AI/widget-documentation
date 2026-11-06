@@ -1,3 +1,39 @@
+## Public key abuse S1: framing, image hosts, local-only keys, Turnstile (2026-11-03)
+
+Documentation updated: `start/prerequisites`, `start/quickstart`, `integration/products`,
+`testing/security`, `testing/journey`, `testing/launch`, `troubleshooting/symptoms`,
+`reference/errors` and `troubleshooting/support`, English and `fr/` (ticket public-key-abuse 08).
+The heading « Confirm storefront framing approval » became « Check storefront framing »
+(fr « Faire approuver l’encadrement de la boutique » → « Vérifier l’encadrement de la boutique »);
+`reference/errors`, `testing/security` and `troubleshooting/symptoms` link to the new anchor. New
+subsection « Use a local-only key » (fr « Utiliser une clé locale »).
+
+Selected revisions (origin/dev, read with `git show <sha>:<path>`, 2026-11-02T23:53Z): b2b
+`939de0cf`, widget `1514a492`, retailer-portal `03d2739f`; widget-documentation `a5c5b49`
+(origin/main). Published on the founder's instruction of 2026-11-06, ahead of the widget release.
+Measured that day: b2b `5edee480`, `6c53bb45`, `108cbbd4` and `393c52aa` are on origin/main; widget
+`6c4405e2`, `dd9ce9bd` and `a53794f5` are not on origin/main at `4f7776ed`. The production widget
+document (last modified 2026-10-31T18:21:37Z) still frames from the environment list and has no
+Cloudflare source in its CSP, so the framing and Turnstile statements do not hold in production
+until that release. The Turnstile paragraphs also need a production Turnstile site key: widget
+`infra/targets.json` leaves the production `turnstileSiteKey` empty until ticket 07 step a and
+ruling F1.
+
+| Claim family | Owning source |
+| --- | --- |
+| The key's domain list decides framing, read at each widget load; the same list governs session opening | b2b `backend/src/services/domain_rules.rs:408` (`effective_domains`), `:444` (`frame_ancestor_sources`); widget#557 `tests/browser/key-framing.spec.ts:91`, `:95`, `:102`; `tests/host/entry-policy.test.ts:110`, `:187` |
+| A public entry frames only from `https://` (port 443); a local entry from any port; `localhost` does not cover `127.0.0.1` | b2b `domain_rules.rs:444-475`, test `:944`; widget `key-framing.spec.ts:91`, `:95`, `:119` |
+| Unlisted page: blocked frame, `frame-ancestors` console line, no API body; API unreachable: no widget | widget `key-framing.spec.ts:95`, `:102`; `entry-policy.test.ts:177` (503, `'none'`); dev check `.agents/backlog/public-key-abuse/runs/04/20261026T082154Z/reports/qa-behavior-dev.md:7-33` |
+| Local entries (`localhost`, canonical IPv4 in 127/8, 10/8, 172.16/12, 192.168/16); a key never mixes local and public entries | b2b `domain_rules.rs:249` (`reach`), `:342` rule 4, test `:1182`; b2b#760 `108cbbd4` |
+| Image hosts: exact host, no wildcard, no port, no IP; set by FittingMe (no Portal field); a new key has none; rotation keeps them | b2b#668 `backend/src/services/garment_image.rs:110` (`is_listed_host`); retailer-portal grep rc 1 (`runs/08/20261102T234540Z/probes/tdd-analyst-inv/03-portal-grep.log`); b2b#664 rotation copy |
+| Unlisted page photos dropped; catalogue product keeps catalogue photos; unknown product gets no Try-On offer (`ineligible`); direct open 404 `not_found` « Product is unavailable » | b2b `tests/journey_session_route_integration.rs:1593`, `:1696`; `journey_tryon_commands_integration.rs:14665`; `backend/src/services/journey_session.rs:624`; widget `foundation/embed-bootstrap.ts:113`; dev probe `runs/05/20261101T120112Z/00-arbitrage.md:65` |
+| Turnstile runs inside the widget iframe; the retailer CSP needs no Cloudflare source; a checkbox can show in the drawer | widget#553 `tests/browser/turnstile.spec.ts:299`, `:396`, `:408`, `:439`; dev widget CSP (`probes/tdd-analyst-inv/04-dev-widget-gets.log`); public-site `infra/image/default.conf.tmpl` `frame-src` without Cloudflare |
+| `session_limit_reached` 429, title « Limite de la session atteinte », no `Retry-After` | b2b `backend/src/error.rs:642`; `tests/contract/fixtures/widget-api-v2/widget-api-v2.openapi.yaml:113`; `problem_session_limit_reached_429.json` |
+
+Not stated, by decision: how often the Turnstile checkbox shows, a refusal of a missing token,
+an `attestation_refused` row, production enforcement, and anything about Cloudflare's data,
+cookies, retention or sub-processor status.
+
 ## Async loader tag (2026-10-25)
 
 Documentation updated: `start/quickstart`, `integration/react`, `integration/appearance`,
@@ -529,6 +565,73 @@ empty", because an empty value is silent (`foundation/embed-bootstrap.ts:23-24`)
 reviewed the French (2026-10-26): accepted two comma changes; refused capitalising `true`,
 dropping code backticks and a full stop in a table cell.
 
+## Photo refusal before Start, back in the public pages (2026-11-05)
+
+Change: `reference/errors`, `troubleshooting/symptoms` and `testing/journey`, English and French,
+describe the refusal before Start again. This reverses the removal recorded under "Client-only
+rewrite — 2026-10-21", which stood because photo reading was off outside dev. Headings and anchors
+are unchanged.
+
+Selected revisions: b2b `32a6ad68` (main, production release b2b#775; the cited b2b files are
+byte-identical to b2b#771's `66629dcc`), widget `4f7776ed` (origin/main), widget-documentation
+`a5c5b49` (origin/main). Production has served `PHOTO_READING_MODE=project` since that release:
+`fittingme-backend-00200-rzk`, read at 2026-11-06T06:52:54Z. No refusal has run in production; the
+measurements below come from staging. Publish only on the founder's approval of these pages.
+
+| Claim | Current owning source |
+| --- | --- |
+| Production reads each new photo and refuses in `project` | b2b `infra/envs/prod/terraform.tfvars:341`; `backend/src/services/photo_reading.rs:106` (`refusal_in_force`: `project` and `enforce` alike) |
+| Refusal causes: no person, a clearly young child, explicit nudity, a blocked reading | b2b `backend/src/services/photo_reading.rs:57` (`decide`); `vton-service/src/photo_reading/mod.rs:50-52`; widget `foundation/photo-verdict.ts:10-15` |
+| A refusal asks for another photo and offers no Start | widget `journeys/tryon/declaration.ts:732` and `:1506-1508` (`t1-refus`: the only action is `CHOOSE_OTHER_PHOTO`) |
+| A launch of a refused photo returns HTTP 422 `image_invalid` | b2b `backend/src/services/try_on_collection/admission.rs:342-347`; `backend/src/services/anchor_lifecycle.rs:2311-2316` |
+| The code covers other unusable images and gives no cause | b2b `backend/src/services/try_on_collection/admission.rs:331,335,352` |
+| Advice about several people, framing, blur or darkness keeps Start | b2b `backend/src/services/photo_reading.rs:80-88`; widget `foundation/photo-verdict.ts:31-36`, `journeys/tryon/declaration.ts:418-420` and `:502-508` |
+| A slow or unavailable reading keeps the journey | b2b `backend/src/services/anchor_lifecycle.rs:2308-2310` |
+| During handoff the refusal shows on the phone and the drawer follows | b2b `backend/src/services/device_handoff/mod.rs:599-616`; widget `foundation/tryon.ts:1096-1110` |
+
+Measured on staging, 2026-11-05 06:29Z and 06:30Z, b2b `209cec50`, backend `fittingme-backend-00106-jjm`,
+`PHOTO_READING_MODE=project`. A photo of shoes reached `t1-refus`: the message says no person appears,
+"Choisir une autre photo" is the only action, and the event reads `read / refused / no_person / version 2`.
+With the refusal hidden from the widget, as in a stale tab, the real launch answered HTTP 422
+`application/problem+json` with code `image_invalid`, the widget went back to `t1-refus`, and the Session
+has no `tryon_launch`, `vton_started` or `vton_result` event. Advice, the phone handoff and a slow reading
+were not exercised for this change; they rest on the sources above.
+
+Not restated from the old text: "the provider remains the backstop". Gemini requests no longer carry
+`personGeneration` (b2b#728), so that sentence is no longer true for a child's photo.
+
+DeepL EN→FR comparison (2026-11-05, formality `more`, glossary "FittingMe widget"): accepted "dès
+que" and "également… sans en préciser la cause"; refused "Démarrer", "voyage", "consigne",
+"tiroir", "barre d'icônes", "fenêtre contextuelle", "masquée" and "en bas âge", which leave the
+product vocabulary or change the meaning. The other French sentences come from the wording removed
+in `0c6daac`.
+
+## Ninth `events_v1` column in production (2026-11-06)
+
+Change: `reference/delivered-events` and `reference/events`, English and French, no longer say that
+production datasets lack `try_on_reference` or that FittingMe tells the reader when it arrives. This
+removes the qualifiers recorded under "Shown try-on renders — production state, 2026-10-21" and kept
+under "Client-only rewrite — 2026-10-21". They were true at b2b `805ae61e` and stopped being true with
+the next b2b production release. Headings and anchors are unchanged.
+
+Selected revisions: b2b `32a6ad68` (origin/main), widget-documentation `4e0b7551` (origin/main).
+
+| Claim | Current owning source |
+| --- | --- |
+| `events_v1` has nine columns, `try_on_reference` last | b2b `infra/modules/delivered_events/README.md:17`, `:29`; `main.tf:111` |
+| Only `tryon_result_revealed` rows derive a value; other rows have `NULL` | b2b `infra/modules/delivered_events/main.tf:63-69` |
+| The value equals the Page Event's reference | b2b `infra/modules/delivered_events/README.md:64-70`; `tests/contract/fixtures/try-on-reference-v1/` |
+| The column reached production with b2b#584, merge `9ffad716`, 2026-10-22T00:43:16Z | `git log --first-parent origin/main --format='%h %cI' -S'try_on_reference' -- infra/modules/delivered_events/main.tf` |
+
+Measured in production on 2026-11-06, metadata and aggregates only: `bq show` on the `events_v1` view
+lists the nine columns in the order of the page's table, last modified 2026-10-22T01:05:09Z. The column
+is set on every reveal row of the view and on no other row. A Page Event was not compared with a row in
+production: that comparison ran on dev and staging in October 2026. The live pages are behind an access
+code and were not read.
+
+DeepL Write (2026-11-06): no change accepted. It capitalised code spans, changed `tryon_result_revealed`
+to `try_on_result_revealed` and lowered the product term « Événements Livrés ».
+
 ## Sizing gender preselection (2026-10-28)
 
 Change: the loader reference documents the optional `data-input-gender` attribute (founder
@@ -536,10 +639,11 @@ rulings 2026-10-28, Sizing first-step grilling, Q10–Q14). English and French:
 `reference/configuration` (row and validation bullet). The guide stays Try-On only; the row
 names the one journey that reads it.
 
-Selected revisions: widget `902bd13a` (origin/dev, widget#517; not yet in production),
-widget-documentation `a5c5b49` (origin/main). Unreleased: merge only when Sizing enters the
-public guide and widget P38 is live in production; before P38 the production loader refuses an
-embed that carries `data-input-gender`.
+Selected revisions: widget `902bd13a` (widget#517, on origin/main at `4f7776ed`),
+widget-documentation `a5c5b49` (origin/main). Published on the founder's instruction of
+2026-11-06. Measured that day: the production loader at `/v5/` (last modified
+2026-10-31T18:21:38Z) lists `input_gender`. The guide's `data-journey` row still names only `tryon`,
+so this row names a journey the guide does not offer.
 
 | Claim | Current owning source |
 | --- | --- |
