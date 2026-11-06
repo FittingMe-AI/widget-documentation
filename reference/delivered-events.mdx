@@ -16,7 +16,7 @@ FittingMe provisions one dataset per company, `delivered_events_YOUR_KEY`, with 
 
 ## Columns
 
-In production, `events_v1` has the first eight columns below, in this order. The ninth, `try_on_reference`, is not in production datasets yet. FittingMe tells you when it reaches your dataset.
+`events_v1` has these nine columns, in this order.
 
 | Column | Type | Meaning |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ In production, `events_v1` has the first eight columns below, in this order. The
 | `retailer_id` | STRING | Lowercase Retailer UUID. |
 | `try_on_reference` | STRING | 32 lowercase hexadecimal characters on `tryon_result_revealed` rows, else `NULL`. Reveal rows of 2026-09-11 and earlier stay `NULL`. |
 
-When `try_on_reference` reaches your dataset, it has the value of the [`tryon_result_revealed` Page Event](/reference/events#shown-try-on-renders).
+`try_on_reference` has the value of the [`tryon_result_revealed` Page Event](/reference/events#shown-try-on-renders).
 
 A session is one shopper's Try-On journey on one product. It lasts up to 48 hours. A return to the same product in the same browser within that time resumes the session, with the same `session_key`.
 
@@ -52,7 +52,7 @@ These facts are observations, not conversions:
 - `journey_exited` is not an abandonment: the shopper can reopen and continue.
 - `tryon_photo_refused` has no reason, origin or photo.
 
-Once `try_on_reference` reaches your dataset, count its distinct values for shown renders. Rows are observations, not an invoice.
+Count the distinct values of `try_on_reference` for shown renders. Rows are observations, not an invoice.
 
 ## Reading rules
 

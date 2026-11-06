@@ -569,3 +569,29 @@ que" and "également… sans en préciser la cause"; refused "Démarrer", "voyag
 "tiroir", "barre d'icônes", "fenêtre contextuelle", "masquée" and "en bas âge", which leave the
 product vocabulary or change the meaning. The other French sentences come from the wording removed
 in `0c6daac`.
+
+## Ninth `events_v1` column in production (2026-11-06)
+
+Change: `reference/delivered-events` and `reference/events`, English and French, no longer say that
+production datasets lack `try_on_reference` or that FittingMe tells the reader when it arrives. This
+removes the qualifiers recorded under "Shown try-on renders — production state, 2026-10-21" and kept
+under "Client-only rewrite — 2026-10-21". They were true at b2b `805ae61e` and stopped being true with
+the next b2b production release. Headings and anchors are unchanged.
+
+Selected revisions: b2b `32a6ad68` (origin/main), widget-documentation `4e0b7551` (origin/main).
+
+| Claim | Current owning source |
+| --- | --- |
+| `events_v1` has nine columns, `try_on_reference` last | b2b `infra/modules/delivered_events/README.md:17`, `:29`; `main.tf:111` |
+| Only `tryon_result_revealed` rows derive a value; other rows have `NULL` | b2b `infra/modules/delivered_events/main.tf:63-69` |
+| The value equals the Page Event's reference | b2b `infra/modules/delivered_events/README.md:64-70`; `tests/contract/fixtures/try-on-reference-v1/` |
+| The column reached production with b2b#584, merge `9ffad716`, 2026-10-22T00:43:16Z | `git log --first-parent origin/main --format='%h %cI' -S'try_on_reference' -- infra/modules/delivered_events/main.tf` |
+
+Measured in production on 2026-11-06, metadata and aggregates only: `bq show` on the `events_v1` view
+lists the nine columns in the order of the page's table, last modified 2026-10-22T01:05:09Z. The column
+is set on every reveal row of the view and on no other row. A Page Event was not compared with a row in
+production: that comparison ran on dev and staging in October 2026. The live pages are behind an access
+code and were not read.
+
+DeepL Write (2026-11-06): no change accepted. It capitalised code spans, changed `tryon_result_revealed`
+to `try_on_result_revealed` and lowered the product term « Événements Livrés ».

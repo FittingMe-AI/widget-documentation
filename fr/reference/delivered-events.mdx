@@ -16,7 +16,7 @@ FittingMe met à disposition un dataset par entreprise, `delivered_events_YOUR_K
 
 ## Colonnes
 
-En production, `events_v1` comporte les huit premières colonnes ci-dessous, dans cet ordre. La neuvième, `try_on_reference`, n’est pas encore dans les datasets de production. FittingMe vous prévient lorsqu’elle arrive dans votre dataset.
+`events_v1` comporte ces neuf colonnes, dans cet ordre.
 
 | Colonne | Type | Signification |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ En production, `events_v1` comporte les huit premières colonnes ci-dessous, dan
 | `retailer_id` | STRING | UUID de l’enseigne, en minuscules. |
 | `try_on_reference` | STRING | 32 caractères hexadécimaux minuscules sur les lignes `tryon_result_revealed`, sinon `NULL`. Les lignes d’affichage du 11 septembre 2026 et avant restent à `NULL`. |
 
-Lorsque `try_on_reference` arrive dans votre dataset, elle porte la valeur de l’[événement de page `tryon_result_revealed`](/fr/reference/events#rendus-d’essayage-affichés).
+`try_on_reference` porte la valeur de l’[événement de page `tryon_result_revealed`](/fr/reference/events#rendus-d’essayage-affichés).
 
 Une session est le parcours Try-On d’un acheteur sur un produit. Elle dure au plus 48 heures. Un retour sur le même produit dans le même navigateur pendant ce délai reprend la session, avec la même `session_key`.
 
@@ -52,7 +52,7 @@ Ces faits sont des observations, pas des conversions :
 - `journey_exited` n’est pas un abandon : l’acheteur peut rouvrir et continuer.
 - `tryon_photo_refused` ne porte ni cause, ni origine, ni photo.
 
-Lorsque `try_on_reference` arrive dans votre dataset, comptez ses valeurs distinctes pour les rendus affichés. Les lignes sont des observations, pas une facture.
+Comptez les valeurs distinctes de `try_on_reference` pour les rendus affichés. Les lignes sont des observations, pas une facture.
 
 ## Règles de lecture
 

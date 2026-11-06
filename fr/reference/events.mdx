@@ -44,7 +44,7 @@ Le widget envoie `completed` quand le panneau se ferme sur un résultat terminé
 
 Le widget envoie `tryon_result_revealed` uniquement au premier affichage d’un rendu. Un rendu ouvert depuis les essayages enregistrés n’envoie rien. Un rendu terminé pendant que le panneau est fermé compte à la réouverture du panneau. Une relance est un nouvel essayage avec une nouvelle référence.
 
-`try_on_reference` compte 32 caractères hexadécimaux minuscules. Elle correspond à la colonne `try_on_reference` des Événements Livrés. Les datasets de production n’ont pas encore cette colonne. FittingMe vous prévient lorsqu’elle arrive dans votre dataset. Si Web Crypto refuse de calculer la référence, le widget écrit une ligne dans la console et n’envoie aucun événement.
+`try_on_reference` compte 32 caractères hexadécimaux minuscules. Elle correspond à la colonne `try_on_reference` des Événements Livrés. Si Web Crypto refuse de calculer la référence, le widget écrit une ligne dans la console et n’envoie aucun événement.
 
 ### Indicatif, pas une facture
 

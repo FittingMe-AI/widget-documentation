@@ -44,7 +44,7 @@ The widget sends `completed` when the drawer closes on a completed result, after
 
 The widget sends `tryon_result_revealed` at the first display of a render only. A render opened from saved try-ons sends nothing. A render that finishes while the drawer is closed counts when the drawer opens again. A re-run is a new try-on with a new reference.
 
-`try_on_reference` is 32 lowercase hexadecimal characters. It matches the `try_on_reference` column of Delivered Events. Production datasets do not have that column yet. FittingMe tells you when it reaches your dataset. If Web Crypto refuses to compute the reference, the widget writes one console line and sends no event.
+`try_on_reference` is 32 lowercase hexadecimal characters. It matches the `try_on_reference` column of Delivered Events. If Web Crypto refuses to compute the reference, the widget writes one console line and sends no event.
 
 ### Indicative, not an invoice
 
