@@ -10,12 +10,14 @@ subsection « Use a local-only key » (fr « Utiliser une clé locale »).
 
 Selected revisions (origin/dev, read with `git show <sha>:<path>`, 2026-11-02T23:53Z): b2b
 `939de0cf`, widget `1514a492`, retailer-portal `03d2739f`; widget-documentation `a5c5b49`
-(origin/main). Unreleased: none of widget `6c4405e2`, `dd9ce9bd`, `a53794f5` or b2b `5edee480`,
-`6c53bb45`, `108cbbd4` or `393c52aa` (b2b#755, the `session_limit_reached` row) is on staging or
-main. Production still frames from the environment list and keeps every page photo, so publish
-only with the production release that carries them. The Turnstile paragraphs also need a
-production Turnstile site key: widget `infra/targets.json` leaves the production
-`turnstileSiteKey` empty until ticket 07 step a and ruling F1.
+(origin/main). Published on the founder's instruction of 2026-11-06, ahead of the widget release.
+Measured that day: b2b `5edee480`, `6c53bb45`, `108cbbd4` and `393c52aa` are on origin/main; widget
+`6c4405e2`, `dd9ce9bd` and `a53794f5` are not on origin/main at `4f7776ed`. The production widget
+document (last modified 2026-10-31T18:21:37Z) still frames from the environment list and has no
+Cloudflare source in its CSP, so the framing and Turnstile statements do not hold in production
+until that release. The Turnstile paragraphs also need a production Turnstile site key: widget
+`infra/targets.json` leaves the production `turnstileSiteKey` empty until ticket 07 step a and
+ruling F1.
 
 | Claim family | Owning source |
 | --- | --- |
@@ -629,3 +631,26 @@ code and were not read.
 
 DeepL Write (2026-11-06): no change accepted. It capitalised code spans, changed `tryon_result_revealed`
 to `try_on_result_revealed` and lowered the product term « Événements Livrés ».
+
+## Sizing gender preselection (2026-10-28)
+
+Change: the loader reference documents the optional `data-input-gender` attribute (founder
+rulings 2026-10-28, Sizing first-step grilling, Q10–Q14). English and French:
+`reference/configuration` (row and validation bullet). The guide stays Try-On only; the row
+names the one journey that reads it.
+
+Selected revisions: widget `902bd13a` (widget#517, on origin/main at `4f7776ed`),
+widget-documentation `a5c5b49` (origin/main). Published on the founder's instruction of
+2026-11-06. Measured that day: the production loader at `/v5/` (last modified
+2026-10-31T18:21:38Z) lists `input_gender`. The guide's `data-journey` row still names only `tryon`,
+so this row names a journey the guide does not offer.
+
+| Claim | Current owning source |
+| --- | --- |
+| Optional loader attribute, forwarded as `input_gender` only when set, trimmed | widget `loader/lib/embed-protocol.js:202`; `loader/fittingme-loader.js:302`; protocol § 2.2 row and decision P38 |
+| Only `male` or `female` preselect; missing or empty preselect nothing with no message; any other value preselects nothing and logs one console error naming `data-input-gender`; the embed still mounts | widget `foundation/embed-bootstrap.ts:30-38` |
+| Size recommendation only: the Sizing entry reads it; the Try-On entry never does | widget `build/sizing.entry.ts:77`; `foundation/index.ts:1672-1673` |
+| It fills an empty gender only; a saved profile's gender wins, and the shopper can change the radio | widget `foundation/sizing.ts:1333-1339`; `tests/browserless/sizing-input-gender.test.ts` |
+
+DeepL Write reviewed the French (2026-10-28): accepted one comma; refused a full stop in a table
+cell, capitalising the code values `male`/`female` and lower-casing « Essayage ».
