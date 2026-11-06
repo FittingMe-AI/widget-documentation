@@ -528,3 +528,44 @@ Deviation from the ticket's wording: the validation bullet says "other than `tru
 empty", because an empty value is silent (`foundation/embed-bootstrap.ts:23-24`). DeepL Write
 reviewed the French (2026-10-26): accepted two comma changes; refused capitalising `true`,
 dropping code backticks and a full stop in a table cell.
+
+## Photo refusal before Start, back in the public pages (2026-11-05)
+
+Change: `reference/errors`, `troubleshooting/symptoms` and `testing/journey`, English and French,
+describe the refusal before Start again. This reverses the removal recorded under "Client-only
+rewrite — 2026-10-21", which stood because photo reading was off outside dev. Headings and anchors
+are unchanged.
+
+Selected revisions: b2b `32a6ad68` (main, production release b2b#775; the cited b2b files are
+byte-identical to b2b#771's `66629dcc`), widget `4f7776ed` (origin/main), widget-documentation
+`a5c5b49` (origin/main). Production has served `PHOTO_READING_MODE=project` since that release:
+`fittingme-backend-00200-rzk`, read at 2026-11-06T06:52:54Z. No refusal has run in production; the
+measurements below come from staging. Publish only on the founder's approval of these pages.
+
+| Claim | Current owning source |
+| --- | --- |
+| Production reads each new photo and refuses in `project` | b2b `infra/envs/prod/terraform.tfvars:341`; `backend/src/services/photo_reading.rs:106` (`refusal_in_force`: `project` and `enforce` alike) |
+| Refusal causes: no person, a clearly young child, explicit nudity, a blocked reading | b2b `backend/src/services/photo_reading.rs:57` (`decide`); `vton-service/src/photo_reading/mod.rs:50-52`; widget `foundation/photo-verdict.ts:10-15` |
+| A refusal asks for another photo and offers no Start | widget `journeys/tryon/declaration.ts:732` and `:1506-1508` (`t1-refus`: the only action is `CHOOSE_OTHER_PHOTO`) |
+| A launch of a refused photo returns HTTP 422 `image_invalid` | b2b `backend/src/services/try_on_collection/admission.rs:342-347`; `backend/src/services/anchor_lifecycle.rs:2311-2316` |
+| The code covers other unusable images and gives no cause | b2b `backend/src/services/try_on_collection/admission.rs:331,335,352` |
+| Advice about several people, framing, blur or darkness keeps Start | b2b `backend/src/services/photo_reading.rs:80-88`; widget `foundation/photo-verdict.ts:31-36`, `journeys/tryon/declaration.ts:418-420` and `:502-508` |
+| A slow or unavailable reading keeps the journey | b2b `backend/src/services/anchor_lifecycle.rs:2308-2310` |
+| During handoff the refusal shows on the phone and the drawer follows | b2b `backend/src/services/device_handoff/mod.rs:599-616`; widget `foundation/tryon.ts:1096-1110` |
+
+Measured on staging, 2026-11-05 06:29Z and 06:30Z, b2b `209cec50`, backend `fittingme-backend-00106-jjm`,
+`PHOTO_READING_MODE=project`. A photo of shoes reached `t1-refus`: the message says no person appears,
+"Choisir une autre photo" is the only action, and the event reads `read / refused / no_person / version 2`.
+With the refusal hidden from the widget, as in a stale tab, the real launch answered HTTP 422
+`application/problem+json` with code `image_invalid`, the widget went back to `t1-refus`, and the Session
+has no `tryon_launch`, `vton_started` or `vton_result` event. Advice, the phone handoff and a slow reading
+were not exercised for this change; they rest on the sources above.
+
+Not restated from the old text: "the provider remains the backstop". Gemini requests no longer carry
+`personGeneration` (b2b#728), so that sentence is no longer true for a child's photo.
+
+DeepL EN→FR comparison (2026-11-05, formality `more`, glossary "FittingMe widget"): accepted "dès
+que" and "également… sans en préciser la cause"; refused "Démarrer", "voyage", "consigne",
+"tiroir", "barre d'icônes", "fenêtre contextuelle", "masquée" and "en bas âge", which leave the
+product vocabulary or change the meaning. The other French sentences come from the wording removed
+in `0c6daac`.

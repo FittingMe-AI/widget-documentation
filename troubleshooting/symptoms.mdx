@@ -70,7 +70,16 @@ Reproduce with a slow network and rapid navigation, then see [single-page and dy
 
 ## A photo is refused
 
-If the provider refuses the photo after Start, the drawer offers to change the photo or return to the product. See [errors and recovery](/reference/errors#photo-refusal-and-service-failure).
+| Shopper sees | Meaning and next action |
+| --- | --- |
+| Refusal before Start | No person, a clearly young child, explicit nudity, or a reading blocked by the model. Choose another photo; the preview offers no Start. |
+| Advice about several people, framing, blur or darkness | Continue with this photo or choose another. With several people, the advice does not say who will be dressed. |
+| No message after a slow or unavailable reading | The journey continues. This does not certify the photo. |
+| Refusal after Start | Change the photo or return to the product. |
+
+During handoff, the refusal shows on the phone and the desktop drawer follows.
+
+The widget owns these controls. Do not recreate these checks in your storefront. See [errors and recovery](/reference/errors#photo-refusal-and-service-failure).
 
 ## Photo handoff or generation does not finish
 
