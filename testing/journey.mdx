@@ -36,7 +36,7 @@ A separate browser context does not test a physical phone.
 
 | Case | Expected result |
 | --- | --- |
-| Revoked key | The browser blocks the frame. The console shows a `frame-ancestors` refusal. |
+| Revoked key | At the next page load, the browser blocks the frame. The console shows a `frame-ancestors` refusal. |
 | Page not in key domains | The browser blocks the frame. The console shows a `frame-ancestors` refusal. |
 | Image host not on the key | FittingMe ignores the page photos. A catalogue product keeps its catalogue photos; a product that FittingMe does not know shows no Try-On button. |
 | Unusable garment image | FittingMe uses the catalogue image if the product has one. Otherwise, try-on fails after Start. |
@@ -48,7 +48,7 @@ A separate browser context does not test a physical phone.
 | Photo with no person, such as a product photo | The drawer gives the reason and offers to choose another photo, with no Start. |
 | Provider refusal after Start | The change-photo and return-to-product actions show. |
 
-For a revocation test, ask FittingMe for a disposable key. Then ask FittingMe to revoke it. Do not create unsafe content to cause a refusal.
+For a revocation test, ask FittingMe for a disposable key. Then ask FittingMe to revoke it, and load the page again. A Try-On picture link from before the revocation works for up to 20 minutes. Do not create unsafe content to cause a refusal.
 
 ## Check layout and accessibility
 

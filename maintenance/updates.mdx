@@ -26,6 +26,15 @@ FittingMe rotates keys on request. The previous key stays valid until FittingMe 
 5. Wait for cached pages to expire.
 6. Ask FittingMe to revoke the previous key when no installation uses it. Revoking it breaks every installation that still uses it.
 
+After the revocation, a page that loads shows no widget, and an open widget fails at its next request. Some access continues for a short time:
+
+- A Try-On picture link that a shopper already has works for up to 20 minutes.
+- A browser can keep the widget's start data for up to 5 minutes.
+- A phone that is connected for a Try-On photo can send it for up to 15 minutes.
+- A request that is already running completes.
+
+Allow 20 minutes before you expect the old key to give no access.
+
 Ask FittingMe to revoke the previous key before you ask for another rotation.
 
 ## Disable the entry point

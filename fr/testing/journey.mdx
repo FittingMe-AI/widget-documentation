@@ -36,7 +36,7 @@ Un contexte de navigateur distinct ne teste pas un téléphone physique.
 
 | Cas | Résultat attendu |
 | --- | --- |
-| Clé révoquée | Le navigateur bloque l’iframe. La console affiche un refus `frame-ancestors`. |
+| Clé révoquée | Au chargement suivant de la page, le navigateur bloque l’iframe. La console affiche un refus `frame-ancestors`. |
 | Page absente des domaines de la clé | Le navigateur bloque l’iframe. La console affiche un refus `frame-ancestors`. |
 | Hôte d’images absent de la clé | FittingMe ignore les photos de la page. Un produit du catalogue garde ses images du catalogue ; un produit que FittingMe ne connaît pas n’affiche pas de bouton d’essayage. |
 | Image du vêtement inutilisable | FittingMe utilise l’image du catalogue si le produit en a une. Sinon, l’essayage échoue après Lancer l’essayage. |
@@ -48,7 +48,7 @@ Un contexte de navigateur distinct ne teste pas un téléphone physique.
 | Photo sans personne, par exemple une photo de produit | Le panneau donne la raison et propose de choisir une autre photo, sans Lancer l’essayage. |
 | Refus du fournisseur après Lancer l’essayage | Les actions pour changer de photo et revenir au produit s’affichent. |
 
-Pour un test de révocation, demandez à FittingMe une clé jetable. Demandez ensuite à FittingMe de la révoquer. Ne créez pas de contenu dangereux pour provoquer un refus.
+Pour un test de révocation, demandez à FittingMe une clé jetable. Demandez ensuite à FittingMe de la révoquer, puis rechargez la page. Un lien d’image d’essayage antérieur à la révocation reste valable jusqu’à 20 minutes. Ne créez pas de contenu dangereux pour provoquer un refus.
 
 ## Vérifier la mise en page et l’accessibilité
 

@@ -26,6 +26,15 @@ FittingMe effectue la rotation des clés sur demande. L’ancienne clé reste va
 5. Attendez que les pages en cache expirent.
 6. Demandez à FittingMe de révoquer l’ancienne clé quand aucune installation ne l’utilise. La révocation casse toute installation qui l’utilise encore.
 
+Après la révocation, une page qui se charge n’affiche pas de widget et un widget déjà ouvert échoue à sa prochaine requête. Un accès continue pendant un court moment :
+
+- Un lien d’image d’essayage dont un client dispose déjà reste valable jusqu’à 20 minutes.
+- Un navigateur peut garder les données de démarrage du widget jusqu’à 5 minutes.
+- Un téléphone connecté pour une photo d’essayage peut l’envoyer pendant 15 minutes au plus.
+- Une requête déjà en cours se termine.
+
+Comptez 20 minutes avant que l’ancienne clé ne donne plus aucun accès.
+
 Demandez à FittingMe de révoquer l’ancienne clé avant de demander une nouvelle rotation.
 
 ## Désactiver le point d’accès
