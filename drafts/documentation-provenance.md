@@ -1,3 +1,23 @@
+## Revocation delay (2026-11-08)
+
+Documentation updated: `maintenance/updates` (rotate a retailer key) and `testing/journey`
+(revoked key row, revocation test), English and `fr/`. Founder ruling 2026-11-08 on audit finding 02:
+the docs state the delay of a revocation. Not published: production b2b does not have b2b#790
+(`bdb1a652`), whose lookup refuses a revoked key whose digest the legacy column still holds, so these
+statements hold in production only after that promotion.
+
+Selected revisions (origin/dev, read with `git show <sha>:<path>`, 2026-11-08T10:37Z): b2b `d71cda38`, widget `fc174f8b`;
+widget-documentation `febee8e` (origin/main).
+
+| Claim | Owning source |
+| --- | --- |
+| A new page load shows no widget: frame-ancestors is `no-store`, a revoked key projects `'none'`, the widget host asks at each document load | b2b `backend/src/routes/frame_ancestors.rs:52-53`, `:66-69`; widget `infra/image/default.conf.template:150-192` |
+| An open widget fails at its next request: no Session token, every Session command is keyed and re-read | b2b `backend/src/middleware/auth.rs:68-102`; `backend/src/routes/mod.rs:285-295` |
+| Signed Try-On image links: at most 300 + 900 = 1,200 s after creation | b2b `backend/src/services/image_url_token.rs:59`, `:62`, `:158` |
+| Bootstrap browser cache: `public, max-age=300`, `Vary: X-API-Key` | b2b `backend/src/routes/bootstrap.rs:86-105` |
+| Try-On phone relay: 15 minutes after creation, no key needed on the phone | b2b `backend/src/services/request_gate/db_access.rs:159-162` |
+| A running request completes: the key is read once, at the request start | b2b `backend/src/middleware/auth.rs:68-102` |
+
 ## Public key abuse S1: framing, image hosts, local-only keys, Turnstile (2026-11-03)
 
 Documentation updated: `start/prerequisites`, `start/quickstart`, `integration/products`,
