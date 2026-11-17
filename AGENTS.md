@@ -6,7 +6,7 @@ This repository publishes the retailer-facing FittingMe integration documentatio
 
 The current documentation scope is virtual try-on only: onboarding, Journey Embed placement, the public loader contract, configuration, tracking and observable integration failures. Sizing is deferred while it is still being developed.
 
-The founder-approved scope, developer goals and page list are recorded in `drafts/documentation-design.md`. Its Navigation section is the approved page list: `scripts/validate-docs.mjs` requires `docs.json` to match it in order and groups, with `fr/` mirroring it. Catalogue onboarding is FittingMe-assisted, and catalogue integration uses the loader.
+The scope, the developer goals and the page list that a FittingMe developer approved are recorded in `drafts/documentation-design.md`. Its Navigation section is the approved page list: `scripts/validate-docs.mjs` requires `docs.json` to match it in order and groups, with `fr/` mirroring it. Catalogue onboarding is FittingMe-assisted, and catalogue integration uses the loader.
 
 ## Repository boundary
 
@@ -17,7 +17,7 @@ The founder-approved scope, developer goals and page list are recorded in `draft
 
 ## Retailer documentation update policy
 
-Founder instruction (2026-09-18): assess documentation impact as part of changes
+FittingMe developer instruction (2026-09-18): assess documentation impact as part of changes
 to the implementation or other sources used by these pages. Update the docs when
 a developer following them would need different prerequisites, inputs, code,
 actions, expected results or diagnostic guidance. Additions, removals, deprecations,
@@ -75,7 +75,7 @@ documented behavior need no public prose edit if the existing content remains tr
    journey against functioning services and record actual dependencies/limitations in `drafts/local-review.md`.
    Unchanged examples may retain their existing evidence when source and effective
    dependencies are unchanged; wording-only edits need no product rebuild.
-6. Deliver the functioning local documentation for founder review. Publish only
+6. Deliver the functioning local documentation for review by a FittingMe developer. Publish only
    after explicit approval for those reviewed changes. A product deployment,
    green CI or earlier documentation approval is not approval to publish new docs.
 
@@ -95,7 +95,7 @@ Read the relevant source before changing an API or integration claim:
 | Retailer API-key authentication | `backend/src/middleware/auth.rs` |
 | Loader URL, attributes, defaults, and browser API | widget: `loader/fittingme-loader.js` and `loader/lib/embed-protocol.js` |
 | Delivered Events (`events_v1`) types and columns | `infra/modules/delivered_events/README.md` and `main.tf` |
-| Direct loader/widget protocol | widget: `docs/contracts/loader-widget-protocol-v2.md` (including the major-3 amendment), `foundation/fil.ts`, and `tests/contract/fixtures/protocole/` |
+| Direct loader/widget protocol | widget: `docs/contracts/loader-widget-protocol-v2.md` (including the major-3 amendment), `foundation/thread.ts`, and `tests/contract/fixtures/protocole/` |
 | Retailer key creation, rotation, revocation and domains | `backend/src/routes/internal_portal.rs` and `backend/src/services/domain_rules.rs` |
 | RFC 9457 business-error mapping | `backend/src/error.rs` |
 | Shared Problem Document shape | `crates/problem-details/src/lib.rs` |
@@ -126,7 +126,7 @@ and actual service availability before documenting operational onboarding steps.
 
 ## Brand and presentation
 
-Presentation follows the FittingMe design system, whose canonical source is `public-site/site/public/design-system/fm-tokens.css` in the sibling `public-site` repository. The palette is four colours — `#ffffff`, `#eaeae4`, `#b4ad91`, `#000000` — plus tints derived from them, and containers are square-cornered. Founder instruction (2026-09-18): technical documentation uses Outfit for both headings and body text.
+Presentation follows the FittingMe design system, whose canonical source is `public-site/site/public/design-system/fm-tokens.css` in the sibling `public-site` repository. The palette is four colours — `#ffffff`, `#eaeae4`, `#b4ad91`, `#000000` — plus tints derived from them, and containers are square-cornered. FittingMe developer instruction (2026-09-18): technical documentation uses Outfit for both headings and body text.
 
 - `docs.json` carries what Mintlify exposes: accent colours, fonts, logo, favicon, code-block theme, default appearance.
 - `style.css` carries only what `docs.json` cannot express: square corners, heading weight and tracking, link hairlines, callouts brought back inside the palette, selection and focus ring. Every rule names the design-system rule it ports.
@@ -139,7 +139,7 @@ Presentation follows the FittingMe design system, whose canonical source is `pub
 - Address the developer directly, whether they work in-house for the retailer or as an external integrator. Refer to "your storefront", "your team", or "the retailer" as appropriate; do not assume the retailer is the developer's client. Name specific roles, such as retailer Admin or release owner, when an action belongs to them.
 - Use active voice, second person, sentence-case headings, and concise paragraphs.
 - Keep examples copyable and use placeholders such as `YOUR_PUBLISHABLE_KEY`.
-- Add, move, or delete a page together with its `docs.json` entry and its line in the approved page list (`drafts/documentation-design.md`, Navigation). A new page needs founder approval before it enters that list.
+- Add, move, or delete a page together with its `docs.json` entry and its line in the approved page list (`drafts/documentation-design.md`, Navigation). A new page needs the approval of a FittingMe developer before it enters that list.
 - Changing the external publication domain of this Mintlify site is a separate deployment decision. Do not infer that change from API, CDN or marketing domain migrations.
 
 ## Validation
