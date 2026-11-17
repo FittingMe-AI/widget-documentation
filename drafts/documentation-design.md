@@ -89,4 +89,4 @@ Guides own procedures and expected results. Reference pages own exact inputs, ou
 
 ## Publication boundary
 
-Local content and preview are authorised. Publication, deployment-triggering pushes, and merge require explicit founder approval after review of the changes being published.
+Local content and preview are authorised. Publication, deployment-triggering pushes, and merge require the explicit approval of a FittingMe developer after review of the changes being published.

@@ -1,6 +1,6 @@
 # FittingMe developer documentation
 
-Public virtual try-on integration documentation, structured around the founder-approved developer goals and six-group structure. The English pages guide in-house developers and external integrators from prerequisites through launch and maintenance; the French edition mirrors those routes.
+Public virtual try-on integration documentation, structured around the developer goals and the six-group structure that a FittingMe developer approved. The English pages guide in-house developers and external integrators from prerequisites through launch and maintenance; the French edition mirrors those routes.
 
 - Navigation, English/French language switcher, and site presentation: `docs.json`.
 - Approved goals, page list, acceptance exercise, and page responsibilities: `drafts/documentation-design.md`.
