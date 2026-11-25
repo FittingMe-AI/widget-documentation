@@ -125,7 +125,7 @@ for (const page of pages) {
       try { new vm.Script(script); } catch (error) { errors.push(`${page}: ${error.message}`); }
     }
   }
-  const retired = /data-api-url|data-api-key|cdn\.fittingme\.ai|fittingme:ready|fittingme:triggerState|Bearer YOUR|reset page|coming soon|TODO|TBD/gi;
+  const retired = /data-api-url|cdn\.fittingme\.ai|fittingme:ready|fittingme:triggerState|Bearer YOUR|reset page|coming soon|TODO|TBD/gi;
   for (const match of source.matchAll(retired)) errors.push(`${page}: retired or unfinished text: ${match[0]}`);
   // French prose keeps the documentation's terms; code keeps its identifiers (`tiroir_ouvert`).
   if (page.startsWith('fr/')) {

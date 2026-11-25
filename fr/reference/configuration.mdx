@@ -18,6 +18,8 @@ Chargez `https://widget.fittingme.ai/v5/fittingme-loader.js` une fois par intég
 
 Une valeur absente ou vide empêche le montage, sauf pour `data-garment-image-urls`. Sans attribut d’image, l’intégration n’envoie aucune photo de page.
 
+`data-api-key` est un alias accepté de `data-retailer-key`. Utilisez `data-retailer-key` dans les nouvelles balises.
+
 ## Attributs facultatifs
 
 | Attribut | Par défaut | Usage |
@@ -34,6 +36,7 @@ Une valeur absente ou vide empêche le montage, sauf pour `data-garment-image-ur
 ## Validation
 
 - Un attribut `data-*` inconnu affiche une erreur et l’intégration ne se monte pas.
+- Si `data-retailer-key` et `data-api-key` sont tous deux présents avec des valeurs différentes, le loader affiche une erreur et l’intégration ne se monte pas. Une même valeur dans les deux est acceptée. L’erreur nomme les deux attributs et n’affiche jamais la clé.
 - `data-garment-image-urls` nécessite le loader `/v5/`. Avec un loader plus ancien, l’intégration ne se monte pas.
 - La valeur plurielle est une URL simple ou un tableau JSON. Le loader supprime les espaces, retire les doublons en conservant l’ordre et ignore les éléments invalides.
 - Chaque URL utilise HTTPS et compte 1 024 caractères au maximum.
