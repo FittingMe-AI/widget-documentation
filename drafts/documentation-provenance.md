@@ -690,9 +690,11 @@ Change: `reference/configuration` (English and `fr/`) names `data-api-key` as an
 `data-retailer-key` (developer ruling of 2026-11-25, protocol decision P39). The quickstarts keep
 `data-retailer-key`, the recommended name. No other page names a retailer-key attribute.
 
-Selected revision: widget#670 (branch `feat/loader-data-api-key-alias`, commit `e40ba8b8`), not yet on
-widget `origin/main`. Not published: the alias is unreleased until a promotion carries widget#670 to
-production; publish only with that loader version and the founder's approval.
+Selected revision: widget#670 (commit `e40ba8b8`), on widget `main` through widget#673 (merge commit
+`8da53b37`, 2026-11-26). Served in production on 2026-11-26: `/v4/` and `/v5/` loaders at
+`widget.fittingme.ai`; on `https://fittingme.ai/demo/` a Try-On embed with `data-api-key` only booted
+with outcome `eligible`, and two different values gave the one console error and no iframe. Published
+on a developer's approval in chat (2026-11-26).
 
 | Claim | Current owning source |
 | --- | --- |
