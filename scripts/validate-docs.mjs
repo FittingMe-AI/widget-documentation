@@ -19,7 +19,7 @@ if (languageCodes.length !== 2 || !languageCodes.includes('en') || !languageCode
   errors.push(`Expected exactly one English and one French navigation, found: ${languageCodes.join(', ') || 'none'}.`);
 }
 if (!languages?.find(language => language.language === 'en')?.default) errors.push('English must remain the default language.');
-// The founder-approved pages are the `### Group` / `- \`route\`` list under `## Navigation` in the
+// The approved pages are the `### Group` / `- \`route\`` list under `## Navigation` in the
 // design record. English navigation must equal it group by group (names and pages, in order), and
 // French must mirror it under `fr/`: approving a page is one edit to that list.
 const designRecord = 'drafts/documentation-design.md';
@@ -35,7 +35,7 @@ function compareWithApproved(language, found, expected) {
   const [foundPages, expectedPages] = [found, expected].map(groups => groups.flatMap(group => group.pages));
   const unapproved = foundPages.filter(page => !expectedPages.includes(page));
   const missing = expectedPages.filter(page => !foundPages.includes(page));
-  for (const page of unapproved) errors.push(`docs.json (${language}) lists ${page}, which is not on the approved list in ${designRecord}; a new page needs founder approval there first.`);
+  for (const page of unapproved) errors.push(`docs.json (${language}) lists ${page}, which is not on the approved list in ${designRecord}; a new page needs the approval of a FittingMe developer there first.`);
   for (const page of missing) errors.push(`docs.json (${language}) is missing the approved page ${page}.`);
   if (unapproved.length || missing.length) return;
   // French group labels are translated, so only English group names are compared.
@@ -127,7 +127,7 @@ for (const page of pages) {
   }
   const retired = /data-api-url|cdn\.fittingme\.ai|fittingme:ready|fittingme:triggerState|Bearer YOUR|reset page|coming soon|TODO|TBD/gi;
   for (const match of source.matchAll(retired)) errors.push(`${page}: retired or unfinished text: ${match[0]}`);
-  // French prose keeps the documentation's terms; code keeps its identifiers (`tiroir_ouvert`).
+  // French prose keeps the documentation's terms. Code is not checked: it holds identifiers.
   if (page.startsWith('fr/')) {
     const prose = source.replace(codeFences, '').replace(/`[^`\n]+`/g, '');
     for (const [word] of prose.matchAll(/\b[Tt]iroirs?\b|\b[Cc]hargeurs?\b|\bCHAÎNE\b/g)) {

@@ -269,7 +269,7 @@ The redesign documented below was subsequently published in merge `0ff3b23057d52
 ## Review deliverable
 
 - Documentation: **http://localhost:3003/introduction** (Mintlify 4.2.851, Node 24.18.0).
-- Owning checkout: `/Users/ismail/Code/FittingMe.ai/widget-documentation/.worktrees/developer-redesign-20260923`.
+- Owning checkout: `widget-documentation/.worktrees/developer-redesign-20260923`, relative to the workspace root.
 - Branch: `codex/docs-developer-redesign-20260923`, based on `376bae6`; original starting tree was clean (0 paths).
 - Scope: 22 pages across the six approved groups. Goals and acceptance exercise remain in `documentation-design.md`.
 - The fresh review found substantive failures in the first draft. Corrections, individual finding dispositions and goal status are in `review-response.md`.

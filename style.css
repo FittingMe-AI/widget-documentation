@@ -1,27 +1,27 @@
 /* ============================================================================
-   FittingMe design system — pont vers Mintlify
+   FittingMe design system — bridge to Mintlify
    ----------------------------------------------------------------------------
-   Source unique de la marque :
+   The one source of the brand:
      public-site/site/public/design-system/fm-tokens.css
-   Les valeurs ci-dessous en sont recopiées, jamais réinventées. La palette
-   compte quatre couleurs et n'en admet aucune autre ; les surfaces, les
-   filets et les états s'expriment tous à l'intérieur de ces quatre.
+   The values below are copied from it. Do not invent a value. The palette
+   has four colours and permits no other colour. All surfaces, hairlines and
+   states use only these four colours.
 
-   Ce que docs.json règle déjà (et que ce fichier ne redit pas) :
-   familles typographiques, couleurs d'accent, logo, favicon, thème de code.
-   Ce fichier ne traite que ce que docs.json n'expose pas : angles droits,
-   graisse et interlettrage des titres, filet des liens, callouts ramenés
-   dans la palette, sélection et anneau de focus.
+   docs.json already sets these items, and this file does not set them again:
+   font families, accent colours, logo, favicon, code theme.
+   This file sets only what docs.json cannot express: square corners,
+   heading weight and tracking, link hairlines, callouts brought back
+   inside the palette, selection and focus ring.
    ========================================================================== */
 
 :root {
-  /* Palette — les quatre seules couleurs de la marque. */
+  /* Palette — the only four colours of the brand. */
   --fm-white: #ffffff;
   --fm-grey: #eaeae4;
   --fm-beige: #b4ad91;
   --fm-noir: #000000;
 
-  /* Neutres dérivés — teintes des quatre, pour états et filets seulement. */
+  /* Derived neutrals — tints of the four colours, for states and hairlines only. */
   --fm-grey-050: #f5f5f2;
   --fm-grey-200: #dcdcd4;
   --fm-beige-tint: #e4e1d6;
@@ -30,28 +30,28 @@
   --fm-noir-120: rgba(0, 0, 0, 0.12);
   --fm-white-200: rgba(255, 255, 255, 0.2);
 
-  /* Interlettrages du système typographique. */
+  /* Tracking values of the type system. */
   --fm-tracking-display: -0.02em;
   --fm-tracking-caps: 0.14em;
 }
 
 /* --------------------------------------------------------------------------
-   Angles droits
-   fm-tokens.css : --radius-none: 0px, et tout composant du système
-   (bouton, étiquette, champ, dialogue) s'y adosse. Les pilules et les
-   cercles restent permis (--radius-pill, --radius-circle), donc
-   `rounded-full` est exclu de la remise à plat.
+   Square corners
+   fm-tokens.css: --radius-none: 0px, and each component of the system
+   (button, tag, field, dialog) uses it. Pills and circles stay permitted
+   (--radius-pill, --radius-circle), thus this reset does not apply to
+   `rounded-full`.
    -------------------------------------------------------------------------- */
 [class*="rounded"]:not([class*="rounded-full"]) {
   border-radius: 0;
 }
 
 /* --------------------------------------------------------------------------
-   Titres
-   Documentation : Outfit pour tous les titres (instruction fondateur,
-   2026-09-18), famille définie dans docs.json. Graisses et interlettrages
-   de fm-tokens.css : h1–h3 regular, tracking display ; h4–h6 semibold,
-   capitales, tracking caps.
+   Headings
+   Documentation: Outfit for all headings (FittingMe developer instruction,
+   2026-09-18). docs.json sets the family. Weights and tracking come from
+   fm-tokens.css: h1–h3 regular, display tracking; h4–h6 semibold,
+   capitals, caps tracking.
    -------------------------------------------------------------------------- */
 h1,
 h2,
@@ -162,10 +162,10 @@ h6 {
 }
 
 /* --------------------------------------------------------------------------
-   Liens de contenu
-   fm-tokens.css : le lien ne change pas de couleur — il porte un filet
-   hairline qui s'assombrit au survol. Les liens de titre, de carte et de
-   navigation gardent leur traitement propre.
+   Content links
+   fm-tokens.css: a link does not change colour. It has a hairline that
+   becomes darker on hover. Heading links, card links and navigation links
+   keep their own treatment.
    -------------------------------------------------------------------------- */
 .prose a:not([class*="card"]):not([class*="button"]):not([class*="btn"]) {
   text-decoration: none;
@@ -190,10 +190,10 @@ h6 {
 
 /* --------------------------------------------------------------------------
    Callouts
-   fm-tokens.css exprime le sémantique dans la palette :
+   fm-tokens.css expresses the semantic states inside the palette:
    --state-positive-surface: beige-tint, --state-warning-surface: grey.
-   Aucune teinte hors palette ne subsiste ; la hiérarchie passe par la
-   barre de gauche — beige pour l'appui, noire pour l'avertissement.
+   No tint outside the palette remains. The left bar shows the hierarchy:
+   beige for support, black for a warning.
    -------------------------------------------------------------------------- */
 .callout {
   border: 1px solid var(--fm-noir-120);
@@ -203,16 +203,16 @@ h6 {
   color: var(--fm-noir);
 }
 
-/* Mintlify colore aussi le texte et l'icône du callout par classe utilitaire
-   (`text-blue-…`, `text-yellow-…`) : la surface ne suffit pas à les ramener
-   dans la palette. */
+/* Mintlify also colours the text and the icon of a callout with utility
+   classes (`text-blue-…`, `text-yellow-…`): an override of the surface only
+   does not bring them back inside the palette. */
 .callout [class*="text-"],
 .callout :is(p, li, strong, em, span, svg) {
   color: var(--fm-noir);
 }
 
-/* Mintlify peint Warning en `yellow` et Danger en `red` : les deux passent
-   sur la surface d'avertissement du système, barre noire. */
+/* Mintlify paints Warning in `yellow` and Danger in `red`: the two use the
+   warning surface of the system, with a black bar. */
 .callout[class*="yellow"],
 .callout[class*="amber"],
 .callout[class*="orange"],
@@ -248,9 +248,9 @@ h6 {
 }
 
 /* --------------------------------------------------------------------------
-   Sélection et focus
-   fm-tokens.css : ::selection beige sur blanc ; --focus-ring: beige-deep,
-   contour 2px décalé de 2px.
+   Selection and focus
+   fm-tokens.css: ::selection has a beige background and white text;
+   --focus-ring: beige-deep, a 2px outline with a 2px offset.
    -------------------------------------------------------------------------- */
 ::selection {
   background: var(--fm-beige);
