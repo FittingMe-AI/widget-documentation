@@ -18,6 +18,8 @@ Load `https://widget.fittingme.ai/v5/fittingme-loader.js` once per embed, with i
 
 A missing or blank value prevents the embed from mounting, except for `data-garment-image-urls`. Without an image attribute, the embed sends no page photo.
 
+`data-api-key` is an accepted alias of `data-retailer-key`. Use `data-retailer-key` in new tags.
+
 ## Optional attributes
 
 | Attribute | Default | Use |
@@ -34,6 +36,7 @@ A missing or blank value prevents the embed from mounting, except for `data-garm
 ## Validation
 
 - An unknown `data-*` attribute logs an error, and the embed does not mount.
+- If `data-retailer-key` and `data-api-key` are both present with different values, the loader logs an error, and the embed does not mount. The same value in both is accepted. The error names the two attributes and never shows the key.
 - `data-garment-image-urls` needs the `/v5/` loader. On an older loader, the embed does not mount.
 - The plural value is a plain URL or a JSON array. The loader trims it, removes duplicates in order and skips invalid members.
 - Each URL uses HTTPS and has at most 1,024 characters.

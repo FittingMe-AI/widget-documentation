@@ -683,3 +683,23 @@ delivery »). FittingMe's channel to hand over a key is not defined, so the page
 
 The French sentences began as DeepL drafts, then took the terms of this edition. DeepL has no
 English-to-French dictionary in the account's glossary « FittingMe widget ».
+
+## `data-api-key` alias of the retailer key (2026-11-25)
+
+Change: `reference/configuration` (English and `fr/`) names `data-api-key` as an accepted alias of
+`data-retailer-key` (developer ruling of 2026-11-25, protocol decision P39). The quickstarts keep
+`data-retailer-key`, the recommended name. No other page names a retailer-key attribute.
+
+Selected revision: widget#670 (commit `e40ba8b8`), on widget `main` through widget#673 (merge commit
+`8da53b37`, 2026-11-26). Served in production on 2026-11-26: `/v4/` and `/v5/` loaders at
+`widget.fittingme.ai`; on `https://fittingme.ai/demo/` a Try-On embed with `data-api-key` only booted
+with outcome `eligible`, and two different values gave the one console error and no iframe. Published
+on a developer's approval in chat (2026-11-26).
+
+| Claim | Current owning source |
+| --- | --- |
+| `data-api-key` alone gives the retailer key, trimmed; the URL carries `retailer_key` only | widget `loader/fittingme-loader.js` (`readHostData`, `field.param === 'retailer_key'`); `loader/test/loader-api.test.js` (P39 tests, `/v4/` and `/v5/`) |
+| Two different values: one console error naming both attributes, no value, no mount; equal values mount | widget `loader/fittingme-loader.js`; protocol § 2.2 amendment of 2026-11-25 and decision P39 |
+
+The French sentences began as DeepL drafts (2026-11-25), then took the terms of this edition
+(« loader », « intégration », « ne se monte pas »).
